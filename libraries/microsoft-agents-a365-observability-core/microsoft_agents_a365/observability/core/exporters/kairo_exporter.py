@@ -1,0 +1,240 @@
+# Copyright (c) Microsoft. All rights reserved.
+
+# pip install opentelemetry-sdk opentelemetry-api requests
+
+from __future__ import annotations
+
+import json
+import threading
+import time
+from collections.abc import Callable, Sequence
+from typing import Any
+
+import requests
+from opentelemetry.sdk.trace import ReadableSpan
+from opentelemetry.sdk.trace.export import SpanExporter, SpanExportResult
+from opentelemetry.trace import StatusCode
+
+from microsoft_agents_a365.runtime.power_platform_api_discovery import PowerPlatformApiDiscovery
+
+from .utils import (
+    hex_span_id,
+    hex_trace_id,
+    kind_name,
+    partition_by_identity,
+    status_name,
+)
+
+# ---- Exporter ---------------------------------------------------------------
+
+# Hardcoded constants - not configurable
+DEFAULT_HTTP_TIMEOUT_SECONDS = 30.0
+DEFAULT_MAX_RETRIES = 3
+
+
+class KairoExporter(SpanExporter):
+    """
+    Kairo span exporter for Agent365:
+      * Partitions spans by (tenantId, agentId)
+      * Builds OTLP-like JSON: resourceSpans -> scopeSpans -> spans
+      * POSTs per group to https://{endpoint}/maven/agent365/agents/{agentId}/traces?api-version=1
+      * Adds Bearer token via token_resolver(agentId, tenantId)
+    """
+
+    def __init__(
+        self,
+        token_resolver: Callable[[str, str], str | None],
+        cluster_category: str = "preprod",
+        **kwargs: Any,
+    ):
+        if token_resolver is None:
+            raise ValueError("token_resolver must be provided.")
+        self._session = requests.Session()
+        self._closed = False
+        self._lock = threading.Lock()
+        self._token_resolver = token_resolver
+        self._cluster_category = cluster_category
+
+    # ------------- SpanExporter API -----------------
+
+    def export(self, spans: Sequence[ReadableSpan]) -> SpanExportResult:
+        if self._closed:
+            return SpanExportResult.FAILURE
+
+        try:
+            groups = partition_by_identity(spans)
+            if not groups:
+                # No spans with identity; treat as success
+                return SpanExportResult.SUCCESS
+
+            any_failure = False
+            for (tenant_id, agent_id), activities in groups.items():
+                payload = self._build_export_request(activities)
+                body = json.dumps(payload, separators=(",", ":"), ensure_ascii=False)
+
+                # Resolve endpoint + token
+                discovery = PowerPlatformApiDiscovery(self._cluster_category)
+                endpoint = discovery.get_tenant_island_cluster_endpoint(tenant_id)
+                url = f"https://{endpoint}/maven/agent365/agents/{agent_id}/traces?api-version=1"
+
+                headers = {"content-type": "application/json"}
+                try:
+                    token = self._token_resolver(agent_id, tenant_id)
+                    if token:
+                        headers["authorization"] = f"Bearer {token}"
+                except Exception:
+                    # If token resolution fails, treat as failure for this group
+                    any_failure = True
+                    continue
+
+                # Basic retry loop
+                ok = self._post_with_retries(url, body, headers)
+                if not ok:
+                    any_failure = True
+
+            return SpanExportResult.FAILURE if any_failure else SpanExportResult.SUCCESS
+
+        except Exception:
+            # Exporters should not raise; signal failure.
+            return SpanExportResult.FAILURE
+
+    def shutdown(self) -> None:
+        with self._lock:
+            if self._closed:
+                return
+            self._closed = True
+            try:
+                self._session.close()
+            except Exception:
+                pass
+
+    def force_flush(self, timeout_millis: int = 30000) -> bool:
+        return True
+
+    # ------------- HTTP helper ----------------------
+
+    def _post_with_retries(self, url: str, body: str, headers: dict[str, str]) -> bool:
+        for attempt in range(DEFAULT_MAX_RETRIES + 1):
+            try:
+                resp = self._session.post(
+                    url,
+                    data=body.encode("utf-8"),
+                    headers=headers,
+                    timeout=DEFAULT_HTTP_TIMEOUT_SECONDS,
+                )
+                # 2xx => success
+                if 200 <= resp.status_code < 300:
+                    return True
+
+                # Retry transient
+                if resp.status_code in (408, 429) or 500 <= resp.status_code < 600:
+                    if attempt < DEFAULT_MAX_RETRIES:
+                        time.sleep(0.2 * (attempt + 1))
+                        continue
+                return False
+            except requests.RequestException:
+                if attempt < DEFAULT_MAX_RETRIES:
+                    time.sleep(0.2 * (attempt + 1))
+                    continue
+                return False
+        return False
+
+    # ------------- Payload mapping ------------------
+
+    def _build_export_request(self, spans: Sequence[ReadableSpan]) -> dict[str, Any]:
+        # Group by instrumentation scope (name, version)
+        scope_map: dict[tuple[str, str | None], list[dict[str, Any]]] = {}
+
+        for sp in spans:
+            scope = sp.instrumentation_scope
+            scope_key = (scope.name, scope.version)
+            scope_map.setdefault(scope_key, []).append(self._map_span(sp))
+
+        scope_spans: list[dict[str, Any]] = []
+        for (name, version), mapped_spans in scope_map.items():
+            scope_spans.append(
+                {
+                    "scope": {
+                        "name": name,
+                        "version": version,
+                    },
+                    "spans": mapped_spans,
+                }
+            )
+
+        # Resource attributes (from the first span – all spans in a batch usually share resource)
+        # If you need to merge across spans, adapt accordingly.
+        resource_attrs = {}
+        if spans:
+            resource_attrs = dict(getattr(spans[0].resource, "attributes", {}) or {})
+
+        return {
+            "resourceSpans": [
+                {
+                    "resource": {"attributes": resource_attrs or None},
+                    "scopeSpans": scope_spans,
+                }
+            ]
+        }
+
+    def _map_span(self, sp: ReadableSpan) -> dict[str, Any]:
+        ctx = sp.context
+
+        parent_span_id = None
+        if sp.parent is not None and sp.parent.span_id != 0:
+            parent_span_id = hex_span_id(sp.parent.span_id)
+
+        # attributes
+        attrs = dict(sp.attributes or {})
+        # events
+        events = []
+        for ev in sp.events:
+            ev_attrs = dict(ev.attributes or {}) if ev.attributes else None
+            events.append(
+                {
+                    "timeUnixNano": ev.timestamp,  # already ns
+                    "name": ev.name,
+                    "attributes": ev_attrs,
+                }
+            )
+        if not events:
+            events = None
+
+        # links
+        links = []
+        for ln in sp.links or []:
+            ln_attrs = dict(ln.attributes or {}) if ln.attributes else None
+            links.append(
+                {
+                    "traceId": hex_trace_id(ln.context.trace_id),
+                    "spanId": hex_span_id(ln.context.span_id),
+                    "attributes": ln_attrs,
+                }
+            )
+        if not links:
+            links = None
+
+        # status
+        status_code = sp.status.status_code if sp.status else StatusCode.UNSET
+        status = {
+            "code": status_name(status_code),
+            "message": getattr(sp.status, "description", "") or "",
+        }
+
+        # times are ns in ReadableSpan
+        start_ns = sp.start_time
+        end_ns = sp.end_time
+
+        return {
+            "traceId": hex_trace_id(ctx.trace_id),
+            "spanId": hex_span_id(ctx.span_id),
+            "parentSpanId": parent_span_id,
+            "name": sp.name,
+            "kind": kind_name(sp.kind),
+            "startTimeUnixNano": start_ns,
+            "endTimeUnixNano": end_ns,
+            "attributes": attrs or None,
+            "events": events,
+            "links": links,
+            "status": status,
+        }
