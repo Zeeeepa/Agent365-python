@@ -103,7 +103,7 @@ jobs:
       with:
         version: '0.6.x'
         python-version: ${{ matrix.python-version }}
-        working-directory: ./python
+        working-directory: ./
         enable-cache: true
         cache-dependency-glob: "./pyproject.toml"
     
