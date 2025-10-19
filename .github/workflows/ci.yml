@@ -131,7 +131,6 @@ jobs:
     - name: Copy package and samples to drop folder
       run: |
         mkdir -p ~/drop/python-${{ matrix.python-version }}/dist && cp -v dist/*.whl $_
-        mkdir -p ~/drop/python-${{ matrix.python-version }}/samples && cp -rv samples/sample_openai_agent $_
 
     # Zip files since upload-artifact does not seem like to like folders
     - name: Create zip
