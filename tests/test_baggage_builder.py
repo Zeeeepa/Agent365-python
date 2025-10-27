@@ -4,11 +4,6 @@
 import os
 import unittest
 
-from opentelemetry import baggage, context, trace
-from opentelemetry.sdk.trace import TracerProvider
-from opentelemetry.sdk.trace.export import SimpleSpanProcessor
-from opentelemetry.sdk.trace.export.in_memory_span_exporter import InMemorySpanExporter
-
 from microsoft_agents_a365.observability.core import config as telemetry_config
 from microsoft_agents_a365.observability.core.constants import (
     CORRELATION_ID_KEY,
@@ -22,6 +17,10 @@ from microsoft_agents_a365.observability.core.constants import (
     TENANT_ID_KEY,
 )
 from microsoft_agents_a365.observability.core.middleware.baggage_builder import BaggageBuilder
+from opentelemetry import baggage, context, trace
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import SimpleSpanProcessor
+from opentelemetry.sdk.trace.export.in_memory_span_exporter import InMemorySpanExporter
 
 
 class TestBaggageBuilder(unittest.TestCase):
@@ -219,6 +218,90 @@ class TestBaggageBuilder(unittest.TestCase):
         self.assertEqual(final_baggage.get("existing_key"), "existing_value")
 
         print("✅ All baggage values are properly reset after scope exit!")
+
+    def test_set_pairs_accepts_dict_and_iterable(self):
+        """set_pairs should accept both dict and iterable[(k,v)] and apply them to baggage."""
+        dict_pairs = {
+            TENANT_ID_KEY: "tenant-x",
+            GEN_AI_AGENT_ID_KEY: "agent-x",
+            CORRELATION_ID_KEY: "corr-x",
+        }
+        iter_pairs = [
+            (GEN_AI_AGENT_AUID_KEY, "auid-x"),
+            (GEN_AI_AGENT_UPN_KEY, "upn-x"),
+        ]
+
+        # Also verify that None / whitespace values are ignored
+        dict_pairs_with_ignored = {
+            OPERATION_SOURCE_KEY: "sdk",
+            GEN_AI_CALLER_ID_KEY: None,  # ignored
+        }
+        iter_pairs_with_ignored = [
+            (HIRING_MANAGER_ID_KEY, "  "),  # ignored (whitespace)
+        ]
+
+        with (
+            BaggageBuilder()
+            .set_pairs(dict_pairs)
+            .set_pairs(iter_pairs)
+            .set_pairs(dict_pairs_with_ignored)
+            .set_pairs(iter_pairs_with_ignored)
+            .build()
+        ):
+            baggage_contents = baggage.get_all()
+            self.assertEqual(baggage_contents.get(TENANT_ID_KEY), "tenant-x")
+            self.assertEqual(baggage_contents.get(GEN_AI_AGENT_ID_KEY), "agent-x")
+            self.assertEqual(baggage_contents.get(CORRELATION_ID_KEY), "corr-x")
+            self.assertEqual(baggage_contents.get(GEN_AI_AGENT_AUID_KEY), "auid-x")
+            self.assertEqual(baggage_contents.get(GEN_AI_AGENT_UPN_KEY), "upn-x")
+            self.assertEqual(baggage_contents.get(OPERATION_SOURCE_KEY), "sdk")
+            # Ignored values should not be present
+            self.assertIsNone(baggage_contents.get(GEN_AI_CALLER_ID_KEY))
+            self.assertIsNone(baggage_contents.get(HIRING_MANAGER_ID_KEY))
+
+    def test_from_turn_context_delegates_and_merges(self):
+        """from_turn_context should delegate to baggage_turn_context.from_turn_context and merge returned pairs."""
+        # Import the module to monkeypatch the symbol that BaggageBuilder closed over
+        from microsoft_agents_a365.observability.core.middleware import (
+            baggage_builder as tempBaggageBuilder,
+        )
+
+        original_fn = tempBaggageBuilder.from_turn_context
+
+        # Fake turn_context -> returns a mix of valid/ignored values
+        def fake_from_turn_context(turn_ctx: any):
+            self.assertEqual(turn_ctx, {"k": "v"})  # ensure pass-through of arg
+            return {
+                TENANT_ID_KEY: "tenant-ctx",
+                GEN_AI_AGENT_ID_KEY: "agent-ctx",
+                CORRELATION_ID_KEY: "  ",  # will be ignored
+                GEN_AI_AGENT_UPN_KEY: None,  # will be ignored
+                OPERATION_SOURCE_KEY: "sdk-ctx",
+            }
+
+        try:
+            tempBaggageBuilder.from_turn_context = fake_from_turn_context
+
+            with (
+                BaggageBuilder()
+                .tenant_id("tenant-pre")  # will be overridden if same key is set later
+                .from_turn_context({"k": "v"})  # merges keys from fake function
+                .agent_auid("auid-pre")  # ensure pre-existing values remain
+                .build()
+            ):
+                baggage_contents = baggage.get_all()
+                # Values from turn_context
+                self.assertEqual(baggage_contents.get(TENANT_ID_KEY), "tenant-ctx")
+                self.assertEqual(baggage_contents.get(GEN_AI_AGENT_ID_KEY), "agent-ctx")
+                self.assertEqual(baggage_contents.get(OPERATION_SOURCE_KEY), "sdk-ctx")
+                # Pre-existing (non-overlapping) still present
+                self.assertEqual(baggage_contents.get(GEN_AI_AGENT_AUID_KEY), "auid-pre")
+                # Ignored values should not be present
+                self.assertIsNone(baggage_contents.get(CORRELATION_ID_KEY))
+                self.assertIsNone(baggage_contents.get(GEN_AI_AGENT_UPN_KEY))
+        finally:
+            # Restore original
+            tempBaggageBuilder.from_turn_context = original_fn
 
 
 if __name__ == "__main__":

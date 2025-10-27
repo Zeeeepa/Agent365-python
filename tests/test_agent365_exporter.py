@@ -4,25 +4,24 @@ import json
 import unittest
 from unittest.mock import Mock, patch
 
+from microsoft_agents_a365.observability.core.constants import GEN_AI_AGENT_ID_KEY, TENANT_ID_KEY
+from microsoft_agents_a365.observability.core.exporters.agent365_exporter import (
+    Agent365Exporter,
+)
 from opentelemetry.sdk.trace import ReadableSpan
 from opentelemetry.sdk.trace.export import SpanExportResult
 from opentelemetry.trace import StatusCode
 from opentelemetry.util.types import Attributes
 
-from microsoft_agents_a365.observability.core.constants import GEN_AI_AGENT_ID_KEY, TENANT_ID_KEY
-from microsoft_agents_a365.observability.core.exporters.kairo_exporter import (
-    KairoExporter,
-)
 
-
-class TestKairoExporter(unittest.TestCase):
+class TestAgent365Exporter(unittest.TestCase):
     def setUp(self):
         """Set up test fixtures."""
         self.mock_token_resolver = Mock()
         self.mock_token_resolver.return_value = "test_token_123"
 
         # Don't patch the class in setUp, do it per test
-        self.exporter = KairoExporter(
+        self.exporter = Agent365Exporter(
             token_resolver=self.mock_token_resolver, cluster_category="test"
         )
 
@@ -95,7 +94,7 @@ class TestKairoExporter(unittest.TestCase):
 
         # Mock the PowerPlatformApiDiscovery class that gets created inside export()
         with patch(
-            "microsoft_agents_a365.observability.core.exporters.kairo_exporter.PowerPlatformApiDiscovery"
+            "microsoft_agents_a365.observability.core.exporters.agent365_exporter.PowerPlatformApiDiscovery"
         ) as mock_discovery_class:
             mock_discovery = Mock()
             mock_discovery.get_tenant_island_cluster_endpoint.return_value = "test-endpoint.com"
@@ -135,7 +134,7 @@ class TestKairoExporter(unittest.TestCase):
 
         # Mock the PowerPlatformApiDiscovery class
         with patch(
-            "microsoft_agents_a365.observability.core.exporters.kairo_exporter.PowerPlatformApiDiscovery"
+            "microsoft_agents_a365.observability.core.exporters.agent365_exporter.PowerPlatformApiDiscovery"
         ) as mock_discovery_class:
             mock_discovery = Mock()
             mock_discovery.get_tenant_island_cluster_endpoint.return_value = "test-endpoint.com"
@@ -170,7 +169,7 @@ class TestKairoExporter(unittest.TestCase):
 
         # Mock the PowerPlatformApiDiscovery class
         with patch(
-            "microsoft_agents_a365.observability.core.exporters.kairo_exporter.PowerPlatformApiDiscovery"
+            "microsoft_agents_a365.observability.core.exporters.agent365_exporter.PowerPlatformApiDiscovery"
         ) as mock_discovery_class:
             mock_discovery = Mock()
             mock_discovery.get_tenant_island_cluster_endpoint.return_value = "test-endpoint.com"
