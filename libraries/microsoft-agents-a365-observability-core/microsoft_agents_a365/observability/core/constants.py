@@ -2,18 +2,25 @@
 
 # Constants for SDK OpenTelemetry implementation.
 
+# Span operation names
+INVOKE_AGENT_OPERATION_NAME = "invoke_agent"
+EXECUTE_TOOL_OPERATION_NAME = "execute_tool"
+
 # OpenTelemetry semantic conventions
 ERROR_TYPE_KEY = "error.type"
+ERROR_MESSAGE_KEY = "error.message"
 AZ_NAMESPACE_KEY = "az.namespace"
 SERVER_ADDRESS_KEY = "server.address"
 SERVER_PORT_KEY = "server.port"
 AZURE_RP_NAMESPACE_VALUE = "Microsoft.CognitiveServices"
-SOURCE_NAME = "KairoSdk"
+SOURCE_NAME = "Agent365Sdk"
 ENABLE_OPENTELEMETRY_SWITCH = "Azure.Experimental.EnableActivitySource"
 TRACE_CONTENTS_SWITCH = "Azure.Experimental.TraceGenAIMessageContent"
 TRACE_CONTENTS_ENVIRONMENT_VARIABLE = "AZURE_TRACING_GEN_AI_CONTENT_RECORDING_ENABLED"
 ENABLE_OBSERVABILITY = "ENABLE_OBSERVABILITY"
 ENABLE_KAIRO_EXPORTER = "ENABLE_KAIRO_EXPORTER"
+ENABLE_A365_OBSERVABILITY_EXPORTER = "ENABLE_A365_OBSERVABILITY_EXPORTER"
+ENABLE_A365_OBSERVABILITY = "ENABLE_A365_OBSERVABILITY"
 
 # GenAI semantic conventions
 GEN_AI_CLIENT_OPERATION_DURATION_METRIC_NAME = "gen_ai.client.operation.duration"
@@ -23,19 +30,17 @@ GEN_AI_REQUEST_MAX_TOKENS_KEY = "gen_ai.request.max_tokens"
 GEN_AI_REQUEST_MODEL_KEY = "gen_ai.request.model"
 GEN_AI_REQUEST_TEMPERATURE_KEY = "gen_ai.request.temperature"
 GEN_AI_REQUEST_TOP_P_KEY = "gen_ai.request.top_p"
-GEN_AI_REQUEST_CONTENT_KEY = "gen_ai.request.content"
 GEN_AI_RESPONSE_ID_KEY = "gen_ai.response.id"
 GEN_AI_RESPONSE_FINISH_REASONS_KEY = "gen_ai.response.finish_reasons"
 GEN_AI_RESPONSE_MODEL_KEY = "gen_ai.response.model"
 GEN_AI_SYSTEM_KEY = "gen_ai.system"
 GEN_AI_SYSTEM_VALUE = "az.ai.agent365"
-GEN_AI_RESPONSE_CONTENT_KEY = "gen_ai.response.content"
 
 GEN_AI_AGENT_ID_KEY = "gen_ai.agent.id"
 GEN_AI_AGENT_NAME_KEY = "gen_ai.agent.name"
 GEN_AI_AGENT_DESCRIPTION_KEY = "gen_ai.agent.description"
 GEN_AI_CONVERSATION_ID_KEY = "gen_ai.conversation.id"
-GEN_AI_CONVERSATION_ITEM_LINK_KEY = "gen_ai.conversation.itemLink"
+GEN_AI_CONVERSATION_ITEM_LINK_KEY = "gen_ai.conversation.item.link"
 GEN_AI_TOKEN_TYPE_KEY = "gen_ai.token.type"
 GEN_AI_USAGE_INPUT_TOKENS_KEY = "gen_ai.usage.input_tokens"
 GEN_AI_USAGE_OUTPUT_TOKENS_KEY = "gen_ai.usage.output_tokens"
@@ -51,15 +56,22 @@ GEN_AI_EVENT_CONTENT = "gen_ai.event.content"
 GEN_AI_TOOL_CALL_ID_KEY = "gen_ai.tool.call.id"
 GEN_AI_TOOL_NAME_KEY = "gen_ai.tool.name"
 GEN_AI_TOOL_DESCRIPTION_KEY = "gen_ai.tool.description"
-GEN_AI_TOOL_CALL_ARGS_KEY = "gen_ai.tool.call.arguments"
-GEN_AI_TOOL_CALL_RESULT_KEY = "gen_ai.tool.call.result"  # GEN_AI_EVENT_CONTENT
+GEN_AI_TOOL_ARGS_KEY = "gen_ai.tool.arguments"
+GEN_AI_TOOL_CALL_RESULT_KEY = GEN_AI_EVENT_CONTENT  # GEN_AI_EVENT_CONTENT
 GEN_AI_TOOL_TYPE_KEY = "gen_ai.tool.type"
 
-# user or caller dimensions
+# Agent user(user tied to agent instance during creation) or caller dimensions
 GEN_AI_AGENT_USER_ID_KEY = "gen_ai.agent.userid"
+GEN_AI_CALLER_USER_ID_KEY = "gen_ai.caller.userid"
+GEN_AI_CALLER_TENANT_ID_KEY = "gen_ai.caller.tenantid"
 GEN_AI_CALLER_ID_KEY = "gen_ai.caller.id"
 GEN_AI_CALLER_NAME_KEY = "gen_ai.caller.name"
 GEN_AI_CALLER_UPN_KEY = "gen_ai.caller.upn"
+
+# Agent to Agent caller agent dimensions
+GEN_AI_CALLER_AGENT_USER_ID_KEY = "gen_ai.caller.agent.userid"
+GEN_AI_CALLER_AGENT_UPN_KEY = "gen_ai.caller.agent.upn"
+GEN_AI_CALLER_AGENT_TENANT_ID_KEY = "gen_ai.caller.agent.tenantid"
 GEN_AI_CALLER_AGENT_NAME_KEY = "gen_ai.caller.agent.name"
 GEN_AI_CALLER_AGENT_ID_KEY = "gen_ai.caller.agent.id"
 GEN_AI_CALLER_AGENT_APPLICATION_ID_KEY = "gen_ai.caller.agent.applicationid"
@@ -85,8 +97,8 @@ GEN_AI_EXECUTION_PAYLOAD_KEY = "gen_ai.execution.payload"
 
 # Source metadata dimensions
 GEN_AI_EXECUTION_SOURCE_ID_KEY = "gen_ai.execution.sourceMetadata.id"
-GEN_AI_EXECUTION_SOURCE_NAME_KEY = "gen_ai.execution.sourceMetadata.name"
-GEN_AI_EXECUTION_SOURCE_DESCRIPTION_KEY = "gen_ai.execution.sourceMetadata.description"
+GEN_AI_EXECUTION_SOURCE_NAME_KEY = "gen_ai.channel.name"
+GEN_AI_EXECUTION_SOURCE_DESCRIPTION_KEY = "gen_ai.channel.link"
 
 # Legacy constant for backward compatibility
 KAIRO_AGENT_ID_KEY = AGENT_ID_KEY

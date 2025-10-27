@@ -92,13 +92,5 @@ def _get_current_environment() -> str:
     if environment:
         return environment
 
-    # check if running locally
-    if (
-        os.getenv("VSCODE_PID")  # present when running in VS Code's Python extension
-        or "vscode" in os.getenv("TERM_PROGRAM", "").lower()
-        or "VSCODE_CWD" in os.environ
-    ):
-        return DEVELOPMENT_ENVIRONMENT_NAME
-
-    # Default to Development
+    # Default to Production
     return PRODUCTION_ENVIRONMENT_NAME

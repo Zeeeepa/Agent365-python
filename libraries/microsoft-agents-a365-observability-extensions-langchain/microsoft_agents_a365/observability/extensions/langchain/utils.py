@@ -7,18 +7,16 @@ from typing import Any
 
 from langchain_core.messages import BaseMessage
 from langchain_core.tracers.schemas import Run
-
 from microsoft_agents_a365.observability.core.constants import (
     GEN_AI_INPUT_MESSAGES_KEY,
     GEN_AI_OPERATION_NAME_KEY,
     GEN_AI_OUTPUT_MESSAGES_KEY,
     GEN_AI_PROVIDER_NAME_KEY,
-    GEN_AI_REQUEST_CONTENT_KEY,
     GEN_AI_REQUEST_MODEL_KEY,
     GEN_AI_RESPONSE_FINISH_REASONS_KEY,
     GEN_AI_RESPONSE_ID_KEY,
     GEN_AI_SYSTEM_INSTRUCTIONS_KEY,
-    GEN_AI_TOOL_CALL_ARGS_KEY,
+    GEN_AI_TOOL_ARGS_KEY,
     GEN_AI_TOOL_CALL_ID_KEY,
     GEN_AI_TOOL_CALL_RESULT_KEY,
     GEN_AI_TOOL_DESCRIPTION_KEY,
@@ -95,9 +93,9 @@ def _extract_message_additional_kwargs(
                     yield GEN_AI_TOOL_NAME_KEY, name
                 if arguments := function_call.get("arguments"):
                     if isinstance(arguments, str):
-                        yield GEN_AI_TOOL_CALL_ARGS_KEY, arguments
+                        yield GEN_AI_TOOL_ARGS_KEY, arguments
                     else:
-                        yield GEN_AI_TOOL_CALL_ARGS_KEY, safe_json_dumps(arguments)
+                        yield GEN_AI_TOOL_ARGS_KEY, safe_json_dumps(arguments)
 
 
 @stop_on_exception
@@ -133,7 +131,7 @@ def _get_tool_call(tool_call: Mapping[str, Any] | None) -> Iterator[tuple[str, A
             args_json = arguments
         else:
             args_json = safe_json_dumps(arguments)
-        yield GEN_AI_TOOL_CALL_ARGS_KEY, args_json
+        yield GEN_AI_TOOL_ARGS_KEY, args_json
 
 
 def _process_tool_calls(tool_calls: Any) -> str:
@@ -306,10 +304,10 @@ def invocation_parameters(run: Run) -> Iterator[tuple[str, str]]:
         assert isinstance(invocation_parameters, Mapping), (
             f"expected Mapping, found {type(invocation_parameters)}"
         )
-        yield GEN_AI_REQUEST_CONTENT_KEY, safe_json_dumps(invocation_parameters)
+        yield GEN_AI_INPUT_MESSAGES_KEY, safe_json_dumps(invocation_parameters)
         tools = invocation_parameters.get("tools", [])
         for idx, tool in enumerate(tools):
-            yield f"{GEN_AI_TOOL_CALL_ARGS_KEY}.{idx}", safe_json_dumps(tool)
+            yield f"{GEN_AI_TOOL_ARGS_KEY}.{idx}", safe_json_dumps(tool)
 
 
 @stop_on_exception
@@ -485,7 +483,7 @@ def function_calls(outputs: Mapping[str, Any] | None) -> Iterator[tuple[str, str
                 args_json = safe_json_dumps(args)
         else:
             args_json = safe_json_dumps(args)
-        yield GEN_AI_TOOL_CALL_ARGS_KEY, args_json
+        yield GEN_AI_TOOL_ARGS_KEY, args_json
 
     result = fc.get("result")
     if result is not None:

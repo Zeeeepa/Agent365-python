@@ -16,6 +16,9 @@ For every new span:
 from opentelemetry import baggage, context
 from opentelemetry.sdk.trace import SpanProcessor as BaseSpanProcessor
 
+from ..constants import GEN_AI_OPERATION_NAME_KEY, INVOKE_AGENT_OPERATION_NAME
+from .util import COMMON_ATTRIBUTES, INVOKE_AGENT_ATTRIBUTES
+
 
 class SpanProcessor(BaseSpanProcessor):
     """Span processor that propagates every baggage key/value to span attributes."""
@@ -38,15 +41,28 @@ class SpanProcessor(BaseSpanProcessor):
         except Exception:
             baggage_map = {}
 
-        try:
-            items = baggage_map.items()
-        except AttributeError:
-            items = []
+        operation_name = existing.get(GEN_AI_OPERATION_NAME_KEY)
+        is_invoke_agent = False
+        if operation_name == INVOKE_AGENT_OPERATION_NAME:
+            is_invoke_agent = True
+        elif isinstance(getattr(span, "name", None), str) and span.name.startswith(
+            INVOKE_AGENT_OPERATION_NAME
+        ):
+            is_invoke_agent = True
 
-        for key, value in items:
-            if not value:
-                continue
+        # Build target key set (avoid duplicates).
+        target_keys = list(COMMON_ATTRIBUTES)
+        if is_invoke_agent:
+            # Add invoke-agent-only attributes
+            for k in INVOKE_AGENT_ATTRIBUTES:
+                if k not in target_keys:
+                    target_keys.append(k)
+
+        for key in target_keys:
             if key in existing:
+                continue
+            value = baggage_map.get(key)
+            if not value:
                 continue
             try:
                 span.set_attribute(key, value)

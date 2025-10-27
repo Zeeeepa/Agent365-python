@@ -11,6 +11,7 @@ from opentelemetry import baggage, context, trace
 from opentelemetry.trace import Span, SpanKind, Status, StatusCode, Tracer, set_span_in_context
 
 from .constants import (
+    ENABLE_A365_OBSERVABILITY,
     ENABLE_OBSERVABILITY,
     ERROR_TYPE_KEY,
     GEN_AI_AGENT_DESCRIPTION_KEY,
@@ -51,7 +52,8 @@ class OpenTelemetryScope:
         """Check if telemetry is enabled."""
         # Check environment variable
         env_value = os.getenv(ENABLE_OBSERVABILITY, "").lower()
-        return env_value in ("true", "1", "yes", "on")
+        enable_observability = os.getenv(ENABLE_A365_OBSERVABILITY, "").lower()
+        return (env_value or enable_observability) in ("true", "1", "yes", "on")
 
     def __init__(
         self,

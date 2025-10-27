@@ -4,6 +4,7 @@
 
 from .agent_details import AgentDetails
 from .constants import (
+    EXECUTE_TOOL_OPERATION_NAME,
     GEN_AI_TOOL_CALL_ID_KEY,
     GEN_AI_TOOL_DESCRIPTION_KEY,
     GEN_AI_TOOL_NAME_KEY,
@@ -18,8 +19,6 @@ from .tool_call_details import ToolCallDetails
 
 class ExecuteToolScope(OpenTelemetryScope):
     """Provides OpenTelemetry tracing scope for AI tool execution operations."""
-
-    OPERATION_NAME = "execute_tool"
 
     @staticmethod
     def start(
@@ -54,7 +53,7 @@ class ExecuteToolScope(OpenTelemetryScope):
         """
         super().__init__(
             kind="Internal",
-            operation_name=self.OPERATION_NAME,
+            operation_name=EXECUTE_TOOL_OPERATION_NAME,
             activity_name=f"execute_tool {details.tool_name}",
             agent_details=agent_details,
             tenant_details=tenant_details,

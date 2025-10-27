@@ -1,10 +1,14 @@
 # Copyright (c) Microsoft. All rights reserved.
 
 # Span Attribute Types
+from microsoft_agents_a365.observability.core.constants import (
+    EXECUTE_TOOL_OPERATION_NAME,
+    INVOKE_AGENT_OPERATION_NAME,
+)
 from microsoft_agents_a365.observability.core.inference_operation_type import InferenceOperationType
 
-GEN_AI_SPAN_KIND_AGENT_KEY = "agent"
-GEN_AI_SPAN_KIND_TOOL_KEY = "tool"
+GEN_AI_SPAN_KIND_AGENT_KEY = INVOKE_AGENT_OPERATION_NAME
+GEN_AI_SPAN_KIND_TOOL_KEY = EXECUTE_TOOL_OPERATION_NAME
 GEN_AI_SPAN_KIND_CHAIN_KEY = "chain"
 GEN_AI_SPAN_KIND_LLM_KEY = InferenceOperationType.CHAT.value.lower()
 GEN_AI_SPAN_KIND_RETRIEVER_KEY = "retriever"

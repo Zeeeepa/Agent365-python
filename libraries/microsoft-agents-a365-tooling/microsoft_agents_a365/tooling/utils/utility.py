@@ -16,7 +16,6 @@ class ToolsMode(Enum):
 
 
 # Constants for base URLs
-MCP_PLATFORM_TEST_BASE_URL = "https://test.agent365.svc.cloud.dev.microsoft"
 MCP_PLATFORM_PROD_BASE_URL = "https://agent365.svc.cloud.microsoft"
 
 PPAPI_TOKEN_SCOPE = "https://api.powerplatform.com"
@@ -39,7 +38,7 @@ def get_tooling_gateway_for_digital_worker(agent_user_id: str) -> str:
 
 def get_mcp_base_url() -> str:
     """
-    Gets the base URL for MCP servers based on the current environment.
+    Gets the base URL for MCP servers.
 
     Returns:
         str: The base URL for MCP servers.
@@ -50,10 +49,6 @@ def get_mcp_base_url() -> str:
         tools_mode = get_tools_mode()
         if tools_mode == ToolsMode.MOCK_MCP_SERVER:
             return os.getenv("MOCK_MCP_SERVER_URL", "http://localhost:5309/mcp-mock/agents/servers")
-
-        return os.getenv(
-            "MCP_DEVELOPMENT_BASE_URL", f"{MCP_PLATFORM_TEST_BASE_URL}/mcp/environments"
-        )
 
     return f"{_get_mcp_platform_base_url()}/mcp/environments"
 
@@ -90,22 +85,15 @@ def _get_current_environment() -> str:
 
 def _get_mcp_platform_base_url() -> str:
     """
-    Gets the base URL for MCP platform based on the current environment.
+    Gets the base URL for MCP platform, defaults to production URL if not set.
 
     Returns:
         str: The base URL for MCP platform.
     """
-    environment = _get_current_environment().lower()
+    if os.getenv("MCP_PLATFORM_ENDPOINT") is not None:
+        return os.getenv("MCP_PLATFORM_ENDPOINT")
 
-    # Using match-case (Python 3.10+) equivalent of C# switch expression
-    if environment == "development":
-        return MCP_PLATFORM_TEST_BASE_URL
-    elif environment == "test":
-        return MCP_PLATFORM_TEST_BASE_URL
-    elif environment == "production":
-        return MCP_PLATFORM_PROD_BASE_URL
-    else:
-        return MCP_PLATFORM_PROD_BASE_URL
+    return MCP_PLATFORM_PROD_BASE_URL
 
 
 def get_tools_mode() -> ToolsMode:

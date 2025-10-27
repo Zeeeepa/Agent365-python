@@ -11,11 +11,10 @@ from collections.abc import Callable, Sequence
 from typing import Any
 
 import requests
+from microsoft_agents_a365.runtime.power_platform_api_discovery import PowerPlatformApiDiscovery
 from opentelemetry.sdk.trace import ReadableSpan
 from opentelemetry.sdk.trace.export import SpanExporter, SpanExportResult
 from opentelemetry.trace import StatusCode
-
-from microsoft_agents_a365.runtime.power_platform_api_discovery import PowerPlatformApiDiscovery
 
 from .utils import (
     hex_span_id,
@@ -32,9 +31,9 @@ DEFAULT_HTTP_TIMEOUT_SECONDS = 30.0
 DEFAULT_MAX_RETRIES = 3
 
 
-class KairoExporter(SpanExporter):
+class Agent365Exporter(SpanExporter):
     """
-    Kairo span exporter for Agent365:
+    Agent365 span exporter for Agent365:
       * Partitions spans by (tenantId, agentId)
       * Builds OTLP-like JSON: resourceSpans -> scopeSpans -> spans
       * POSTs per group to https://{endpoint}/maven/agent365/agents/{agentId}/traces?api-version=1
@@ -44,7 +43,7 @@ class KairoExporter(SpanExporter):
     def __init__(
         self,
         token_resolver: Callable[[str, str], str | None],
-        cluster_category: str = "preprod",
+        cluster_category: str = "prod",
         **kwargs: Any,
     ):
         if token_resolver is None:

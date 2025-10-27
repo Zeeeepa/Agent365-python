@@ -10,8 +10,8 @@ from opentelemetry.sdk.resources import SERVICE_NAME, SERVICE_NAMESPACE, Resourc
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor, ConsoleSpanExporter
 
-from .exporters.kairo_exporter import KairoExporter
-from .exporters.utils import is_kairo_exporter_enabled
+from .exporters.agent365_exporter import Agent365Exporter
+from .exporters.utils import is_agent365_exporter_enabled
 from .trace_processor.span_processor import SpanProcessor
 
 
@@ -46,9 +46,9 @@ class TelemetryManager:
         self,
         service_name: str,
         service_namespace: str,
-        logger_name: str = "kairo",
+        logger_name: str = "agent365",
         token_resolver: Callable[[str, str], str | None] | None = None,
-        cluster_category: str = "preprod",
+        cluster_category: str = "prod",
         **kwargs: Any,
     ) -> bool:
         """
@@ -81,7 +81,7 @@ class TelemetryManager:
         service_namespace: str,
         logger_name: str,
         token_resolver: Callable[[str, str], str | None] | None = None,
-        cluster_category: str = "preprod",
+        cluster_category: str = "prod",
         **kwargs: Any,
     ) -> bool:
         """Internal configuration method - not thread-safe, must be called with lock."""
@@ -113,8 +113,8 @@ class TelemetryManager:
         trace.set_tracer_provider(tracer_provider)
         self._tracer_provider = tracer_provider
 
-        if is_kairo_exporter_enabled() and token_resolver is not None:
-            exporter = KairoExporter(
+        if is_agent365_exporter_enabled() and token_resolver is not None:
+            exporter = Agent365Exporter(
                 token_resolver=token_resolver,
                 cluster_category=cluster_category,
                 **kwargs,
@@ -122,7 +122,7 @@ class TelemetryManager:
         else:
             exporter = ConsoleSpanExporter()
             self._logger.warning(
-                "is_kairo_exporter_enabled() not enabled or token_resolver not set.Falling back to console exporter."
+                "is_agent365_exporter_enabled() not enabled or token_resolver not set.Falling back to console exporter."
             )
 
         # Add span processors
@@ -151,22 +151,22 @@ class TelemetryManager:
 
     def get_tracer(self, name: str | None = None, version: str | None = None):
         """
-        Return an OpenTelemetry Tracer tied to the TracerProvider configured by Kairo.
+        Return an OpenTelemetry Tracer tied to the TracerProvider configured by agent365.
 
         If the telemetry manager is not configured yet, this returns the default
         (no-op) tracer from OpenTelemetry and logs a warning. Callers should prefer
         to call `configure(...)` during application startup so the tracer
         returned is backed by the configured TracerProvider.
 
-        :param name: Optional tracer name. Defaults to 'kairo' when not provided.
+        :param name: Optional tracer name. Defaults to 'agent365' when not provided.
         :param version: Optional tracer version.
         :return: An OpenTelemetry Tracer instance.
         """
-        tracer_name = name or "kairo"
+        tracer_name = name or "agent365"
         if self._tracer_provider is None:
             # Not configured — return whatever tracer OpenTelemetry provides (no-op)
             self._logger.warning(
-                "Kairo telemetry not configured; returning a no-op tracer for '%s'", tracer_name
+                "agent365 telemetry not configured; returning a no-op tracer for '%s'", tracer_name
             )
             return trace.get_tracer(tracer_name, version)
 
@@ -192,9 +192,9 @@ _telemetry_manager = TelemetryManager()
 def configure(
     service_name: str,
     service_namespace: str,
-    logger_name: str = "kairo",
+    logger_name: str = "agent365",
     token_resolver: Callable[[str, str], str | None] | None = None,
-    cluster_category: str = "preprod",
+    cluster_category: str = "prod",
     **kwargs: Any,
 ) -> bool:
     """
@@ -228,7 +228,7 @@ def get_tracer(name: str | None = None, version: str | None = None):
     """
     Return a tracer tied to the TracerProvider configured by the SDK.
 
-    :param name: Optional tracer name. If omitted, defaults to 'kairo'.
+    :param name: Optional tracer name. If omitted, defaults to 'agent365'.
     :param version: Optional tracer version.
     :return: An OpenTelemetry Tracer (may be a no-op tracer if SDK isn't configured).
     """

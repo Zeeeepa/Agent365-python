@@ -10,13 +10,23 @@ from ..constants import (
     CORRELATION_ID_KEY,
     GEN_AI_AGENT_AUID_KEY,
     GEN_AI_AGENT_BLUEPRINT_ID_KEY,
+    GEN_AI_AGENT_DESCRIPTION_KEY,
     GEN_AI_AGENT_ID_KEY,
+    GEN_AI_AGENT_NAME_KEY,
     GEN_AI_AGENT_UPN_KEY,
     GEN_AI_CALLER_ID_KEY,
+    GEN_AI_CALLER_NAME_KEY,
+    GEN_AI_CALLER_UPN_KEY,
+    GEN_AI_CONVERSATION_ID_KEY,
+    GEN_AI_CONVERSATION_ITEM_LINK_KEY,
+    GEN_AI_EXECUTION_SOURCE_DESCRIPTION_KEY,
+    GEN_AI_EXECUTION_SOURCE_ID_KEY,
+    GEN_AI_EXECUTION_SOURCE_NAME_KEY,
     HIRING_MANAGER_ID_KEY,
     OPERATION_SOURCE_KEY,
     TENANT_ID_KEY,
 )
+from .turn_context_baggage import from_turn_context
 
 
 class BaggageBuilder:
@@ -146,6 +156,75 @@ class BaggageBuilder:
             Self for method chaining
         """
         self._set(HIRING_MANAGER_ID_KEY, value)
+        return self
+
+    def agent_name(self, value: str | None) -> "BaggageBuilder":
+        """Set the agent name baggage value."""
+        self._set(GEN_AI_AGENT_NAME_KEY, value)
+        return self
+
+    def agent_description(self, value: str | None) -> "BaggageBuilder":
+        """Set the agent description baggage value."""
+        self._set(GEN_AI_AGENT_DESCRIPTION_KEY, value)
+        return self
+
+    def caller_name(self, value: str | None) -> "BaggageBuilder":
+        """Set the caller name baggage value."""
+        self._set(GEN_AI_CALLER_NAME_KEY, value)
+        return self
+
+    def caller_upn(self, value: str | None) -> "BaggageBuilder":
+        """Set the caller UPN baggage value."""
+        self._set(GEN_AI_CALLER_UPN_KEY, value)
+        return self
+
+    def conversation_id(self, value: str | None) -> "BaggageBuilder":
+        """Set the conversation ID baggage value."""
+        self._set(GEN_AI_CONVERSATION_ID_KEY, value)
+        return self
+
+    def conversation_item_link(self, value: str | None) -> "BaggageBuilder":
+        """Set the conversation item link baggage value."""
+        self._set(GEN_AI_CONVERSATION_ITEM_LINK_KEY, value)
+        return self
+
+    def source_metadata_id(self, value: str | None) -> "BaggageBuilder":
+        """Set the execution source metadata ID (e.g., channel ID)."""
+        self._set(GEN_AI_EXECUTION_SOURCE_ID_KEY, value)
+        return self
+
+    def source_metadata_name(self, value: str | None) -> "BaggageBuilder":
+        """Set the execution source metadata name (e.g., channel name)."""
+        self._set(GEN_AI_EXECUTION_SOURCE_NAME_KEY, value)
+        return self
+
+    def source_metadata_description(self, value: str | None) -> "BaggageBuilder":
+        """Set the execution source metadata description (e.g., channel description)."""
+        self._set(GEN_AI_EXECUTION_SOURCE_DESCRIPTION_KEY, value)
+        return self
+
+    def from_turn_context(self, turn_context: Any) -> "BaggageBuilder":
+        """
+        Populate baggage from a turn_context (duck-typed).
+        Delegates to baggage_turn_context.from_turn_context.
+        """
+
+        return self.set_pairs(from_turn_context(turn_context))
+
+    def set_pairs(self, pairs: Any) -> "BaggageBuilder":
+        """
+        Accept dict or iterable of (k,v).
+        """
+        if not pairs:
+            return self
+        if isinstance(pairs, dict):
+            iterator = pairs.items()
+        else:
+            iterator = pairs
+        for k, v in iterator:
+            if v is None:
+                continue
+            self._set(str(k), str(v))
         return self
 
     def build(self) -> "BaggageScope":

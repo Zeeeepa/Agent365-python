@@ -1,6 +1,6 @@
 # Copyright (c) Microsoft. All rights reserved.
 
-# Kairo Python SDK for OpenTelemetry tracing.
+# Agent365 Python SDK for OpenTelemetry tracing.
 
 from .agent_details import AgentDetails
 from .config import (

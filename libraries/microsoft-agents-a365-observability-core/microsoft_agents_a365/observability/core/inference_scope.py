@@ -2,8 +2,8 @@
 
 from .agent_details import AgentDetails
 from .constants import (
+    GEN_AI_INPUT_MESSAGES_KEY,
     GEN_AI_PROVIDER_NAME_KEY,
-    GEN_AI_REQUEST_CONTENT_KEY,
     GEN_AI_REQUEST_MODEL_KEY,
     GEN_AI_RESPONSE_FINISH_REASONS_KEY,
     GEN_AI_RESPONSE_ID_KEY,
@@ -65,7 +65,7 @@ class InferenceScope(OpenTelemetryScope):
 
         # Set request content if provided
         if request:
-            self.set_tag_maybe(GEN_AI_REQUEST_CONTENT_KEY, request.content)
+            self.set_tag_maybe(GEN_AI_INPUT_MESSAGES_KEY, request.content)
 
         self.set_tag_maybe(GEN_AI_REQUEST_MODEL_KEY, inference_call_details.model)
         self.set_tag_maybe(GEN_AI_PROVIDER_NAME_KEY, inference_call_details.providerName)

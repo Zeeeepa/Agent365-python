@@ -3,7 +3,8 @@
 # Invoke agent scope for tracing agent invocation.
 
 from .constants import (
-    GEN_AI_REQUEST_CONTENT_KEY,
+    GEN_AI_INPUT_MESSAGES_KEY,
+    INVOKE_AGENT_OPERATION_NAME,
     SERVER_ADDRESS_KEY,
     SERVER_PORT_KEY,
     SESSION_ID_KEY,
@@ -16,8 +17,6 @@ from .tenant_details import TenantDetails
 
 class InvokeAgentScope(OpenTelemetryScope):
     """Provides OpenTelemetry tracing scope for AI agent invocation operations."""
-
-    OPERATION_NAME = "invoke_agent"
 
     @staticmethod
     def start(
@@ -51,13 +50,15 @@ class InvokeAgentScope(OpenTelemetryScope):
             tenant_details: The details of the tenant
             request: Optional request details for additional context
         """
-        activity_name = self.OPERATION_NAME
+        activity_name = INVOKE_AGENT_OPERATION_NAME
         if invoke_agent_details.details.agent_name:
-            activity_name = f"invoke_agent {invoke_agent_details.details.agent_name}"
+            activity_name = (
+                f"{INVOKE_AGENT_OPERATION_NAME} {invoke_agent_details.details.agent_name}"
+            )
 
         super().__init__(
             kind="Client",
-            operation_name=self.OPERATION_NAME,
+            operation_name=INVOKE_AGENT_OPERATION_NAME,
             activity_name=activity_name,
             agent_details=invoke_agent_details.details,
             tenant_details=tenant_details,
@@ -79,4 +80,4 @@ class InvokeAgentScope(OpenTelemetryScope):
 
         # Set request content if provided
         if request:
-            self.set_tag_maybe(GEN_AI_REQUEST_CONTENT_KEY, request.content)
+            self.set_tag_maybe(GEN_AI_INPUT_MESSAGES_KEY, request.content)

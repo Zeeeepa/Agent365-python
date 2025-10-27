@@ -14,6 +14,7 @@ import os
 import re
 from typing import Any, Optional
 from semantic_kernel import kernel as sk
+from microsoft_agents.hosting.core import Authorization, TurnContext
 
 # Third-party imports
 
@@ -23,7 +24,8 @@ from ...common.services.mcp_tool_server_configuration_service import (
 )
 from ...common.models import MCPServerConfig
 from ...common.utils.constants import Constants
-from ...common.utils.utility import get_tools_mode
+from ...common.utils.utility import get_tools_mode, get_ppapi_token_scope
+
 
 from semantic_kernel.connectors.mcp import MCPStreamableHttpPlugin
 
@@ -79,7 +81,13 @@ class McpToolRegistrationService:
     # ============================================================================
 
     async def add_tool_servers_to_agent(
-        self, kernel: sk.Kernel, agent_user_id: str, environment_id: str, auth_token: str
+        self,
+        kernel: sk.Kernel,
+        agent_user_id: str,
+        environment_id: str,
+        auth: Authorization,
+        context: TurnContext,
+        auth_token: Optional[str] = None,
     ) -> None:
         """
         Adds the A365 MCP Tool Servers to the specified kernel.
@@ -94,6 +102,12 @@ class McpToolRegistrationService:
             ValueError: If kernel is None or required parameters are invalid.
             Exception: If there's an error connecting to or configuring MCP servers.
         """
+
+        if not auth_token:
+            scopes = get_ppapi_token_scope()
+            authToken = await auth.exchange_token(context, scopes, "AGENTIC")
+            auth_token = authToken.token
+
         self._validate_inputs(kernel, agent_user_id, environment_id, auth_token)
 
         if self._mcp_server_configuration_service is None:

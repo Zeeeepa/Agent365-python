@@ -37,7 +37,7 @@ dependencies = [
 Homepage = "https://github.com/microsoft/Agent365"
 Repository = "https://github.com/microsoft/Agent365"
 Issues = "https://github.com/microsoft/Agent365/issues"
-Documentation = "https://github.com/microsoft/Agent365/tree/main/python/microsoft_kairo/observability"
+Documentation = "https://github.com/microsoft/Agent365/tree/main/python/libraries/microsoft-agents-a365-observability-core"
 
 [project.optional-dependencies]
 azure = [
@@ -63,6 +63,13 @@ test = [
 [tool.setuptools.packages.find]
 where = ["."]
 namespaces = true
+
+[tool.setuptools]
+license-files = ["../../LICENSE"]
+include-package-data = true
+
+[tool.setuptools.package-data]
+"*" = ["../../LICENSE"]
 
 [tool.black]
 line-length = 100

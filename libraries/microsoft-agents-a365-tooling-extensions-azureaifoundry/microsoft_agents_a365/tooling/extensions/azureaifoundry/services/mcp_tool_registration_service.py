@@ -16,6 +16,9 @@ from typing import Optional, List, Tuple
 from azure.ai.projects import AIProjectClient
 from azure.identity import DefaultAzureCredential
 from azure.ai.agents.models import McpTool, ToolResources
+from microsoft_agents.hosting.core import Authorization, TurnContext
+
+from ...common.utils.utility import get_ppapi_token_scope
 
 # Local imports
 from microsoft_kairo.tooling.common.services.mcp_tool_server_configuration_service import (
@@ -71,6 +74,8 @@ class McpToolRegistrationService:
         project_client: "AIProjectClient",
         agent_user_id: str,
         environment_id: str,
+        auth: Authorization,
+        context: TurnContext,
         auth_token: Optional[str] = None,
     ) -> None:
         """
@@ -88,6 +93,11 @@ class McpToolRegistrationService:
         """
         if project_client is None:
             raise ValueError("project_client cannot be None")
+
+        if not auth_token:
+            scopes = get_ppapi_token_scope()
+            authToken = await auth.exchange_token(context, scopes, "AGENTIC")
+            auth_token = authToken.token
 
         try:
             # Get the tool definitions and resources using the async implementation

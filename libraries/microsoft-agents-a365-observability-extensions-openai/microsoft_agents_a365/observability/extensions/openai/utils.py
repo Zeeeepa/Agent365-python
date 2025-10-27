@@ -20,6 +20,30 @@ from agents.tracing.span_data import (
     ResponseSpanData,
     SpanData,
 )
+from microsoft_agents_a365.observability.core.constants import (
+    GEN_AI_CHOICE,
+    GEN_AI_EXECUTION_PAYLOAD_KEY,
+    GEN_AI_INPUT_MESSAGES_KEY,
+    GEN_AI_OUTPUT_MESSAGES_KEY,
+    GEN_AI_PROVIDER_NAME_KEY,
+    GEN_AI_REQUEST_MODEL_KEY,
+    GEN_AI_RESPONSE_FINISH_REASONS_KEY,
+    GEN_AI_RESPONSE_ID_KEY,
+    GEN_AI_SYSTEM_KEY,
+    GEN_AI_TOOL_ARGS_KEY,
+    GEN_AI_TOOL_CALL_ID_KEY,
+    GEN_AI_TOOL_CALL_RESULT_KEY,
+    GEN_AI_TOOL_NAME_KEY,
+    GEN_AI_USAGE_INPUT_TOKENS_KEY,
+    GEN_AI_USAGE_OUTPUT_TOKENS_KEY,
+)
+from microsoft_agents_a365.observability.core.wrappers.utils import safe_json_dumps
+from opentelemetry.trace import (
+    Status,
+    StatusCode,
+)
+from opentelemetry.util.types import AttributeValue
+
 from openai.types.responses import (
     EasyInputMessageParam,
     FunctionTool,
@@ -41,31 +65,7 @@ from openai.types.responses import (
 )
 from openai.types.responses.response_input_item_param import FunctionCallOutput, Message
 from openai.types.responses.response_output_message_param import Content
-from opentelemetry.trace import (
-    Status,
-    StatusCode,
-)
-from opentelemetry.util.types import AttributeValue
 
-from microsoft_agents_a365.observability.core.constants import (
-    GEN_AI_CHOICE,
-    GEN_AI_EXECUTION_PAYLOAD_KEY,
-    GEN_AI_EXECUTION_TYPE_KEY,
-    GEN_AI_PROVIDER_NAME_KEY,
-    GEN_AI_REQUEST_CONTENT_KEY,
-    GEN_AI_REQUEST_MODEL_KEY,
-    GEN_AI_RESPONSE_CONTENT_KEY,
-    GEN_AI_RESPONSE_FINISH_REASONS_KEY,
-    GEN_AI_RESPONSE_ID_KEY,
-    GEN_AI_SYSTEM_KEY,
-    GEN_AI_TOOL_CALL_ARGS_KEY,
-    GEN_AI_TOOL_CALL_ID_KEY,
-    GEN_AI_TOOL_CALL_RESULT_KEY,
-    GEN_AI_TOOL_NAME_KEY,
-    GEN_AI_USAGE_INPUT_TOKENS_KEY,
-    GEN_AI_USAGE_OUTPUT_TOKENS_KEY,
-)
-from microsoft_agents_a365.observability.core.wrappers.utils import safe_json_dumps
 from .constants import (
     GEN_AI_LLM_TOKEN_COUNT_COMPLETION_DETAILS_REASONING,
     GEN_AI_LLM_TOKEN_COUNT_PROMPT_DETAILS_CACHED_READ,
@@ -116,7 +116,7 @@ def get_attributes_from_input(
     msg_idx: int = 1,
 ) -> Iterator[tuple[str, AttributeValue]]:
     for i, item in enumerate(obj, msg_idx):
-        prefix = f"{GEN_AI_REQUEST_CONTENT_KEY}.{i}."
+        prefix = f"{GEN_AI_INPUT_MESSAGES_KEY}.{i}."
         if "type" not in item:
             if "role" in item and "content" in item:
                 yield from get_attributes_from_message_param(
@@ -168,7 +168,7 @@ def get_attributes_from_response_function_tool_call_param(
     yield f"{prefix}{GEN_AI_MESSAGE_TOOL_CALL_ID}", obj["call_id"]
     yield f"{prefix}{GEN_AI_MESSAGE_TOOL_CALL_NAME}", obj["name"]
     if obj["arguments"] != "{}":
-        yield f"{prefix}{GEN_AI_TOOL_CALL_ARGS_KEY}", obj["arguments"]
+        yield f"{prefix}{GEN_AI_TOOL_ARGS_KEY}", obj["arguments"]
 
 
 def get_attributes_from_response_custom_tool_call_param(
@@ -181,7 +181,7 @@ def get_attributes_from_response_custom_tool_call_param(
         yield f"{prefix}{GEN_AI_TOOL_NAME_KEY}", name
     if (input_data := obj.get("input")) is not None:
         yield (
-            f"{prefix}{GEN_AI_TOOL_CALL_ARGS_KEY}",
+            f"{prefix}{GEN_AI_TOOL_ARGS_KEY}",
             safe_json_dumps({"input": input_data}),
         )
 
@@ -228,8 +228,7 @@ def get_attributes_from_generation_span_data(
 def get_attributes_from_mcp_list_tool_span_data(
     obj: MCPListToolsSpanData,
 ) -> Iterator[tuple[str, AttributeValue]]:
-    yield GEN_AI_RESPONSE_CONTENT_KEY, safe_json_dumps(obj.result)
-    yield GEN_AI_EXECUTION_TYPE_KEY, "application/json"
+    yield GEN_AI_OUTPUT_MESSAGES_KEY, safe_json_dumps(obj.result)
 
 
 def _get_attributes_from_chat_completions_input(
@@ -238,13 +237,12 @@ def _get_attributes_from_chat_completions_input(
     if not obj:
         return
     try:
-        yield GEN_AI_REQUEST_CONTENT_KEY, safe_json_dumps(obj)
-        yield GEN_AI_EXECUTION_TYPE_KEY, "application/json"
+        yield GEN_AI_INPUT_MESSAGES_KEY, safe_json_dumps(obj)
     except Exception:
         pass
     yield from get_attributes_from_chat_completions_message_dicts(
         obj,
-        f"{GEN_AI_REQUEST_CONTENT_KEY}.",
+        f"{GEN_AI_INPUT_MESSAGES_KEY}.",
     )
 
 
@@ -254,8 +252,7 @@ def _get_attributes_from_chat_completions_output(
     if not obj:
         return
     try:
-        yield GEN_AI_RESPONSE_CONTENT_KEY, safe_json_dumps(obj)
-        yield GEN_AI_EXECUTION_TYPE_KEY, "application/json"
+        yield GEN_AI_OUTPUT_MESSAGES_KEY, safe_json_dumps(obj)
     except Exception:
         pass
 
@@ -271,7 +268,7 @@ def _get_attributes_from_chat_completions_output(
 
     yield from get_attributes_from_chat_completions_message_dicts(
         obj,
-        f"{GEN_AI_RESPONSE_CONTENT_KEY}.",
+        f"{GEN_AI_OUTPUT_MESSAGES_KEY}.",
     )
 
 
@@ -324,8 +321,7 @@ def _get_attributes_from_chat_completions_message_content_item(
     prefix: str = "",
 ) -> Iterator[tuple[str, AttributeValue]]:
     if obj.get("type") == "text" and (text := obj.get("text")):
-        yield f"{prefix}{GEN_AI_EXECUTION_TYPE_KEY}", "text"
-        yield f"{prefix}{GEN_AI_RESPONSE_CONTENT_KEY}", text
+        yield f"{prefix}{GEN_AI_OUTPUT_MESSAGES_KEY}", text
 
 
 def _get_attributes_from_chat_completions_tool_call_dict(
@@ -339,7 +335,7 @@ def _get_attributes_from_chat_completions_tool_call_dict(
             yield f"{prefix}{GEN_AI_TOOL_NAME_KEY}", name
         if arguments := function.get("arguments"):
             if arguments != "{}":
-                yield f"{prefix}{GEN_AI_TOOL_CALL_ARGS_KEY}", arguments
+                yield f"{prefix}{GEN_AI_TOOL_ARGS_KEY}", arguments
 
 
 def _get_attributes_from_chat_completions_usage(
@@ -368,17 +364,9 @@ def get_attributes_from_function_span_data(
 ) -> Iterator[tuple[str, AttributeValue]]:
     yield GEN_AI_TOOL_NAME_KEY, obj.name
     if obj.input:
-        yield GEN_AI_REQUEST_CONTENT_KEY, obj.input
-        yield GEN_AI_EXECUTION_TYPE_KEY, "application/json"
+        yield GEN_AI_INPUT_MESSAGES_KEY, obj.input
     if obj.output is not None:
-        yield GEN_AI_RESPONSE_CONTENT_KEY, _convert_to_primitive(obj.output)
-        if (
-            isinstance(obj.output, str)
-            and len(obj.output) > 1
-            and obj.output[0] == "{"
-            and obj.output[-1] == "}"
-        ):
-            yield GEN_AI_EXECUTION_TYPE_KEY, "application/json"
+        yield GEN_AI_OUTPUT_MESSAGES_KEY, _convert_to_primitive(obj.output)
 
 
 def get_attributes_from_message_content_list(
@@ -387,15 +375,15 @@ def get_attributes_from_message_content_list(
 ) -> Iterator[tuple[str, AttributeValue]]:
     for i, item in enumerate(obj):
         if item["type"] == "input_text" or item["type"] == "output_text":
-            yield f"{prefix}{GEN_AI_REQUEST_CONTENT_KEY}.{i}.{GEN_AI_MESSAGE_CONTENT_TYPE}", "text"
+            yield f"{prefix}{GEN_AI_INPUT_MESSAGES_KEY}.{i}.{GEN_AI_MESSAGE_CONTENT_TYPE}", "text"
             yield (
-                f"{prefix}{GEN_AI_REQUEST_CONTENT_KEY}.{i}.{GEN_AI_RESPONSE_CONTENT_KEY}",
+                f"{prefix}{GEN_AI_INPUT_MESSAGES_KEY}.{i}.{GEN_AI_OUTPUT_MESSAGES_KEY}",
                 item["text"],
             )
         elif item["type"] == "refusal":
-            yield f"{prefix}{GEN_AI_REQUEST_CONTENT_KEY}.{i}.{GEN_AI_MESSAGE_CONTENT_TYPE}", "text"
+            yield f"{prefix}{GEN_AI_INPUT_MESSAGES_KEY}.{i}.{GEN_AI_MESSAGE_CONTENT_TYPE}", "text"
             yield (
-                f"{prefix}{GEN_AI_REQUEST_CONTENT_KEY}.{i}.{GEN_AI_RESPONSE_CONTENT_KEY}",
+                f"{prefix}{GEN_AI_INPUT_MESSAGES_KEY}.{i}.{GEN_AI_OUTPUT_MESSAGES_KEY}",
                 item["refusal"],
             )
         elif TYPE_CHECKING:
@@ -450,12 +438,12 @@ def get_attributes_from_response_output(
     tool_call_idx = 0
     for _i, item in enumerate(obj):
         if item.type == "message":
-            prefix = f"{GEN_AI_RESPONSE_CONTENT_KEY}.{msg_idx}."
+            prefix = f"{GEN_AI_OUTPUT_MESSAGES_KEY}.{msg_idx}."
             yield from _get_attributes_from_message(item, prefix)
             msg_idx += 1
         elif item.type == "function_call":
-            yield f"{GEN_AI_RESPONSE_CONTENT_KEY}.{msg_idx}.{GEN_AI_MESSAGE_ROLE}", "assistant"
-            prefix = f"{GEN_AI_RESPONSE_CONTENT_KEY}.{msg_idx}.{GEN_AI_MESSAGE_TOOL_CALLS}.{tool_call_idx}."
+            yield f"{GEN_AI_OUTPUT_MESSAGES_KEY}.{msg_idx}.{GEN_AI_MESSAGE_ROLE}", "assistant"
+            prefix = f"{GEN_AI_OUTPUT_MESSAGES_KEY}.{msg_idx}.{GEN_AI_MESSAGE_TOOL_CALLS}.{tool_call_idx}."
             yield from _get_attributes_from_function_tool_call(item, prefix)
             tool_call_idx += 1
         elif item.type == "custom_tool_call":
@@ -473,8 +461,8 @@ def _get_attributes_from_response_instruction(
 ) -> Iterator[tuple[str, AttributeValue]]:
     if not instructions:
         return
-    yield f"{GEN_AI_REQUEST_CONTENT_KEY}.0.{GEN_AI_MESSAGE_ROLE}", "system"
-    yield f"{GEN_AI_REQUEST_CONTENT_KEY}.0.{GEN_AI_RESPONSE_CONTENT_KEY}", instructions
+    yield f"{GEN_AI_INPUT_MESSAGES_KEY}.0.{GEN_AI_MESSAGE_ROLE}", "system"
+    yield f"{GEN_AI_INPUT_MESSAGES_KEY}.0.{GEN_AI_OUTPUT_MESSAGES_KEY}", instructions
 
 
 def _get_attributes_from_function_tool_call(
@@ -484,7 +472,7 @@ def _get_attributes_from_function_tool_call(
     yield f"{prefix}{GEN_AI_TOOL_CALL_ID_KEY}", obj.call_id
     yield f"{prefix}{GEN_AI_TOOL_NAME_KEY}", obj.name
     if obj.arguments != "{}":
-        yield f"{prefix}{GEN_AI_TOOL_CALL_ARGS_KEY}", obj.arguments
+        yield f"{prefix}{GEN_AI_TOOL_ARGS_KEY}", obj.arguments
 
 
 def _get_attributes_from_response_custom_tool_call(
@@ -497,7 +485,7 @@ def _get_attributes_from_response_custom_tool_call(
         yield f"{prefix}{GEN_AI_TOOL_NAME_KEY}", name
     if (input_data := obj.input) is not None:
         yield (
-            f"{prefix}{GEN_AI_TOOL_CALL_ARGS_KEY}",
+            f"{prefix}{GEN_AI_TOOL_ARGS_KEY}",
             safe_json_dumps({"input": input_data}),
         )
 
@@ -509,15 +497,15 @@ def _get_attributes_from_message(
     yield f"{prefix}{GEN_AI_MESSAGE_ROLE}", obj.role
     for i, item in enumerate(obj.content):
         if isinstance(item, ResponseOutputText):
-            yield f"{prefix}{GEN_AI_RESPONSE_CONTENT_KEY}.{i}.{GEN_AI_MESSAGE_CONTENT_TYPE}", "text"
+            yield f"{prefix}{GEN_AI_OUTPUT_MESSAGES_KEY}.{i}.{GEN_AI_MESSAGE_CONTENT_TYPE}", "text"
             yield (
-                f"{prefix}{GEN_AI_RESPONSE_CONTENT_KEY}.{i}.{GEN_AI_RESPONSE_CONTENT_KEY}",
+                f"{prefix}{GEN_AI_OUTPUT_MESSAGES_KEY}.{i}.{GEN_AI_OUTPUT_MESSAGES_KEY}",
                 item.text,
             )
         elif isinstance(item, ResponseOutputRefusal):
-            yield f"{prefix}{GEN_AI_RESPONSE_CONTENT_KEY}.{i}.{GEN_AI_MESSAGE_CONTENT_TYPE}", "text"
+            yield f"{prefix}{GEN_AI_OUTPUT_MESSAGES_KEY}.{i}.{GEN_AI_MESSAGE_CONTENT_TYPE}", "text"
             yield (
-                f"{prefix}{GEN_AI_RESPONSE_CONTENT_KEY}.{i}.{GEN_AI_RESPONSE_CONTENT_KEY}",
+                f"{prefix}{GEN_AI_OUTPUT_MESSAGES_KEY}.{i}.{GEN_AI_OUTPUT_MESSAGES_KEY}",
                 item.refusal,
             )
         elif TYPE_CHECKING:
