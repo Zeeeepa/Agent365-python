@@ -3,7 +3,7 @@ from __future__ import annotations
 from collections.abc import Awaitable, Callable, Iterable
 from typing import Any, TypeVar
 
-from microsoft_agents.activity import ChannelId
+from microsoft_agents.activity.channel_id import ChannelId
 from microsoft_agents.hosting.core import TurnContext
 from microsoft_agents.hosting.core.app.state import TurnState
 from .models.agent_notification_activity import AgentNotificationActivity, NotificationTypes
