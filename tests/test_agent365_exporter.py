@@ -213,6 +213,80 @@ class TestAgent365Exporter(unittest.TestCase):
             expected_scopes = [("scope.a", 2), ("scope.b", 1), ("scope.c", 1)]
             self.assertEqual(scope_data, expected_scopes)
 
+    def test_s2s_endpoint_path_when_enabled(self):
+        """Test 4: Test that S2S endpoint path is used when use_s2s_endpoint is True."""
+        # Arrange - Create exporter with S2S endpoint enabled
+        s2s_exporter = Agent365Exporter(
+            token_resolver=self.mock_token_resolver, cluster_category="test", use_s2s_endpoint=True
+        )
+
+        spans = [self._create_mock_span("s2s_span")]
+
+        # Mock the PowerPlatformApiDiscovery class
+        with patch(
+            "microsoft_agents_a365.observability.core.exporters.agent365_exporter.PowerPlatformApiDiscovery"
+        ) as mock_discovery_class:
+            mock_discovery = Mock()
+            mock_discovery.get_tenant_island_cluster_endpoint.return_value = "test-endpoint.com"
+            mock_discovery_class.return_value = mock_discovery
+
+            # Mock the _post_with_retries method
+            with patch.object(s2s_exporter, "_post_with_retries", return_value=True) as mock_post:
+                # Act
+                result = s2s_exporter.export(spans)
+
+                # Assert
+                self.assertEqual(result, SpanExportResult.SUCCESS)
+                mock_post.assert_called_once()
+
+                # Verify the call arguments - should use S2S path
+                args, kwargs = mock_post.call_args
+                url, body, headers = args
+
+                self.assertIn("test-endpoint.com", url)
+                self.assertIn("/maven/agent365/service/agents/test-agent-456/traces", url)
+                self.assertNotIn("/maven/agent365/agents/test-agent-456/traces", url)
+                self.assertEqual(headers["authorization"], "Bearer test_token_123")
+                self.assertEqual(headers["content-type"], "application/json")
+
+    def test_default_endpoint_path_when_s2s_disabled(self):
+        """Test 5: Test that default endpoint path is used when use_s2s_endpoint is False."""
+        # Arrange - Create exporter with S2S endpoint disabled (default behavior)
+        default_exporter = Agent365Exporter(
+            token_resolver=self.mock_token_resolver, cluster_category="test", use_s2s_endpoint=False
+        )
+
+        spans = [self._create_mock_span("default_span")]
+
+        # Mock the PowerPlatformApiDiscovery class
+        with patch(
+            "microsoft_agents_a365.observability.core.exporters.agent365_exporter.PowerPlatformApiDiscovery"
+        ) as mock_discovery_class:
+            mock_discovery = Mock()
+            mock_discovery.get_tenant_island_cluster_endpoint.return_value = "test-endpoint.com"
+            mock_discovery_class.return_value = mock_discovery
+
+            # Mock the _post_with_retries method
+            with patch.object(
+                default_exporter, "_post_with_retries", return_value=True
+            ) as mock_post:
+                # Act
+                result = default_exporter.export(spans)
+
+                # Assert
+                self.assertEqual(result, SpanExportResult.SUCCESS)
+                mock_post.assert_called_once()
+
+                # Verify the call arguments - should use default path
+                args, kwargs = mock_post.call_args
+                url, body, headers = args
+
+                self.assertIn("test-endpoint.com", url)
+                self.assertIn("/maven/agent365/agents/test-agent-456/traces", url)
+                self.assertNotIn("/maven/agent365/service/agents/test-agent-456/traces", url)
+                self.assertEqual(headers["authorization"], "Bearer test_token_123")
+                self.assertEqual(headers["content-type"], "application/json")
+
 
 if __name__ == "__main__":
     unittest.main()

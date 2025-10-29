@@ -44,6 +44,7 @@ class Agent365Exporter(SpanExporter):
         self,
         token_resolver: Callable[[str, str], str | None],
         cluster_category: str = "prod",
+        use_s2s_endpoint: bool = False,
         **kwargs: Any,
     ):
         if token_resolver is None:
@@ -53,6 +54,7 @@ class Agent365Exporter(SpanExporter):
         self._lock = threading.Lock()
         self._token_resolver = token_resolver
         self._cluster_category = cluster_category
+        self.use_s2s_endpoint = use_s2s_endpoint
 
     # ------------- SpanExporter API -----------------
 
@@ -74,7 +76,12 @@ class Agent365Exporter(SpanExporter):
                 # Resolve endpoint + token
                 discovery = PowerPlatformApiDiscovery(self._cluster_category)
                 endpoint = discovery.get_tenant_island_cluster_endpoint(tenant_id)
-                url = f"https://{endpoint}/maven/agent365/agents/{agent_id}/traces?api-version=1"
+                endpoint_path = (
+                    f"/maven/agent365/service/agents/{agent_id}/traces"
+                    if self.use_s2s_endpoint
+                    else f"/maven/agent365/agents/{agent_id}/traces"
+                )
+                url = f"https://{endpoint}{endpoint_path}?api-version=1"
 
                 headers = {"content-type": "application/json"}
                 try:
