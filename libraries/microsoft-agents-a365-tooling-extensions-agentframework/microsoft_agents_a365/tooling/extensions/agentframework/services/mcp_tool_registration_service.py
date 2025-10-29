@@ -34,7 +34,7 @@ class McpToolRegistrationService:
     Provides MCP tool registration services for Agent Framework agents.
 
     This service handles registration and management of MCP (Model Context Protocol)
-    tool servers with Agent Framework agents. It provides seamless integration 
+    tool servers with Agent Framework agents. It provides seamless integration
     between MCP servers and Microsoft Agent Framework.
 
     Features:
@@ -89,7 +89,7 @@ class McpToolRegistrationService:
     ) -> "ChatAgent":
         """
         Add new MCP servers to the agent by creating a new ChatAgent instance.
-        
+
         Note: Due to Agent Framework design, MCP tools must be set during
         ChatAgent creation. If new tools are found, this method creates a new ChatAgent
         instance with all tools (existing + new) properly initialized.
@@ -118,7 +118,7 @@ class McpToolRegistrationService:
         try:
             # Step 2: Now update agent by adding MCP tools
             updated_tools = []
-            
+
             # Keep any existing tools that were passed in
             updated_tools.extend(initial_tools)
 
@@ -126,14 +126,14 @@ class McpToolRegistrationService:
             servers = await self._mcp_server_configuration_service.list_tool_servers(
                 agent_user_id, environment_id, auth_token
             )
-            
+
             # Retrieve MCP tools from all configured servers
             for server in servers:
                 try:
                     mcp_tools = await self._get_tools(server, environment_id, auth_token)
                     # Add the MCP tools
                     updated_tools.extend(mcp_tools)
-                    
+
                     self._logger.info(
                         f"Successfully loaded {len(mcp_tools)} tools from MCP server '{server.mcp_server_name}'"
                     )
@@ -148,14 +148,12 @@ class McpToolRegistrationService:
 
             # Create ChatAgent with updated tools (since ChatAgent is immutable)
             agent_with_tools = ChatAgent(
-                chat_client=chat_client,
-                instructions=agent_instructions,
-                tools=updated_tools
+                chat_client=chat_client, instructions=agent_instructions, tools=updated_tools
             )
 
             # Return the enhanced agent
             return agent_with_tools
-            
+
         except Exception as ex:
             self._logger.error(
                 f"Failed to add MCP tool servers for agent {agent_user_id} in environment {environment_id}: {ex}"
@@ -202,10 +200,14 @@ class McpToolRegistrationService:
 
             # Get tools from the MCP plugin
             tools = await plugin.get_tools()
-            
-            self._logger.info(f"Retrieved {len(tools)} tools from MCP server {server.mcp_server_name}")
+
+            self._logger.info(
+                f"Retrieved {len(tools)} tools from MCP server {server.mcp_server_name}"
+            )
             return tools
 
         except Exception as ex:
-            self._logger.error(f"Failed to get tools from MCP server {server.mcp_server_name}: {ex}")
+            self._logger.error(
+                f"Failed to get tools from MCP server {server.mcp_server_name}: {ex}"
+            )
             return []
