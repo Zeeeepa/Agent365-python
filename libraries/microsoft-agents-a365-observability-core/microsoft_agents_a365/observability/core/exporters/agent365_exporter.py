@@ -44,7 +44,6 @@ class Agent365Exporter(SpanExporter):
         self,
         token_resolver: Callable[[str, str], str | None],
         cluster_category: str = "prod",
-        use_s2s_endpoint: bool = False,
         **kwargs: Any,
     ):
         if token_resolver is None:
@@ -54,7 +53,7 @@ class Agent365Exporter(SpanExporter):
         self._lock = threading.Lock()
         self._token_resolver = token_resolver
         self._cluster_category = cluster_category
-        self.use_s2s_endpoint = use_s2s_endpoint
+        self.use_s2s_endpoint = kwargs.pop("use_s2s_endpoint", False)
 
     # ------------- SpanExporter API -----------------
 

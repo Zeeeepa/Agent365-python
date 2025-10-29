@@ -117,7 +117,6 @@ class TelemetryManager:
             exporter = Agent365Exporter(
                 token_resolver=token_resolver,
                 cluster_category=cluster_category,
-                use_s2s_endpoint=kwargs.pop("use_s2s_endpoint", False),
                 **kwargs,
             )
         else:
