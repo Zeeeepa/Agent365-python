@@ -44,7 +44,7 @@ class Agent365Exporter(SpanExporter):
         self,
         token_resolver: Callable[[str, str], str | None],
         cluster_category: str = "prod",
-        **kwargs: Any,
+        use_s2s_endpoint: bool = False,
     ):
         if token_resolver is None:
             raise ValueError("token_resolver must be provided.")
@@ -53,7 +53,7 @@ class Agent365Exporter(SpanExporter):
         self._lock = threading.Lock()
         self._token_resolver = token_resolver
         self._cluster_category = cluster_category
-        self.use_s2s_endpoint = kwargs.pop("use_s2s_endpoint", False)
+        self._use_s2s_endpoint = use_s2s_endpoint
 
     # ------------- SpanExporter API -----------------
 
@@ -77,7 +77,7 @@ class Agent365Exporter(SpanExporter):
                 endpoint = discovery.get_tenant_island_cluster_endpoint(tenant_id)
                 endpoint_path = (
                     f"/maven/agent365/service/agents/{agent_id}/traces"
-                    if self.use_s2s_endpoint
+                    if self._use_s2s_endpoint
                     else f"/maven/agent365/agents/{agent_id}/traces"
                 )
                 url = f"https://{endpoint}{endpoint_path}?api-version=1"
