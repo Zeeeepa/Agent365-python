@@ -110,11 +110,11 @@ class TestBaggageBuilder(unittest.TestCase):
         provider = TracerProvider()
         provider.add_span_processor(SimpleSpanProcessor(exporter))
         trace.set_tracer_provider(provider)
-        # Invoke SDK configure to attach Kairo span processor (agent processor)
+        # Invoke SDK configure to attach Agent365 span processor (agent processor)
         telemetry_config.configure(
             service_name="baggage-test-service",
             service_namespace="baggage.test",
-            logger_name="kairo-test",
+            logger_name="Agent365-test",
         )
         tracer = telemetry_config.get_tracer(__name__)
 

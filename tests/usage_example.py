@@ -4,17 +4,17 @@
 import os
 from urllib.parse import urlparse
 
-from microsoft_kairo.observability.tenant_details import TenantDetails
+from microsoft_agents_a365.observability.core.tenant_details import TenantDetails
 
 
 def main():
-    """Demonstrate the aligned Kairo Python SDK functionality."""
+    """Demonstrate the aligned Agent365 Python SDK functionality."""
 
     # Enable telemetry (aligned with .NET SDK environment variable)
     os.environ["ENABLE_OBSERVABILITY"] = "true"
 
     # Import the updated SDK classes
-    from microsoft_kairo import (
+    from microsoft_agents_a365.observability.core import (
         AgentDetails,
         ExecutionType,
         InvokeAgentDetails,
@@ -24,7 +24,7 @@ def main():
         configure,
     )
 
-    print("🚀 Kairo Python SDK - Aligned with .NET SDK")
+    print("🚀 Agent365 Python SDK - Aligned with .NET SDK")
     print("=" * 50)
 
     # Configure telemetry (existing function still works)

@@ -14,7 +14,7 @@ from microsoft_agents_a365.observability.core.constants import (
     TENANT_ID_KEY,
 )
 from microsoft_agents_a365.observability.extensions.openai.trace_instrumentor import (
-    KairoInstrumentorOpenAIAgents,
+    OpenAIAgentsTraceInstrumentor,
 )
 
 try:
@@ -65,7 +65,7 @@ class TestOpenAITraceProcessorIntegration:
         provider.add_span_processor(self.mock_exporter)
 
         # Initialize the instrumentor
-        instrumentor = KairoInstrumentorOpenAIAgents()
+        instrumentor = OpenAIAgentsTraceInstrumentor()
         instrumentor.instrument()
 
         try:
@@ -131,7 +131,7 @@ class TestOpenAITraceProcessorIntegration:
         provider.add_span_processor(self.mock_exporter)
 
         # Initialize the instrumentor
-        instrumentor = KairoInstrumentorOpenAIAgents()
+        instrumentor = OpenAIAgentsTraceInstrumentor()
         instrumentor.instrument()
 
         try:

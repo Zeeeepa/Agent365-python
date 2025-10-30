@@ -8,10 +8,9 @@ from typing import Any, cast
 
 import opentelemetry.trace as optel_trace
 from agents import set_trace_processors
+from microsoft_agents_a365.observability.core import get_tracer, get_tracer_provider, is_configured
 from opentelemetry.instrumentation.instrumentor import BaseInstrumentor
 from opentelemetry.trace import Tracer
-
-from microsoft_agents_a365.observability.core import get_tracer, get_tracer_provider, is_configured
 
 from .trace_processor import OpenAIAgentsTraceProcessor
 
@@ -21,23 +20,23 @@ logger = logging.getLogger(__name__)
 _instruments = ("openai-agents >= 0.2.6",)
 
 
-class KairoInstrumentorOpenAIAgents(BaseInstrumentor):
+class OpenAIAgentsTraceInstrumentor(BaseInstrumentor):
     """
-    Custom Trace Processor for OpenAI Agents SDK using Kairo.
-    Forwards OpenAI Agents SDK traces and spans to Kairo's tracing scopes.
+    Custom Trace Processor for OpenAI Agents SDK using Agent365.
+    Forwards OpenAI Agents SDK traces and spans to Agent365's tracing scopes.
 
     ```
     """
 
     def __init__(self):
-        """Initialize the KairoInstrumentorOpenAIAgents.
-        Raises: RuntimeError: If Kairo is not configured.
+        """Initialize the OpenAIAgentsTraceInstrumentor.
+        Raises: RuntimeError: If Agent365 is not configured.
         """
-        # Verify if Kairo is configured
-        kairo_status = is_configured()
-        if not kairo_status:
+        # Verify if Agent365 is configured
+        Agent365_status = is_configured()
+        if not Agent365_status:
             raise RuntimeError(
-                "Kairo is not configured yet. Please configure Kairo before initializing this instrumentor."
+                "Agent365 is not configured yet. Please configure Agent365 before initializing this instrumentor."
             )
         super().__init__()
 
@@ -45,27 +44,27 @@ class KairoInstrumentorOpenAIAgents(BaseInstrumentor):
         return _instruments
 
     def _instrument(self, **kwargs: Any) -> None:
-        """Instruments the OpenAI Agents SDK with Kairo tracing."""
+        """Instruments the OpenAI Agents SDK with Agent365 tracing."""
         tracer_name = kwargs["tracer_name"] if kwargs.get("tracer_name") else None
         tracer_version = kwargs["tracer_version"] if kwargs.get("tracer_version") else None
 
-        # Get the configured Kairo Tracer
+        # Get the configured Agent365 Tracer
         try:
             tracer = get_tracer(tracer_name, tracer_version)
         except Exception:
             # fallback
             tracer = optel_trace.get_tracer(tracer_name, tracer_version)
 
-        # Get the configured Kairo Tracer Provider instance
+        # Get the configured Agent365 Tracer Provider instance
         try:
             get_tracer_provider()
         except Exception:
             # fallback
             optel_trace.get_tracer_provider()
 
-        kairo_tracer = cast(Tracer, tracer)
+        agent365_tracer = cast(Tracer, tracer)
 
-        set_trace_processors([OpenAIAgentsTraceProcessor(kairo_tracer)])
+        set_trace_processors([OpenAIAgentsTraceProcessor(agent365_tracer)])
 
     def _uninstrument(self, **kwargs: Any) -> None:
         pass

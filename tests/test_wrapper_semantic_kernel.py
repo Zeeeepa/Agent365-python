@@ -19,7 +19,7 @@ class TestSemanticKernelInstrumentor(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         """Set up test environment once for all tests."""
-        # Configure Kairo for testing
+        # Configure Agent365 for testing
         configure(
             service_name="test-service-semantic-kernel",
             service_namespace="test-namespace-semantic-kernel",

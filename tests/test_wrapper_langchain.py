@@ -38,16 +38,16 @@ class TestInstrumentorLangChain(unittest.TestCase):
         except Exception:
             pass
 
-    def test_instrumentor_initialization_and_kairo_integration(self):
-        """Test 1: Verify InstrumentorForLangChain initializes and integrates with Kairo."""
+    def test_instrumentor_initialization_and_Agent365_integration(self):
+        """Test 1: Verify InstrumentorForLangChain initializes and integrates with Agent365."""
         from microsoft_agents_a365.observability.core.config import get_tracer, is_configured
 
-        # Verify Kairo is configured
-        self.assertTrue(is_configured(), "Kairo should be configured")
+        # Verify Agent365 is configured
+        self.assertTrue(is_configured(), "Agent365 should be configured")
 
         # Get tracer to ensure it works
         tracer = get_tracer()
-        self.assertIsNotNone(tracer, "Kairo tracer should be available")
+        self.assertIsNotNone(tracer, "Agent365 tracer should be available")
 
         # Create instrumentor
         self._test_instrumentor = CustomLangChainInstrumentor()
@@ -67,7 +67,7 @@ class TestInstrumentorLangChain(unittest.TestCase):
             self._test_instrumentor._tracer, "Tracer should be created after initialization"
         )
 
-        print("✅ Test 1: InstrumentorForLangChain initialization and Kairo integration works")
+        print("✅ Test 1: InstrumentorForLangChain initialization and Agent365 integration works")
 
     def test_instrumentor_get_span_functionality(self):
         """Test 2: Verify get_span method works correctly with mock data."""
@@ -122,7 +122,7 @@ class TestInstrumentorLangChain(unittest.TestCase):
 
 def run_langchain_tests():
     """Run all LangChain wrapper tests with detailed output."""
-    print("🧪 Running Kairo LangChain Instrumentor tests...")
+    print("🧪 Running Agent365 LangChain Instrumentor tests...")
     print("=" * 80)
 
     # Create test suite

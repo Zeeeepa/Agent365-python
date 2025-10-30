@@ -5,9 +5,9 @@ from __future__ import annotations
 from collections.abc import Collection
 from typing import Any
 
+from microsoft_agents_a365.observability.core.config import get_tracer_provider, is_configured
 from opentelemetry.instrumentation.instrumentor import BaseInstrumentor
 
-from microsoft_agents_a365.observability.core.config import get_tracer_provider, is_configured
 from microsoft_agents_a365.observability.extensions.semantickernel.span_processor import (
     SemanticKernelSpanProcessor,
 )
@@ -28,7 +28,7 @@ class SemanticKernelInstrumentor(BaseInstrumentor):
     def __init__(self):
         if not is_configured():
             raise RuntimeError(
-                "Kairo (or your telemetry config) is not initialized. Configure it before instrumenting."
+                "Agent365 (or your telemetry config) is not initialized. Configure it before instrumenting."
             )
         super().__init__()
 

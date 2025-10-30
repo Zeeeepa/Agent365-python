@@ -9,15 +9,15 @@ from uuid import UUID
 import langchain_core
 import opentelemetry.trace as optel_trace
 from langchain_core.callbacks import BaseCallbackManager
-from opentelemetry.instrumentation.instrumentor import BaseInstrumentor
-from opentelemetry.trace import Span
-from wrapt import wrap_function_wrapper
-
 from microsoft_agents_a365.observability.core.config import (
     get_tracer,
     get_tracer_provider,
     is_configured,
 )
+from opentelemetry.instrumentation.instrumentor import BaseInstrumentor
+from opentelemetry.trace import Span
+from wrapt import wrap_function_wrapper
+
 from microsoft_agents_a365.observability.extensions.langchain.tracer import CustomLangChainTracer
 
 _INSTRUMENTS: str = "langchain_core >= 0.1.0"
@@ -48,7 +48,7 @@ class CustomLangChainInstrumentor(BaseInstrumentor):
         tracer_name: str | None = kwargs.get("tracer_name")
         tracer_version: str | None = kwargs.get("tracer_version")
 
-        # Prefer the Kairo tracer; fall back to OpenTelemetry’s default if needed.
+        # Prefer the Agent365 tracer; fall back to OpenTelemetry’s default if needed.
         try:
             tracer = get_tracer(tracer_name, tracer_version)
         except Exception:

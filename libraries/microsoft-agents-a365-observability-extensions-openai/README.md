@@ -45,7 +45,7 @@ The Microsoft Agent 365 OpenAI Agents Observability Extensions automatically ins
 
 ```python
 from microsoft_agents_a365.observability.core.config import configure
-from microsoft_agents_a365.observability.extensions.openai_agents import KairoInstrumentorOpenAIAgents
+from microsoft_agents_a365.observability.extensions.openai_agents import OpenAIAgentsTraceInstrumentor
 
 # Configure observability
 configure(
@@ -54,7 +54,7 @@ configure(
 )
 
 # Enable automatic instrumentation
-instrumentor = KairoInstrumentorOpenAIAgents()
+instrumentor = OpenAIAgentsTraceInstrumentor()
 instrumentor.instrument()
 
 # Your OpenAI Agents code is now automatically traced
