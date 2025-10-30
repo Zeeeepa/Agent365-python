@@ -46,7 +46,7 @@ The Microsoft Agent 365 Semantic Kernel Observability Extensions automatically i
 
 ```python
 from microsoft_agents_a365.observability.core.config import configure
-from microsoft_agents_a365.observability.extensions.semantic_kernel import KairoInstrumentorSemanticKernel
+from microsoft_agents_a365.observability.extensions.semantic_kernel import SemanticKernelInstrumentor
 
 # Configure observability
 configure(
@@ -55,7 +55,7 @@ configure(
 )
 
 # Enable automatic instrumentation
-instrumentor = KairoInstrumentorSemanticKernel()
+instrumentor = SemanticKernelInstrumentor()
 instrumentor.instrument()
 
 # Your Semantic Kernel code is now automatically traced

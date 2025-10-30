@@ -4,42 +4,42 @@
 import unittest
 
 from microsoft_agents_a365.observability.core import configure
-from microsoft_agents_a365.observability.extensions.openai import KairoInstrumentorOpenAIAgents
+from microsoft_agents_a365.observability.extensions.openai import OpenAIAgentsTraceInstrumentor
 
 
-class TestKairoInstrumentorOpenAIAgents(unittest.TestCase):
-    """Unit tests for KairoInstrumentorOpenAIAgents class."""
+class TestOpenAIAgentsTraceInstrumentor(unittest.TestCase):
+    """Unit tests for OpenAIAgentsTraceInstrumentor class."""
 
     @classmethod
     def setUpClass(cls):
         """Set up test environment once for all tests."""
-        # Configure Kairo for testing
+        # Configure Agent365 for testing
         configure(
             service_name="test-service-openaiAgents",
             service_namespace="test-namespace-openaiAgents",
         )
 
     def test_instrumentor_initialization(self):
-        """Test 1: Verify KairoInstrumentorOpenAIAgents can be initialized successfully."""
+        """Test 1: Verify OpenAIAgentsTraceInstrumentor can be initialized successfully."""
         try:
             # Test basic initialization
-            instrumentor = KairoInstrumentorOpenAIAgents()
+            instrumentor = OpenAIAgentsTraceInstrumentor()
 
             # Verify the object was created
             self.assertIsNotNone(instrumentor)
-            self.assertIsInstance(instrumentor, KairoInstrumentorOpenAIAgents)
+            self.assertIsInstance(instrumentor, OpenAIAgentsTraceInstrumentor)
 
             # Check if it has expected attributes/methods
             self.assertTrue(hasattr(instrumentor, "__init__"))
 
-            print("✅ Test 1 passed: KairoInstrumentorOpenAIAgents initialized successfully")
+            print("✅ Test 1 passed: OpenAIAgentsTraceInstrumentor initialized successfully")
 
         except Exception as e:
-            self.fail(f"KairoInstrumentorOpenAIAgents initialization failed: {e}")
+            self.fail(f"OpenAIAgentsTraceInstrumentor initialization failed: {e}")
 
     def test_instrumentor_methods_exist(self):
-        """Test 2: Verify KairoInstrumentorOpenAIAgents has expected methods."""
-        instrumentor = KairoInstrumentorOpenAIAgents()
+        """Test 2: Verify OpenAIAgentsTraceInstrumentor has expected methods."""
+        instrumentor = OpenAIAgentsTraceInstrumentor()
 
         # Test for common instrumentor methods that might exist
         expected_methods = ["__init__", "_instrument"]
@@ -48,7 +48,7 @@ class TestKairoInstrumentorOpenAIAgents(unittest.TestCase):
             with self.subTest(method=method_name):
                 self.assertTrue(
                     hasattr(instrumentor, method_name),
-                    f"Method '{method_name}' should exist on KairoInstrumentorOpenAIAgents",
+                    f"Method '{method_name}' should exist on OpenAIAgentsTraceInstrumentor",
                 )
 
         # Test that the object responds to dir() without error
@@ -56,24 +56,24 @@ class TestKairoInstrumentorOpenAIAgents(unittest.TestCase):
         self.assertIsInstance(methods_and_attrs, list)
         self.assertGreater(len(methods_and_attrs), 0)
 
-        print("✅ Test 2 passed: KairoInstrumentorOpenAIAgents has expected methods")
+        print("✅ Test 2 passed: OpenAIAgentsTraceInstrumentor has expected methods")
 
 
-class TestKairoInstrumentorIntegration(unittest.TestCase):
-    """Integration tests for the instrumentor with the broader Kairo system."""
+class TestAgent365InstrumentorIntegration(unittest.TestCase):
+    """Integration tests for the instrumentor with the broader Agent365 system."""
 
     def setUp(self):
-        """Set up each test with a fresh Kairo configuration."""
+        """Set up each test with a fresh Agent365 configuration."""
         configure(
             service_name="integration-test-service",
             service_namespace="integration-test-namespace",
         )
 
-    def test_instrumentor_with_kairo_configured(self):
-        """Test instrumentor behavior when Kairo is properly configured."""
+    def test_instrumentor_with_Agent365_configured(self):
+        """Test instrumentor behavior when Agent365 is properly configured."""
         from microsoft_agents_a365.observability.core import get_tracer, is_configured
 
-        # Verify Kairo is configured
+        # Verify Agent365 is configured
         self.assertTrue(is_configured())
 
         # Get tracer to ensure it works
@@ -81,15 +81,15 @@ class TestKairoInstrumentorIntegration(unittest.TestCase):
         self.assertIsNotNone(tracer)
 
         # Now create instrumentor
-        instrumentor = KairoInstrumentorOpenAIAgents()
+        instrumentor = OpenAIAgentsTraceInstrumentor()
         self.assertIsNotNone(instrumentor)
 
-        print("✅ Integration test passed: Instrumentor works with configured Kairo")
+        print("✅ Integration test passed: Instrumentor works with configured Agent365")
 
 
 def run_comprehensive_tests():
     """Run all tests with detailed output."""
-    print("🧪 Running comprehensive Kairo OpenAI Agents Instrumentor tests...")
+    print("🧪 Running comprehensive Agent365 OpenAI Agents Instrumentor tests...")
     print("=" * 80)
 
     # Create test suite
@@ -97,8 +97,8 @@ def run_comprehensive_tests():
     suite = unittest.TestSuite()
 
     # Add test classes
-    suite.addTests(loader.loadTestsFromTestCase(TestKairoInstrumentorOpenAIAgents))
-    suite.addTests(loader.loadTestsFromTestCase(TestKairoInstrumentorIntegration))
+    suite.addTests(loader.loadTestsFromTestCase(TestOpenAIAgentsTraceInstrumentor))
+    suite.addTests(loader.loadTestsFromTestCase(TestAgent365InstrumentorIntegration))
 
     # Run tests
     runner = unittest.TextTestRunner(verbosity=2)

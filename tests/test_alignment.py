@@ -170,7 +170,7 @@ def test_span_processor():
 
 def main():
     """Run all tests."""
-    print("🔍 Testing Kairo Python SDK alignment with .NET SDK...\n")
+    print("🔍 Testing Agent365 Python SDK alignment with .NET SDK...\n")
 
     try:
         test_constants_alignment()
