@@ -33,7 +33,7 @@ def get_tooling_gateway_for_digital_worker(agent_user_id: str) -> str:
         str: The tooling gateway URL for the digital worker.
     """
     # The endpoint needs to be updated based on the environment (prod, dev, etc.)
-    return f"{_get_mcp_platform_base_url()}/agentGateway/agentApplicationInstances/{agent_user_id}/mcpServers"
+    return f"{_get_mcp_platform_base_url()}/agents/{agent_user_id}/mcpServers"
 
 
 def get_mcp_base_url() -> str:
@@ -50,27 +50,22 @@ def get_mcp_base_url() -> str:
         if tools_mode == ToolsMode.MOCK_MCP_SERVER:
             return os.getenv("MOCK_MCP_SERVER_URL", "http://localhost:5309/mcp-mock/agents/servers")
 
-    return f"{_get_mcp_platform_base_url()}/mcp/environments"
+    return f"{_get_mcp_platform_base_url()}/agents/servers"
 
 
-def build_mcp_server_url(environment_id: str, server_name: str) -> str:
+def build_mcp_server_url(server_name: str) -> str:
     """
-    Constructs the full MCP server URL using the base URL, environment ID, and server name.
+    Constructs the full MCP server URL using the base URL and server name.
 
     Args:
-        environment_id: The environment ID.
         server_name: The MCP server name.
 
     Returns:
         str: The full MCP server URL.
     """
     base_url = get_mcp_base_url()
-    environment = _get_current_environment().lower()
+    return f"{base_url}/{server_name}"
 
-    if environment == "development" and base_url.endswith("servers"):
-        return f"{base_url}/{server_name}"
-    else:
-        return f"{base_url}/{environment_id}/servers/{server_name}"
 
 
 def _get_current_environment() -> str:

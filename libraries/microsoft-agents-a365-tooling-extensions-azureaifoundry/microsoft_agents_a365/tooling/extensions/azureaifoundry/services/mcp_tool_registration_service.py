@@ -44,7 +44,7 @@ class McpToolRegistrationService:
 
     Example:
         >>> service = McpToolRegistrationService()
-        >>> service.add_tool_servers_to_agent(project_client, agent_id, env_id, token)
+        >>> service.add_tool_servers_to_agent(project_client, agent_id, token)
     """
 
     def __init__(
@@ -73,7 +73,6 @@ class McpToolRegistrationService:
         self,
         project_client: "AIProjectClient",
         agent_user_id: str,
-        environment_id: str,
         auth: Authorization,
         context: TurnContext,
         auth_token: Optional[str] = None,
@@ -84,7 +83,6 @@ class McpToolRegistrationService:
         Args:
             project_client: The Azure Foundry AIProjectClient instance.
             agent_user_id: Agent User ID for the agent.
-            environment_id: Environment ID for the environment.
             auth_token: Authentication token to access the MCP servers.
 
         Raises:
@@ -102,7 +100,7 @@ class McpToolRegistrationService:
         try:
             # Get the tool definitions and resources using the async implementation
             tool_definitions, tool_resources = await self._get_mcp_tool_definitions_and_resources(
-                agent_user_id, environment_id, auth_token or ""
+                agent_user_id, auth_token or ""
             )
 
             # Update the agent with the tools
@@ -121,7 +119,7 @@ class McpToolRegistrationService:
             raise
 
     async def _get_mcp_tool_definitions_and_resources(
-        self, agent_user_id: str, environment_id: str, auth_token: str
+        self, agent_user_id: str, auth_token: str
     ) -> Tuple[List[McpTool], Optional[ToolResources]]:
         """
         Internal method to get MCP tool definitions and resources.
@@ -130,7 +128,6 @@ class McpToolRegistrationService:
 
         Args:
             agent_user_id: Agent User ID for the agent.
-            environment_id: Environment ID for the environment.
             auth_token: Authentication token to access the MCP servers.
 
         Returns:
@@ -143,7 +140,7 @@ class McpToolRegistrationService:
         # Get MCP server configurations
         try:
             servers = await self._mcp_server_configuration_service.list_tool_servers(
-                agent_user_id, environment_id, auth_token
+                agent_user_id, auth_token
             )
         except Exception as ex:
             self._logger.error(
@@ -153,7 +150,7 @@ class McpToolRegistrationService:
 
         if len(servers) == 0:
             self._logger.info(
-                f"No MCP servers configured for AgentUserId={agent_user_id}, EnvironmentId={environment_id}"
+                f"No MCP servers configured for AgentUserId={agent_user_id}"
             )
             return ([], None)
 
@@ -192,9 +189,6 @@ class McpToolRegistrationService:
                     else f"{Constants.Headers.BEARER_PREFIX} {auth_token}"
                 )
                 mcp_tool.update_headers(Constants.Headers.AUTHORIZATION, header_value)
-
-            # Set environment ID header
-            mcp_tool.update_headers(Constants.Headers.ENVIRONMENT_ID, environment_id)
 
             # Add to collections
             tool_definitions.extend(mcp_tool.definitions)

@@ -39,7 +39,6 @@ class McpToolRegistrationService:
         self,
         agent: Agent,
         agent_user_id: str,
-        environment_id: str,
         auth: Authorization,
         context: TurnContext,
         auth_token: Optional[str] = None,
@@ -54,7 +53,6 @@ class McpToolRegistrationService:
         Args:
             agent: The existing agent to add servers to
             agent_user_id: Agent User ID for the agent
-            environment_id: Environment ID for the environment
             auth_token: Authentication token to access the MCP servers
 
         Returns:
@@ -70,7 +68,7 @@ class McpToolRegistrationService:
         # mcp_server_configs = []
         # TODO: radevika: Update once the common project is merged.
         mcp_server_configs = await self.config_service.list_tool_servers(
-            agent_user_id=agent_user_id, environment_id=environment_id, auth_token=auth_token
+            agent_user_id=agent_user_id, auth_token=auth_token
         )
 
         # Convert MCP server configs to MCPServerInfo objects
@@ -114,8 +112,6 @@ class McpToolRegistrationService:
                     headers = si.headers or {}
                     if auth_token:
                         headers["Authorization"] = f"Bearer {auth_token}"
-                    if environment_id:
-                        headers["x-ms-environment-id"] = environment_id
 
                     # Create MCPServerStreamableHttpParams with proper configuration
                     params = MCPServerStreamableHttpParams(url=si.url, headers=headers)

@@ -64,7 +64,6 @@ registration_service = McpToolRegistrationService()
 await registration_service.add_tool_servers_to_agent(
     project_client=project_client,
     agent_id="your-agent-id",
-    environment_id="prod",
     auth_token="your-auth-token"
 )
 ```
