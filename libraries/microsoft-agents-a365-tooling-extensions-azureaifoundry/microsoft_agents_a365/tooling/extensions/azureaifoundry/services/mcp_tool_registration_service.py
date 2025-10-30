@@ -149,9 +149,7 @@ class McpToolRegistrationService:
             return ([], None)
 
         if len(servers) == 0:
-            self._logger.info(
-                f"No MCP servers configured for AgentUserId={agent_user_id}"
-            )
+            self._logger.info(f"No MCP servers configured for AgentUserId={agent_user_id}")
             return ([], None)
 
         # Collections to build for the return value
