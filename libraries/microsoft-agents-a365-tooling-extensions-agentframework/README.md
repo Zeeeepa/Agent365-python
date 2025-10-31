@@ -265,7 +265,7 @@ We welcome contributions! Please see our [Contributing Guide](../../CONTRIBUTING
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](../../LICENSE.md) file for details.
+This project is licensed under the MIT License. See the [LICENSE](https://github.com/microsoft/Agent365/blob/main/LICENSE.md) file for details.
 
 ## Support
 
