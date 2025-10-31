@@ -45,9 +45,6 @@ azure = [
     "azure-identity >= 1.12.0",
     "azure-monitor-ingestion >= 1.0.0",
 ]
-# jaeger = [
-#     "opentelemetry-exporter-jaeger >= 1.20.0",
-# ]
 # Modern approach: use OTLP exporter to send to Jaeger (since Jaeger v1.35+ supports OTLP natively)
 jaeger = [
     "opentelemetry-exporter-otlp-proto-grpc >= 1.36.0",
