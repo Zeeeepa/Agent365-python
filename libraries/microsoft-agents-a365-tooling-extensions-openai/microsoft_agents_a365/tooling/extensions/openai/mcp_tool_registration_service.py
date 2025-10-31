@@ -214,7 +214,6 @@ class McpToolRegistrationService:
             except Exception as e:
                 # Log cleanup errors but don't raise them
                 self._logger.debug(f"Error during server cleanup: {e}")
-                pass
 
     async def cleanup_all_servers(self):
         """Clean up all connected MCP servers"""
