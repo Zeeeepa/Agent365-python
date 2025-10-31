@@ -261,7 +261,7 @@ mypy microsoft_agents_a365/
 
 ## Contributing
 
-We welcome contributions! Please see our [Contributing Guide](../../CONTRIBUTING.md) for details.
+We welcome contributions! Feel free to open issues or submit pull requests to help improve this project.
 
 ## License
 
