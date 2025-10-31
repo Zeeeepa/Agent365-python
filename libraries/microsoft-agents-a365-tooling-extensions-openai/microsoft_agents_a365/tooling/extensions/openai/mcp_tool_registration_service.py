@@ -13,7 +13,10 @@ from microsoft_agents_a365.tooling.services.mcp_tool_server_configuration_servic
     McpToolServerConfigurationService,
 )
 
-from microsoft_agents_a365.tooling.utils.utility import get_ppapi_token_scope
+from microsoft_agents_a365.tooling.utils.utility import (
+    get_ppapi_token_scope,
+    get_use_environment_id,
+)
 
 
 # TODO: This is not needed. Remove this.
@@ -114,7 +117,7 @@ class McpToolRegistrationService:
                     headers = si.headers or {}
                     if auth_token:
                         headers["Authorization"] = f"Bearer {auth_token}"
-                    if environment_id:
+                    if get_use_environment_id() and environment_id:
                         headers["x-ms-environment-id"] = environment_id
 
                     # Create MCPServerStreamableHttpParams with proper configuration
