@@ -1,5 +1,8 @@
+# Copyright (c) Microsoft. All rights reserved.
+
 from typing import Dict, Optional
 from dataclasses import dataclass
+import logging
 
 from agents import Agent
 
@@ -32,8 +35,15 @@ class MCPServerInfo:
 class McpToolRegistrationService:
     """Service for managing MCP tools and servers for an agent"""
 
-    def __init__(self):
-        self.config_service = McpToolServerConfigurationService()
+    def __init__(self, logger: Optional[logging.Logger] = None):
+        """
+        Initialize the MCP Tool Registration Service for OpenAI.
+
+        Args:
+            logger: Logger instance for logging operations.
+        """
+        self._logger = logger or logging.getLogger(self.__class__.__name__)
+        self.config_service = McpToolServerConfigurationService(logger=self._logger)
 
     async def add_tool_servers_to_agent(
         self,
@@ -69,9 +79,14 @@ class McpToolRegistrationService:
         # Get MCP server configurations from the configuration service
         # mcp_server_configs = []
         # TODO: radevika: Update once the common project is merged.
+        self._logger.info(
+            f"Listing MCP tool servers for agent {agent_user_id} in environment {environment_id}"
+        )
         mcp_server_configs = await self.config_service.list_tool_servers(
             agent_user_id=agent_user_id, environment_id=environment_id, auth_token=auth_token
         )
+
+        self._logger.info(f"Loaded {len(mcp_server_configs)} MCP server configurations")
 
         # Convert MCP server configs to MCPServerInfo objects
         mcp_servers_info = []
@@ -132,16 +147,22 @@ class McpToolRegistrationService:
                     connected_servers.append(mcp_server)
 
                     existing_server_urls.append(si.url)
+                    self._logger.info(
+                        f"Successfully connected to MCP server '{si.name}' at {si.url}"
+                    )
 
                 except Exception as e:
                     # Log the error but continue with other servers
-                    print(f"Failed to connect to MCP server {si.name} at {si.url}: {e}")
+                    self._logger.warning(
+                        f"Failed to connect to MCP server {si.name} at {si.url}: {e}"
+                    )
                     continue
 
         # If we have new servers, we need to recreate the agent
         # The OpenAI Agents SDK requires MCP servers to be set during agent creation
         if new_mcp_servers:
             try:
+                self._logger.info(f"Recreating agent with {len(new_mcp_servers)} new MCP servers")
                 all_mcp_servers = existing_mcp_servers + new_mcp_servers
 
                 # Recreate the agent with all MCP servers
@@ -168,14 +189,19 @@ class McpToolRegistrationService:
                     self._connected_servers = []
                 self._connected_servers.extend(connected_servers)
 
+                self._logger.info(
+                    f"Agent recreated successfully with {len(all_mcp_servers)} total MCP servers"
+                )
                 # Return the new agent (caller needs to replace the old one)
                 return new_agent
 
             except Exception as e:
                 # Clean up connected servers if agent creation fails
+                self._logger.error(f"Failed to recreate agent with new MCP servers: {e}")
                 await self._cleanup_servers(connected_servers)
                 raise e
 
+        self._logger.info("No new MCP servers to add to agent")
         return agent
 
     async def _cleanup_servers(self, servers):
@@ -184,9 +210,9 @@ class McpToolRegistrationService:
             try:
                 if hasattr(server, "cleanup"):
                     await server.cleanup()
-            except Exception:
+            except Exception as e:
                 # Log cleanup errors but don't raise them
-                pass
+                self._logger.debug(f"Error during server cleanup: {e}")
 
     async def cleanup_all_servers(self):
         """Clean up all connected MCP servers"""
