@@ -24,12 +24,10 @@ classifiers = [
 license = "MIT"
 dependencies = [
     "microsoft-agents-a365-tooling >= 0.1.0",
-    "microsoft-agents-hosting-core >= 0.4.0",
+    "microsoft-agents-hosting-core >= 0.4.0, < 0.6.0",
     "agent-framework-azure-ai >= 0.1.0",
     "azure-identity >= 1.12.0",
     "typing-extensions >= 4.0.0",
-    "protobuf >= 5.0.0",
-    "googleapis-common-protos >= 1.60.0",
 ]
 
 [project.urls]
