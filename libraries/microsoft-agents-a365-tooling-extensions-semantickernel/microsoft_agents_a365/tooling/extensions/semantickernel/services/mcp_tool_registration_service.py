@@ -49,7 +49,9 @@ class McpToolRegistrationService:
             logger: Logger instance for logging operations.
         """
         self._logger = logger or logging.getLogger(self.__class__.__name__)
-        self._mcp_server_configuration_service = McpToolServerConfigurationService(logger=self._logger)
+        self._mcp_server_configuration_service = McpToolServerConfigurationService(
+            logger=self._logger
+        )
 
         # Store connected plugins to keep them alive
         self._connected_plugins = []

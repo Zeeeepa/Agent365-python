@@ -11,7 +11,6 @@ from microsoft_agents.hosting.core import Authorization, TurnContext
 from microsoft_agents_a365.tooling.services.mcp_tool_server_configuration_service import (
     McpToolServerConfigurationService,
 )
-from microsoft_agents_a365.tooling.utils.utility import get_ppapi_token_scope
 from microsoft_agents_a365.tooling.utils.constants import Constants
 
 
@@ -64,7 +63,9 @@ class McpToolRegistrationService:
             ChatAgent instance with MCP tools registered, or None if creation failed
         """
         try:
-            self._logger.info(f"Listing MCP tool servers for agent {agent_user_id} in environment {environment_id}")
+            self._logger.info(
+                f"Listing MCP tool servers for agent {agent_user_id} in environment {environment_id}"
+            )
 
             # Get MCP server configurations
             server_configs = await self._mcp_server_configuration_service.list_tool_servers(
@@ -81,39 +82,45 @@ class McpToolRegistrationService:
             # Add MCP plugins for each server config
             for config in server_configs:
                 try:
-                    server_url = getattr(config, 'server_url', None) or getattr(config, 'mcp_server_unique_name', None)
+                    server_url = getattr(config, "server_url", None) or getattr(
+                        config, "mcp_server_unique_name", None
+                    )
                     if not server_url:
                         self._logger.warning(f"MCP server config missing server_url: {config}")
                         continue
-                    
+
                     # Prepare auth headers
                     headers = {}
                     if auth_token:
-                        headers[Constants.Headers.AUTHORIZATION] = f"{Constants.Headers.BEARER_PREFIX} {auth_token}"
+                        headers[Constants.Headers.AUTHORIZATION] = (
+                            f"{Constants.Headers.BEARER_PREFIX} {auth_token}"
+                        )
                     if environment_id:
                         headers[Constants.Headers.ENVIRONMENT_ID] = environment_id
-                    
-                    server_name = getattr(config, 'mcp_server_name', 'Unknown')
-                    
+
+                    server_name = getattr(config, "mcp_server_name", "Unknown")
+
                     # Create and configure MCP plugin
                     mcp_tools = MCPStreamableHTTPTool(
                         name=server_name,
                         url=server_url,
                         headers=headers,
-                        description=f"MCP tools from {server_name}"
+                        description=f"MCP tools from {server_name}",
                     )
-                    
+
                     # Let Agent Framework handle the connection automatically
                     self._logger.info(f"Created MCP plugin for '{server_name}' at {server_url}")
-                    
+
                     all_tools.append(mcp_tools)
                     self._connected_servers.append(mcp_tools)
-                    
+
                     self._logger.info(f"Added MCP plugin '{server_name}' to agent tools")
-                    
+
                 except Exception as tool_ex:
-                    server_name = getattr(config, 'mcp_server_name', 'Unknown')
-                    self._logger.warning(f"Failed to create MCP plugin for {server_name}: {tool_ex}")
+                    server_name = getattr(config, "mcp_server_name", "Unknown")
+                    self._logger.warning(
+                        f"Failed to create MCP plugin for {server_name}: {tool_ex}"
+                    )
                     continue
 
             # Create the ChatAgent
@@ -135,7 +142,7 @@ class McpToolRegistrationService:
         try:
             for plugin in self._connected_servers:
                 try:
-                    if hasattr(plugin, 'close'):
+                    if hasattr(plugin, "close"):
                         await plugin.close()
                 except Exception as cleanup_ex:
                     self._logger.debug(f"Error during cleanup: {cleanup_ex}")

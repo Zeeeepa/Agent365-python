@@ -80,7 +80,9 @@ class McpToolRegistrationService:
         # Get MCP server configurations from the configuration service
         # mcp_server_configs = []
         # TODO: radevika: Update once the common project is merged.
-        self._logger.info(f"Listing MCP tool servers for agent {agent_user_id} in environment {environment_id}")
+        self._logger.info(
+            f"Listing MCP tool servers for agent {agent_user_id} in environment {environment_id}"
+        )
         mcp_server_configs = await self.config_service.list_tool_servers(
             agent_user_id=agent_user_id, environment_id=environment_id, auth_token=auth_token
         )
@@ -146,11 +148,15 @@ class McpToolRegistrationService:
                     connected_servers.append(mcp_server)
 
                     existing_server_urls.append(si.url)
-                    self._logger.info(f"Successfully connected to MCP server '{si.name}' at {si.url}")
+                    self._logger.info(
+                        f"Successfully connected to MCP server '{si.name}' at {si.url}"
+                    )
 
                 except Exception as e:
                     # Log the error but continue with other servers
-                    self._logger.warning(f"Failed to connect to MCP server {si.name} at {si.url}: {e}")
+                    self._logger.warning(
+                        f"Failed to connect to MCP server {si.name} at {si.url}: {e}"
+                    )
                     continue
 
         # If we have new servers, we need to recreate the agent
@@ -184,7 +190,9 @@ class McpToolRegistrationService:
                     self._connected_servers = []
                 self._connected_servers.extend(connected_servers)
 
-                self._logger.info(f"Agent recreated successfully with {len(all_mcp_servers)} total MCP servers")
+                self._logger.info(
+                    f"Agent recreated successfully with {len(all_mcp_servers)} total MCP servers"
+                )
                 # Return the new agent (caller needs to replace the old one)
                 return new_agent
 
