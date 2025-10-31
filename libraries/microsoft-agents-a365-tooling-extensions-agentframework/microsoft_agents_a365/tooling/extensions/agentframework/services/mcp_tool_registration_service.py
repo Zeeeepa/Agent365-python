@@ -79,7 +79,7 @@ class McpToolRegistrationService:
             # Create the agent with all tools (initial + MCP tools)
             all_tools = list(initial_tools)
 
-            # Add MCP plugins for each server config
+            # Add servers as MCPStreamableHTTPTool instances
             for config in server_configs:
                 try:
                     server_url = getattr(config, "server_url", None) or getattr(
@@ -100,7 +100,7 @@ class McpToolRegistrationService:
 
                     server_name = getattr(config, "mcp_server_name", "Unknown")
 
-                    # Create and configure MCP plugin
+                    # Create and configure MCPStreamableHTTPTool
                     mcp_tools = MCPStreamableHTTPTool(
                         name=server_name,
                         url=server_url,
@@ -135,7 +135,7 @@ class McpToolRegistrationService:
 
         except Exception as ex:
             self._logger.error(f"Failed to add tool servers to agent: {ex}")
-            return None
+            raise
 
     async def cleanup(self):
         """Clean up any resources used by the service."""
