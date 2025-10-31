@@ -14,6 +14,7 @@ members = [
     "libraries/microsoft-agents-a365-tooling-extensions-azureaifoundry",
     "libraries/microsoft-agents-a365-tooling-extensions-openai",
     "libraries/microsoft-agents-a365-tooling-extensions-semantickernel",
+    "libraries/microsoft-agents-a365-tooling-extensions-agentframework",
 ]
 exclude = [
     ".",
