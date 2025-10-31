@@ -1,31 +1,17 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
-"""
-MCP Tool Registration Service implementation for Agent Framework.
-
-This module provides the concrete implementation of the MCP (Model Context Protocol)
-tool registration service that integrates with Agent Framework to add MCP tool
-servers to agents.
-"""
-
-# Standard library imports
-import logging
 from typing import Optional, List, Any
+import logging
 
-# Third-party imports
-from azure.identity import DefaultAzureCredential
-
-# Agent Framework imports
 from agent_framework import ChatAgent, MCPStreamableHTTPTool
-from agent_framework.openai import OpenAIChatClient
-from agent_framework.azure import AzureOpenAIChatClient
 
-# Local imports from tooling package
+from microsoft_agents.hosting.core import Authorization, TurnContext
+
 from microsoft_agents_a365.tooling.services.mcp_tool_server_configuration_service import (
     McpToolServerConfigurationService,
 )
-from microsoft_agents_a365.tooling.models import MCPServerConfig
+from microsoft_agents_a365.tooling.utils.utility import get_ppapi_token_scope
 from microsoft_agents_a365.tooling.utils.constants import Constants
 
 
@@ -34,49 +20,21 @@ class McpToolRegistrationService:
     Provides MCP tool registration services for Agent Framework agents.
 
     This service handles registration and management of MCP (Model Context Protocol)
-    tool servers with Agent Framework agents. It provides seamless integration
-    between MCP servers and Microsoft Agent Framework.
-
-    Features:
-    - Automatic MCP server discovery and configuration
-    - Azure identity integration with DefaultAzureCredential
-    - Tool definitions and resources management
-    - Support for both development (ToolingManifest.json) and production (gateway API) scenarios
-    - Comprehensive error handling and logging
-
-    Example:
-        >>> service = McpToolRegistrationService()
-        >>> agent = await service.add_tool_servers_to_agent(
-        ...     chat_client=chat_client,
-        ...     agent_instructions="You are a helpful assistant.",
-        ...     initial_tools=[],
-        ...     agent_user_id="user-123",
-        ...     environment_id="prod",
-        ...     auth_token="your-token"
-        ... )
+    tool servers with Agent Framework agents.
     """
 
-    def __init__(
-        self,
-        logger: Optional[logging.Logger] = None,
-        credential: Optional["DefaultAzureCredential"] = None,
-    ):
+    def __init__(self, logger: Optional[logging.Logger] = None):
         """
         Initialize the MCP Tool Registration Service for Agent Framework.
 
         Args:
             logger: Logger instance for logging operations.
-            credential: Azure credential for authentication. If None, DefaultAzureCredential will be used.
         """
         self._logger = logger or logging.getLogger(self.__class__.__name__)
-        self._credential = credential or DefaultAzureCredential()
         self._mcp_server_configuration_service = McpToolServerConfigurationService(
             logger=self._logger
         )
-
-    # ============================================================================
-    # Public Methods - Main Entry Points
-    # ============================================================================
+        self._connected_servers = []
 
     async def add_tool_servers_to_agent(
         self,
@@ -85,129 +43,102 @@ class McpToolRegistrationService:
         initial_tools: List[Any],
         agent_user_id: str,
         environment_id: str,
+        auth: Optional[Authorization] = None,
         auth_token: Optional[str] = None,
-    ) -> "ChatAgent":
+        turn_context: Optional[TurnContext] = None,
+    ) -> Optional[ChatAgent]:
         """
-        Add new MCP servers to the agent by creating a new ChatAgent instance.
-
-        Note: Due to Agent Framework design, MCP tools must be set during
-        ChatAgent creation. If new tools are found, this method creates a new ChatAgent
-        instance with all tools (existing + new) properly initialized.
+        Add MCP tool servers to a chat agent (mirrors .NET implementation).
 
         Args:
-            chat_client: The configured chat client (OpenAIChatClient or AzureOpenAIChatClient).
-            agent_instructions: The agent instructions.
-            initial_tools: The existing tools to add servers to.
-            agent_user_id: Agent User ID for the agent.
-            environment_id: Environment ID for the environment.
-            auth_token: Authentication token to access the MCP servers.
+            chat_client: The chat client instance (OpenAI or Azure OpenAI)
+            agent_instructions: Instructions for the agent behavior
+            initial_tools: List of initial tools to add to the agent
+            agent_user_id: Unique identifier for the agent user
+            environment_id: Environment identifier for MCP server discovery
+            auth: Optional authorization context
+            auth_token: Optional bearer token for authentication
+            turn_context: Optional turn context for the operation
 
         Returns:
-            New ChatAgent instance with all MCP tools, or agent with original tools if no new servers.
-
-        Raises:
-            ValueError: If chat_client is None or auth_token is invalid.
-            Exception: If there's an error during MCP tool registration.
+            ChatAgent instance with MCP tools registered, or None if creation failed
         """
-        if chat_client is None:
-            raise ValueError("chat_client cannot be None")
-
-        if not auth_token or auth_token.strip() == "":
-            raise ValueError("Auth token cannot be null or empty.")
-
         try:
-            # Step 2: Now update agent by adding MCP tools
-            updated_tools = []
+            self._logger.info(f"Listing MCP tool servers for agent {agent_user_id} in environment {environment_id}")
 
-            # Keep any existing tools that were passed in
-            updated_tools.extend(initial_tools)
-
-            # Get MCP tool server configurations
-            servers = await self._mcp_server_configuration_service.list_tool_servers(
-                agent_user_id, environment_id, auth_token
+            # Get MCP server configurations
+            server_configs = await self._mcp_server_configuration_service.list_tool_servers(
+                agent_user_id=agent_user_id,
+                environment_id=environment_id,
+                auth_token=auth_token,
             )
 
-            # Retrieve MCP tools from all configured servers
-            for server in servers:
+            self._logger.info(f"Loaded {len(server_configs)} MCP server configurations")
+
+            # Create the agent with all tools (initial + MCP tools)
+            all_tools = list(initial_tools)
+
+            # Add MCP plugins for each server config
+            for config in server_configs:
                 try:
-                    mcp_tools = await self._get_tools(server, environment_id, auth_token)
-                    # Add the MCP tools
-                    updated_tools.extend(mcp_tools)
-
-                    self._logger.info(
-                        f"Successfully loaded {len(mcp_tools)} tools from MCP server '{server.mcp_server_name}'"
+                    server_url = getattr(config, 'server_url', None) or getattr(config, 'mcp_server_unique_name', None)
+                    if not server_url:
+                        self._logger.warning(f"MCP server config missing server_url: {config}")
+                        continue
+                    
+                    # Prepare auth headers
+                    headers = {}
+                    if auth_token:
+                        headers[Constants.Headers.AUTHORIZATION] = f"{Constants.Headers.BEARER_PREFIX} {auth_token}"
+                    if environment_id:
+                        headers[Constants.Headers.ENVIRONMENT_ID] = environment_id
+                    
+                    server_name = getattr(config, 'mcp_server_name', 'Unknown')
+                    
+                    # Create and configure MCP plugin
+                    mcp_tools = MCPStreamableHTTPTool(
+                        name=server_name,
+                        url=server_url,
+                        headers=headers,
+                        description=f"MCP tools from {server_name}"
                     )
-                except Exception as ex:
-                    self._logger.error(
-                        f"Failed to load tools from MCP server '{server.mcp_server_name}': {ex}"
-                    )
+                    
+                    # Let Agent Framework handle the connection automatically
+                    self._logger.info(f"Created MCP plugin for '{server_name}' at {server_url}")
+                    
+                    all_tools.append(mcp_tools)
+                    self._connected_servers.append(mcp_tools)
+                    
+                    self._logger.info(f"Added MCP plugin '{server_name}' to agent tools")
+                    
+                except Exception as tool_ex:
+                    server_name = getattr(config, 'mcp_server_name', 'Unknown')
+                    self._logger.warning(f"Failed to create MCP plugin for {server_name}: {tool_ex}")
+                    continue
 
-            self._logger.info(
-                f"Loaded {len(updated_tools)} MCP tools for agent {agent_user_id} in environment {environment_id}"
+            # Create the ChatAgent
+            agent = ChatAgent(
+                chat_client=chat_client,
+                tools=all_tools,
+                instructions=agent_instructions,
             )
 
-            # Create ChatAgent with updated tools (since ChatAgent is immutable)
-            agent_with_tools = ChatAgent(
-                chat_client=chat_client, instructions=agent_instructions, tools=updated_tools
-            )
-
-            # Return the enhanced agent
-            return agent_with_tools
+            self._logger.info(f"Agent created with {len(all_tools)} total tools")
+            return agent
 
         except Exception as ex:
-            self._logger.error(
-                f"Failed to add MCP tool servers for agent {agent_user_id} in environment {environment_id}: {ex}"
-            )
-            raise
+            self._logger.error(f"Failed to add tool servers to agent: {ex}")
+            return None
 
-    # ============================================================================
-    # Private Methods - Implementation Details
-    # ============================================================================
-
-    async def _get_tools(
-        self, server: MCPServerConfig, environment_id: str, auth_token: str
-    ) -> List[Any]:
-        """
-        Get tools from a specific MCP server.
-
-        Args:
-            server: MCP server configuration.
-            environment_id: Environment ID for the environment.
-            auth_token: Authentication token for the MCP server.
-
-        Returns:
-            List of tools from the MCP server.
-        """
-        if not server.mcp_server_name or not server.mcp_server_unique_name:
-            self._logger.warning(
-                f"Skipping invalid MCP server config: Name='{server.mcp_server_name}', Url='{server.mcp_server_unique_name}'"
-            )
-            return []
-
+    async def cleanup(self):
+        """Clean up any resources used by the service."""
         try:
-            # Create headers for MCP server authentication
-            headers = {
-                Constants.Headers.AUTHORIZATION: f"{Constants.Headers.BEARER_PREFIX} {auth_token}",
-                Constants.Headers.ENVIRONMENT_ID: environment_id,
-            }
-
-            # Create MCP plugin using Agent Framework
-            plugin = MCPStreamableHTTPTool(
-                name=server.mcp_server_name,
-                url=server.mcp_server_unique_name,
-                headers=headers or None,
-            )
-
-            # Get tools from the MCP plugin
-            tools = await plugin.get_tools()
-
-            self._logger.info(
-                f"Retrieved {len(tools)} tools from MCP server {server.mcp_server_name}"
-            )
-            return tools
-
+            for plugin in self._connected_servers:
+                try:
+                    if hasattr(plugin, 'close'):
+                        await plugin.close()
+                except Exception as cleanup_ex:
+                    self._logger.debug(f"Error during cleanup: {cleanup_ex}")
+            self._connected_servers.clear()
         except Exception as ex:
-            self._logger.error(
-                f"Failed to get tools from MCP server {server.mcp_server_name}: {ex}"
-            )
-            return []
+            self._logger.debug(f"Error during service cleanup: {ex}")

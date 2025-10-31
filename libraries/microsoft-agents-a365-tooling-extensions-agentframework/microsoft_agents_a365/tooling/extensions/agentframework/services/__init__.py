@@ -2,15 +2,13 @@
 # Licensed under the MIT License.
 
 """
-Agent Framework Services Module.
+Services module for Agent Framework tooling.
 
-This module contains service implementations for Agent Framework integration,
-including MCP (Model Context Protocol) tool registration and management.
+This package contains service implementations for MCP tool registration
+and management within the Agent Framework.
 """
 
-from .mcp_tool_registration_service import (
-    McpToolRegistrationService,
-)
+from .mcp_tool_registration_service import McpToolRegistrationService
 
 __all__ = [
     "McpToolRegistrationService",

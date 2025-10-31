@@ -24,8 +24,10 @@ classifiers = [
 license = "MIT"
 dependencies = [
     "microsoft-agents-a365-tooling >= 0.1.0",
-    "agent-framework",
+    "microsoft-agents-hosting >= 0.1.0",
+    "agent-framework-azure-ai >= 0.1.0",
     "azure-identity >= 1.12.0",
+    "typing-extensions >= 4.0.0",
 ]
 
 [project.urls]
@@ -47,14 +49,15 @@ test = [
     "pytest-asyncio >= 0.21.0",
 ]
 
+[tool.setuptools.packages.find]
+where = ["."]
+
 [tool.setuptools]
-packages = ["microsoft_agents_a365.tooling.extensions.agentframework"]
+license-files = ["../../LICENSE"]
+include-package-data = true
 
-[tool.setuptools.package-dir]
-"microsoft_agents_a365.tooling.extensions.agentframework" = "microsoft_agents_a365/tooling/extensions/agentframework"
-
-[tool.setuptools.dynamic]
-version = {attr = "microsoft_agents_a365.tooling.extensions.agentframework.__version__"}
+[tool.setuptools.package-data]
+"*" = ["../../LICENSE"]
 
 [tool.black]
 line-length = 100
