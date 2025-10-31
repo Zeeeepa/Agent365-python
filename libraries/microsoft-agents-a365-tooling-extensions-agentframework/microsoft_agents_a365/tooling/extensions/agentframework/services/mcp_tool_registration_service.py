@@ -1,9 +1,11 @@
 # Copyright (c) Microsoft. All rights reserved.
 
-from typing import Optional, List, Any
+from typing import Optional, List, Any, Union
 import logging
 
 from agent_framework import ChatAgent, MCPStreamableHTTPTool
+from agent_framework.azure import AzureOpenAIChatClient
+from agent_framework.openai import OpenAIChatClient
 
 from microsoft_agents.hosting.core import Authorization, TurnContext
 
@@ -36,7 +38,7 @@ class McpToolRegistrationService:
 
     async def add_tool_servers_to_agent(
         self,
-        chat_client: Any,  # OpenAIChatClient or AzureOpenAIChatClient
+        chat_client: Union[OpenAIChatClient, AzureOpenAIChatClient],
         agent_instructions: str,
         initial_tools: List[Any],
         agent_user_id: str,
@@ -49,7 +51,7 @@ class McpToolRegistrationService:
         Add MCP tool servers to a chat agent (mirrors .NET implementation).
 
         Args:
-            chat_client: The chat client instance (OpenAI or Azure OpenAI)
+            chat_client: The chat client instance (Union[OpenAIChatClient, AzureOpenAIChatClient])
             agent_instructions: Instructions for the agent behavior
             initial_tools: List of initial tools to add to the agent
             agent_user_id: Unique identifier for the agent user
