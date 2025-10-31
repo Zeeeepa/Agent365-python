@@ -102,16 +102,13 @@ from microsoft_agents_a365.tooling.extensions.agentframework import (
 )
 
 async def main():
-    # Initialize with custom logger and credentials
+    # Initialize with custom logger
     import logging
-    from azure.identity import DefaultAzureCredential
     
     logger = logging.getLogger("my-agent")
-    credential = DefaultAzureCredential()
     
     service = McpToolRegistrationService(
-        logger=logger,
-        credential=credential
+        logger=logger
     )
     
     # Create Azure OpenAI chat client
