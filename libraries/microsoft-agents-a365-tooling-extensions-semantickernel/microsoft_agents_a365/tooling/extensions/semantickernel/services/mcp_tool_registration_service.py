@@ -41,20 +41,15 @@ class McpToolRegistrationService:
     def __init__(
         self,
         logger: Optional[logging.Logger] = None,
-        service_provider: Optional[Any] = None,
-        mcp_server_configuration_service: Optional[McpToolServerConfigurationService] = None,
     ):
         """
-        Initialize the MCP Tool Registration Service.
+        Initialize the MCP Tool Registration Service for Semantic Kernel.
 
         Args:
             logger: Logger instance for logging operations.
-            service_provider: Service provider for dependency injection.
-            mcp_server_configuration_service: Service for MCP server configuration.
         """
         self._logger = logger or logging.getLogger(self.__class__.__name__)
-        self._service_provider = service_provider
-        self._mcp_server_configuration_service = mcp_server_configuration_service
+        self._mcp_server_configuration_service = McpToolServerConfigurationService(logger=self._logger)
 
         # Store connected plugins to keep them alive
         self._connected_plugins = []
@@ -109,11 +104,6 @@ class McpToolRegistrationService:
             auth_token = authToken.token
 
         self._validate_inputs(kernel, agent_user_id, environment_id, auth_token)
-
-        if self._mcp_server_configuration_service is None:
-            raise ValueError(
-                "MCP server configuration service is required but was not provided during initialization"
-            )
 
         # Get and process servers
         servers = await self._mcp_server_configuration_service.list_tool_servers(
