@@ -171,7 +171,9 @@ class McpToolRegistrationService:
     # Private Methods - Input Validation & Processing
     # ============================================================================
 
-    def _validate_inputs(self, kernel: Any, agent_user_id: str, auth_token: str) -> None:
+    def _validate_inputs(
+        self, kernel: Any, agent_user_id: str, auth_token: str
+    ) -> None:
         """Validate all required inputs."""
         if kernel is None:
             raise ValueError("kernel cannot be None")

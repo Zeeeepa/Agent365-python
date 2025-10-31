@@ -67,6 +67,7 @@ def build_mcp_server_url(server_name: str) -> str:
     return f"{base_url}/{server_name}"
 
 
+
 def _get_current_environment() -> str:
     """
     Gets the current environment name.

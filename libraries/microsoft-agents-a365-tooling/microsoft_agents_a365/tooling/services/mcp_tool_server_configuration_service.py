@@ -65,7 +65,9 @@ class McpToolServerConfigurationService:
     # PUBLIC API
     # --------------------------------------------------------------------------
 
-    async def list_tool_servers(self, agent_user_id: str, auth_token: str) -> List[MCPServerConfig]:
+    async def list_tool_servers(
+        self, agent_user_id: str, auth_token: str
+    ) -> List[MCPServerConfig]:
         """
         Gets the list of MCP Servers that are configured for the agent.
 
@@ -83,7 +85,9 @@ class McpToolServerConfigurationService:
         # Validate input parameters
         self._validate_input_parameters(agent_user_id, auth_token)
 
-        self._logger.info(f"Listing MCP tool servers for agent {agent_user_id}")
+        self._logger.info(
+            f"Listing MCP tool servers for agent {agent_user_id}"
+        )
 
         # Determine configuration source based on environment
         if self._is_development_scenario():
@@ -210,7 +214,9 @@ class McpToolServerConfigurationService:
 
         return search_locations
 
-    def _parse_manifest_file(self, manifest_path: Path) -> List[MCPServerConfig]:
+    def _parse_manifest_file(
+        self, manifest_path: Path
+    ) -> List[MCPServerConfig]:
         """
         Parses the manifest file and extracts MCP server configurations.
 
@@ -237,7 +243,9 @@ class McpToolServerConfigurationService:
                 print(f"📊 Processing {len(mcp_servers_data)} server entries")
                 for server_element in mcp_servers_data:
                     print(f"🔧 Processing server element: {server_element}")
-                    server_config = self._parse_manifest_server_config(server_element)
+                    server_config = self._parse_manifest_server_config(
+                        server_element
+                    )
                     if server_config is not None:
                         print(
                             f"✅ Created server config: {server_config.mcp_server_name} -> {server_config.mcp_server_unique_name}"
@@ -321,10 +329,7 @@ class McpToolServerConfigurationService:
 
         return mcp_servers
 
-    def _prepare_gateway_headers(
-        self,
-        auth_token: str,
-    ) -> Dict[str, str]:
+    def _prepare_gateway_headers(self, auth_token: str,) -> Dict[str, str]:
         """
         Prepares headers for tooling gateway requests.
 
@@ -422,7 +427,9 @@ class McpToolServerConfigurationService:
     # VALIDATION AND UTILITY HELPERS
     # --------------------------------------------------------------------------
 
-    def _validate_input_parameters(self, agent_user_id: str, auth_token: str) -> None:
+    def _validate_input_parameters(
+        self, agent_user_id: str, auth_token: str
+    ) -> None:
         """
         Validates input parameters for the main API method.
 
