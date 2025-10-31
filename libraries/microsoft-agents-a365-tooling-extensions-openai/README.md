@@ -54,6 +54,7 @@ registration_service = McpToolRegistrationService()
 await registration_service.add_tool_servers_to_agent(
     agent=your_openai_agent,
     agent_user_id="user-123",
+    environment_id="prod",
     auth=authorization_context,
     context=turn_context,
     auth_token="your-auth-token"

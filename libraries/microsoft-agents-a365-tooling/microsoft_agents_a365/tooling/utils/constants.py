@@ -20,3 +20,6 @@ class Constants:
 
         #: The prefix used for Bearer authentication tokens in HTTP headers.
         BEARER_PREFIX = "Bearer"
+
+        #: The header name used to specify the environment identifier in HTTP requests.
+        ENVIRONMENT_ID = "x-ms-environment-id"

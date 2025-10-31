@@ -59,6 +59,7 @@ mcp_config = MCPServerConfig(
 config_service = McpToolServerConfigurationService()
 mcp_servers = await config_service.list_tool_servers(
     agent_user_id="agent-123",
+    environment_id="prod",
     auth_token="your-auth-token"
 )
 ```
