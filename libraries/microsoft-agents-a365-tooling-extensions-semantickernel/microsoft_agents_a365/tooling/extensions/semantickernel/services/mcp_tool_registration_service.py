@@ -24,7 +24,7 @@ from ...common.services.mcp_tool_server_configuration_service import (
 )
 from ...common.models import MCPServerConfig
 from ...common.utils.constants import Constants
-from ...common.utils.utility import get_tools_mode, get_ppapi_token_scope
+from ...common.utils.utility import get_tools_mode, get_ppapi_token_scope, get_use_environment_id
 
 
 from semantic_kernel.connectors.mcp import MCPStreamableHttpPlugin
@@ -127,15 +127,19 @@ class McpToolRegistrationService:
 
                 if tools_mode == "MockMCPServer":
                     # Mock server does not require bearer auth, but still forward environment id if available.
-                    if environment_id:
+                    if get_use_environment_id() and environment_id:
                         headers[Constants.Headers.ENVIRONMENT_ID] = environment_id
 
                     if mock_auth_header := os.getenv("MOCK_MCP_AUTHORIZATION"):
                         headers[Constants.Headers.AUTHORIZATION] = mock_auth_header
-                else:
+                elif get_use_environment_id():
                     headers = {
                         Constants.Headers.AUTHORIZATION: f"{Constants.Headers.BEARER_PREFIX} {auth_token}",
                         Constants.Headers.ENVIRONMENT_ID: environment_id,
+                    }
+                else:
+                    headers = {
+                        Constants.Headers.AUTHORIZATION: f"{Constants.Headers.BEARER_PREFIX} {auth_token}",
                     }
 
                 plugin = MCPStreamableHttpPlugin(
