@@ -6,7 +6,6 @@ Unit tests for MCPServerConfig model.
 
 import pytest
 from dataclasses import dataclass
-from typing import Optional
 
 
 @dataclass
@@ -34,9 +33,7 @@ class TestMCPServerConfig:
         unique_name = "mcp_mail_tools"
 
         # Act
-        config = MCPServerConfig(
-            mcp_server_name=server_name, mcp_server_unique_name=unique_name
-        )
+        config = MCPServerConfig(mcp_server_name=server_name, mcp_server_unique_name=unique_name)
 
         # Assert
         assert config.mcp_server_name == server_name
@@ -111,7 +108,7 @@ class TestMCPServerConfig:
 
         # Act & Assert - Dataclass without frozen=True is not hashable
         with pytest.raises(TypeError, match="unhashable type"):
-            config_dict = {config1: "value1"}
+            {config1: "value1"}
 
     def test_field_assignment_after_creation(self):
         """Test that fields can be modified after creation."""
