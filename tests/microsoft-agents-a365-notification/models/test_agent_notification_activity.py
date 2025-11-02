@@ -20,8 +20,10 @@ from microsoft_agents_a365.notifications.models.wpx_comment import WpxComment
 
 class TestAgentNotificationActivity:
     """Test cases for AgentNotificationActivity class"""
-    
-    def _create_mock_activity(self, entities=None, name="agentLifecycle", channel_id=None, value=None, type="message"):
+
+    def _create_mock_activity(
+        self, entities=None, name="agentLifecycle", channel_id=None, value=None, type="message"
+    ):
         """Helper to create properly configured mock activity"""
         mock_activity = Mock(spec=Activity)
         # Directly set attributes to ensure they're accessible
@@ -108,7 +110,7 @@ class TestAgentNotificationActivity:
         mock_email_entity.properties = {"type": "emailNotification"}
 
         mock_wpx_entity = Mock()
-        mock_wpx_entity.type = "WPXCOMMENT" 
+        mock_wpx_entity.type = "WPXCOMMENT"
         mock_wpx_entity.properties = {"type": "wpxComment"}
 
         mock_activity = self._create_mock_activity(entities=[mock_email_entity, mock_wpx_entity])
@@ -172,7 +174,7 @@ class TestAgentNotificationActivity:
         # Arrange
         mock_channel_id = Mock()
         mock_channel_id.sub_channel = "testSubChannel"
-        
+
         mock_activity = self._create_mock_activity(entities=None, channel_id=mock_channel_id)
 
         ana = AgentNotificationActivity(mock_activity)
@@ -229,10 +231,7 @@ class TestAgentNotificationActivity:
         # Arrange
         mock_email_entity = Mock()
         mock_email_entity.type = "EMAILNOTIFICATION"
-        mock_email_entity.properties = {
-            "type": "emailNotification",
-            "id": "test-email-id"
-        }
+        mock_email_entity.properties = {"type": "emailNotification", "id": "test-email-id"}
 
         mock_activity = self._create_mock_activity(entities=[mock_email_entity])
 
@@ -250,10 +249,7 @@ class TestAgentNotificationActivity:
         # Arrange
         mock_wpx_entity = Mock()
         mock_wpx_entity.type = "WPXCOMMENT"
-        mock_wpx_entity.properties = {
-            "type": "wpxComment",
-            "odataId": "test-comment-id"
-        }
+        mock_wpx_entity.properties = {"type": "wpxComment", "odataId": "test-comment-id"}
 
         mock_activity = self._create_mock_activity(entities=[mock_wpx_entity])
 
@@ -329,7 +325,9 @@ class TestAgentNotificationActivity:
         mock_email_entity2.type = "EMAILNOTIFICATION"
         mock_email_entity2.properties = {"type": "emailNotification", "id": "second"}
 
-        mock_activity = self._create_mock_activity(entities=[mock_email_entity1, mock_email_entity2])
+        mock_activity = self._create_mock_activity(
+            entities=[mock_email_entity1, mock_email_entity2]
+        )
 
         # Act
         ana = AgentNotificationActivity(mock_activity)
@@ -363,7 +361,7 @@ class TestAgentNotificationActivity:
         email_entity1.properties = {"type": "emailNotification", "id": "email1"}
 
         email_entity2 = Mock()
-        email_entity2.type = "EMAILNOTIFICATION" 
+        email_entity2.type = "EMAILNOTIFICATION"
         email_entity2.properties = {"type": "emailNotification", "id": "email2"}
 
         mock_activity = self._create_mock_activity(entities=[email_entity1, email_entity2])
@@ -377,7 +375,7 @@ class TestAgentNotificationActivity:
 
     def test_as_model_with_none_value(self):
         """Test as_model method with None value"""
-        # Arrange  
+        # Arrange
         mock_activity = self._create_mock_activity(entities=None, value=None)
 
         mock_model_class = Mock()

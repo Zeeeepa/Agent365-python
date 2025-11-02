@@ -31,7 +31,7 @@ class TestWpxComment:
             odata_id="odata-123",
             document_id="doc-456",
             parent_comment_id="parent-789",
-            comment_id="comment-101112"
+            comment_id="comment-101112",
         )
 
         # Assert
@@ -44,10 +44,7 @@ class TestWpxComment:
     def test_init_with_partial_values(self):
         """Test WpxComment initialization with only some values"""
         # Arrange & Act
-        wpx_comment = WpxComment(
-            document_id="doc-partial",
-            comment_id="comment-partial"
-        )
+        wpx_comment = WpxComment(document_id="doc-partial", comment_id="comment-partial")
 
         # Assert
         assert wpx_comment.type == NotificationTypes.WPX_COMMENT
@@ -72,7 +69,7 @@ class TestWpxComment:
             "odata_id": "test-odata-id",
             "document_id": "test-doc-id",
             "parent_comment_id": "test-parent-id",
-            "comment_id": "test-comment-id"
+            "comment_id": "test-comment-id",
         }
 
         # Act
@@ -88,10 +85,7 @@ class TestWpxComment:
     def test_model_validate_from_dict_with_partial_fields(self):
         """Test creating WpxComment from dictionary with partial fields"""
         # Arrange
-        data = {
-            "document_id": "partial-doc-id",
-            "comment_id": "partial-comment-id"
-        }
+        data = {"document_id": "partial-doc-id", "comment_id": "partial-comment-id"}
 
         # Act
         wpx_comment = WpxComment.model_validate(data)
@@ -125,7 +119,7 @@ class TestWpxComment:
             "document_id": "test-doc",
             "comment_id": "test-comment",
             "extra_field": "should_be_ignored_or_handled",
-            "another_extra": 456
+            "another_extra": 456,
         }
 
         # Act
@@ -144,7 +138,7 @@ class TestWpxComment:
             "odata_id": None,
             "document_id": None,
             "parent_comment_id": None,
-            "comment_id": None
+            "comment_id": None,
         }
 
         # Act
@@ -164,16 +158,16 @@ class TestWpxComment:
             odata_id="prop-test-odata",
             document_id="prop-test-doc",
             parent_comment_id="prop-test-parent",
-            comment_id="prop-test-comment"
+            comment_id="prop-test-comment",
         )
 
         # Act & Assert
-        assert hasattr(wpx_comment, 'odata_id')
-        assert hasattr(wpx_comment, 'document_id')
-        assert hasattr(wpx_comment, 'parent_comment_id')
-        assert hasattr(wpx_comment, 'comment_id')
-        assert hasattr(wpx_comment, 'type')
-        
+        assert hasattr(wpx_comment, "odata_id")
+        assert hasattr(wpx_comment, "document_id")
+        assert hasattr(wpx_comment, "parent_comment_id")
+        assert hasattr(wpx_comment, "comment_id")
+        assert hasattr(wpx_comment, "type")
+
         assert wpx_comment.odata_id == "prop-test-odata"
         assert wpx_comment.document_id == "prop-test-doc"
         assert wpx_comment.parent_comment_id == "prop-test-parent"
@@ -184,9 +178,7 @@ class TestWpxComment:
         """Test root comment (no parent) scenario"""
         # Arrange & Act
         root_comment = WpxComment(
-            document_id="doc-hierarchy-test",
-            comment_id="root-comment-1",
-            parent_comment_id=None
+            document_id="doc-hierarchy-test", comment_id="root-comment-1", parent_comment_id=None
         )
 
         # Assert
@@ -201,7 +193,7 @@ class TestWpxComment:
         reply_comment = WpxComment(
             document_id="doc-hierarchy-test",
             comment_id="reply-comment-1",
-            parent_comment_id="root-comment-1"
+            parent_comment_id="root-comment-1",
         )
 
         # Assert
@@ -217,13 +209,13 @@ class TestWpxComment:
             "/files/document.docx",
             "https://graph.microsoft.com/v1.0/drives/abc/items/123",
             "/drives/drive-id/items/item-id",
-            "odata-simple-id"
+            "odata-simple-id",
         ]
 
         for odata_id in test_odata_ids:
             # Act
             wpx_comment = WpxComment(odata_id=odata_id)
-            
+
             # Assert
             assert wpx_comment.odata_id == odata_id
             assert wpx_comment.type == NotificationTypes.WPX_COMMENT
@@ -235,13 +227,13 @@ class TestWpxComment:
             "doc-123",
             "document_abcd1234",
             "file-xyz-789",
-            "01ABCDEF1234567890ABCDEF1234567890"
+            "01ABCDEF1234567890ABCDEF1234567890",
         ]
 
         for doc_id in test_doc_ids:
             # Act
             wpx_comment = WpxComment(document_id=doc_id)
-            
+
             # Assert
             assert wpx_comment.document_id == doc_id
             assert wpx_comment.type == NotificationTypes.WPX_COMMENT
@@ -253,13 +245,13 @@ class TestWpxComment:
             "comment-123",
             "comment_abcd1234",
             "cmt-xyz-789",
-            "12345678-1234-1234-1234-123456789012"
+            "12345678-1234-1234-1234-123456789012",
         ]
 
         for comment_id in test_comment_ids:
             # Act
             wpx_comment = WpxComment(comment_id=comment_id)
-            
+
             # Assert
             assert wpx_comment.comment_id == comment_id
             assert wpx_comment.type == NotificationTypes.WPX_COMMENT
@@ -271,21 +263,21 @@ class TestWpxComment:
             odata_id="test-odata",
             document_id="test-doc",
             parent_comment_id="test-parent",
-            comment_id="test-comment"
+            comment_id="test-comment",
         )
-        
+
         wpx_comment2 = WpxComment(
             odata_id="test-odata",
             document_id="test-doc",
             parent_comment_id="test-parent",
-            comment_id="test-comment"
+            comment_id="test-comment",
         )
-        
+
         wpx_comment3 = WpxComment(
             odata_id="different-odata",
             document_id="test-doc",
             parent_comment_id="test-parent",
-            comment_id="test-comment"
+            comment_id="test-comment",
         )
 
         # Act & Assert
@@ -299,7 +291,7 @@ class TestWpxComment:
             odata_id="dict-test-odata",
             document_id="dict-test-doc",
             parent_comment_id="dict-test-parent",
-            comment_id="dict-test-comment"
+            comment_id="dict-test-comment",
         )
 
         # Act
@@ -311,7 +303,7 @@ class TestWpxComment:
             "odata_id": "dict-test-odata",
             "document_id": "dict-test-doc",
             "parent_comment_id": "dict-test-parent",
-            "comment_id": "dict-test-comment"
+            "comment_id": "dict-test-comment",
         }
         assert comment_dict == expected_dict
 
@@ -322,30 +314,30 @@ class TestWpxComment:
             odata_id="/files/shared-doc.docx",
             document_id="shared-doc-123",
             comment_id="root-001",
-            parent_comment_id=None
+            parent_comment_id=None,
         )
-        
+
         reply1 = WpxComment(
             odata_id="/files/shared-doc.docx",
             document_id="shared-doc-123",
             comment_id="reply-001",
-            parent_comment_id="root-001"
+            parent_comment_id="root-001",
         )
-        
+
         reply2 = WpxComment(
             odata_id="/files/shared-doc.docx",
             document_id="shared-doc-123",
             comment_id="reply-002",
-            parent_comment_id="reply-001"
+            parent_comment_id="reply-001",
         )
 
         # Assert - Verify hierarchy structure
         assert root_comment.parent_comment_id is None  # Root has no parent
         assert reply1.parent_comment_id == "root-001"  # Reply to root
         assert reply2.parent_comment_id == "reply-001"  # Reply to reply
-        
+
         # All should be for same document
         assert root_comment.document_id == reply1.document_id == reply2.document_id
-        
+
         # All should have correct type
         assert root_comment.type == reply1.type == reply2.type == NotificationTypes.WPX_COMMENT

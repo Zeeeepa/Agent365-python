@@ -14,9 +14,9 @@ class TestNotificationTypes:
     def test_enum_values_exist(self):
         """Test that all expected enum values exist"""
         # Assert
-        assert hasattr(NotificationTypes, 'EMAIL_NOTIFICATION')
-        assert hasattr(NotificationTypes, 'WPX_COMMENT')
-        assert hasattr(NotificationTypes, 'AGENT_LIFECYCLE')
+        assert hasattr(NotificationTypes, "EMAIL_NOTIFICATION")
+        assert hasattr(NotificationTypes, "WPX_COMMENT")
+        assert hasattr(NotificationTypes, "AGENT_LIFECYCLE")
 
     def test_enum_string_values(self):
         """Test that enum values have correct string representations"""
@@ -38,7 +38,7 @@ class TestNotificationTypes:
         assert NotificationTypes.EMAIL_NOTIFICATION == "emailNotification"
         assert NotificationTypes.WPX_COMMENT == "wpxComment"
         assert NotificationTypes.AGENT_LIFECYCLE == "agentLifecycle"
-        
+
         # Test inequality
         assert NotificationTypes.EMAIL_NOTIFICATION != "wpxComment"
         assert NotificationTypes.WPX_COMMENT != "agentLifecycle"
@@ -72,7 +72,7 @@ class TestNotificationTypes:
         """Test checking membership in enum"""
         # Act & Assert
         all_values = [nt.value for nt in NotificationTypes]
-        
+
         assert "emailNotification" in all_values
         assert "wpxComment" in all_values
         assert "agentLifecycle" in all_values
@@ -160,19 +160,19 @@ class TestNotificationTypes:
         notification_list = [
             NotificationTypes.EMAIL_NOTIFICATION,
             NotificationTypes.WPX_COMMENT,
-            NotificationTypes.AGENT_LIFECYCLE
+            NotificationTypes.AGENT_LIFECYCLE,
         ]
-        
+
         notification_set = {
             NotificationTypes.EMAIL_NOTIFICATION,
             NotificationTypes.WPX_COMMENT,
-            NotificationTypes.AGENT_LIFECYCLE
+            NotificationTypes.AGENT_LIFECYCLE,
         }
-        
+
         notification_dict = {
             NotificationTypes.EMAIL_NOTIFICATION: "handle_email",
             NotificationTypes.WPX_COMMENT: "handle_wpx",
-            NotificationTypes.AGENT_LIFECYCLE: "handle_lifecycle"
+            NotificationTypes.AGENT_LIFECYCLE: "handle_lifecycle",
         }
 
         # Act & Assert
@@ -186,7 +186,7 @@ class TestNotificationTypes:
         handlers = {
             NotificationTypes.EMAIL_NOTIFICATION: lambda: "email_handler",
             NotificationTypes.WPX_COMMENT: lambda: "wpx_handler",
-            NotificationTypes.AGENT_LIFECYCLE: lambda: "lifecycle_handler"
+            NotificationTypes.AGENT_LIFECYCLE: lambda: "lifecycle_handler",
         }
 
         # Act & Assert
@@ -199,7 +199,7 @@ class TestNotificationTypes:
         # Act
         email_hash1 = hash(NotificationTypes.EMAIL_NOTIFICATION)
         email_hash2 = hash(NotificationTypes.EMAIL_NOTIFICATION)
-        
+
         wpx_hash = hash(NotificationTypes.WPX_COMMENT)
         lifecycle_hash = hash(NotificationTypes.AGENT_LIFECYCLE)
 

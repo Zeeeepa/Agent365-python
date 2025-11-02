@@ -19,21 +19,23 @@ except ImportError:
         MSTeams = "msteams"
         Directline = "directline"
         Webchat = "webchat"
-    
+
     class Activity:
         def __init__(self, **kwargs):
             for k, v in kwargs.items():
                 setattr(self, k, v)
-    
+
     class TurnContext:
         def __init__(self, **kwargs):
             for k, v in kwargs.items():
                 setattr(self, k, v)
-    
+
     class TurnState:
         def __init__(self, **kwargs):
             for k, v in kwargs.items():
                 setattr(self, k, v)
+
+
 from microsoft_agents_a365.notifications.agent_notification import AgentNotification
 from microsoft_agents_a365.notifications.models.agent_notification_activity import (
     AgentNotificationActivity,

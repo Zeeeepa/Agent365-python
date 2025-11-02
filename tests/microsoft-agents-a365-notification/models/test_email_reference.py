@@ -27,9 +27,7 @@ class TestEmailReference:
         """Test EmailReference initialization with all values provided"""
         # Arrange & Act
         email_ref = EmailReference(
-            id="email-123",
-            conversation_id="conv-456",
-            html_body="<p>Test email content</p>"
+            id="email-123", conversation_id="conv-456", html_body="<p>Test email content</p>"
         )
 
         # Assert
@@ -41,10 +39,7 @@ class TestEmailReference:
     def test_init_with_partial_values(self):
         """Test EmailReference initialization with only some values"""
         # Arrange & Act
-        email_ref = EmailReference(
-            id="email-789",
-            conversation_id="conv-101112"
-        )
+        email_ref = EmailReference(id="email-789", conversation_id="conv-101112")
 
         # Assert
         assert email_ref.type == NotificationTypes.EMAIL_NOTIFICATION
@@ -67,7 +62,7 @@ class TestEmailReference:
         data = {
             "id": "test-email-id",
             "conversation_id": "test-conv-id",
-            "html_body": "<html><body>Test content</body></html>"
+            "html_body": "<html><body>Test content</body></html>",
         }
 
         # Act
@@ -82,9 +77,7 @@ class TestEmailReference:
     def test_model_validate_from_dict_with_partial_fields(self):
         """Test creating EmailReference from dictionary with partial fields"""
         # Arrange
-        data = {
-            "id": "partial-email-id"
-        }
+        data = {"id": "partial-email-id"}
 
         # Act
         email_ref = EmailReference.model_validate(data)
@@ -116,7 +109,7 @@ class TestEmailReference:
             "id": "test-id",
             "conversation_id": "test-conv",
             "extra_field": "should_be_ignored_or_handled",
-            "another_extra": 123
+            "another_extra": 123,
         }
 
         # Act
@@ -131,11 +124,7 @@ class TestEmailReference:
     def test_model_validate_with_none_values(self):
         """Test model validation with explicit None values"""
         # Arrange
-        data = {
-            "id": None,
-            "conversation_id": None,
-            "html_body": None
-        }
+        data = {"id": None, "conversation_id": None, "html_body": None}
 
         # Act
         email_ref = EmailReference.model_validate(data)
@@ -152,15 +141,15 @@ class TestEmailReference:
         email_ref = EmailReference(
             id="prop-test-id",
             conversation_id="prop-test-conv",
-            html_body="<div>Property test content</div>"
+            html_body="<div>Property test content</div>",
         )
 
         # Act & Assert
-        assert hasattr(email_ref, 'id')
-        assert hasattr(email_ref, 'conversation_id')
-        assert hasattr(email_ref, 'html_body')
-        assert hasattr(email_ref, 'type')
-        
+        assert hasattr(email_ref, "id")
+        assert hasattr(email_ref, "conversation_id")
+        assert hasattr(email_ref, "html_body")
+        assert hasattr(email_ref, "type")
+
         assert email_ref.id == "prop-test-id"
         assert email_ref.conversation_id == "prop-test-conv"
         assert email_ref.html_body == "<div>Property test content</div>"
@@ -199,13 +188,13 @@ class TestEmailReference:
             "email_123456",
             "msg-abcd-efgh-1234",
             "user@domain.com-msg-001",
-            "12345"
+            "12345",
         ]
 
         for test_id in test_ids:
             # Act
             email_ref = EmailReference(id=test_id)
-            
+
             # Assert
             assert email_ref.id == test_id
             assert email_ref.type == NotificationTypes.EMAIL_NOTIFICATION
@@ -217,13 +206,13 @@ class TestEmailReference:
             "conv-123",
             "conversation_abcd1234",
             "thread-xyz-789",
-            "19:meeting_abcd@thread.v2"
+            "19:meeting_abcd@thread.v2",
         ]
 
         for conv_id in test_conv_ids:
             # Act
             email_ref = EmailReference(conversation_id=conv_id)
-            
+
             # Assert
             assert email_ref.conversation_id == conv_id
             assert email_ref.type == NotificationTypes.EMAIL_NOTIFICATION
@@ -232,21 +221,15 @@ class TestEmailReference:
         """Test equality comparison between EmailReference instances"""
         # Arrange
         email_ref1 = EmailReference(
-            id="test-id",
-            conversation_id="test-conv",
-            html_body="<p>Test</p>"
+            id="test-id", conversation_id="test-conv", html_body="<p>Test</p>"
         )
-        
+
         email_ref2 = EmailReference(
-            id="test-id",
-            conversation_id="test-conv", 
-            html_body="<p>Test</p>"
+            id="test-id", conversation_id="test-conv", html_body="<p>Test</p>"
         )
-        
+
         email_ref3 = EmailReference(
-            id="different-id",
-            conversation_id="test-conv",
-            html_body="<p>Test</p>"
+            id="different-id", conversation_id="test-conv", html_body="<p>Test</p>"
         )
 
         # Act & Assert
@@ -257,9 +240,7 @@ class TestEmailReference:
         """Test dictionary representation of EmailReference"""
         # Arrange
         email_ref = EmailReference(
-            id="dict-test-id",
-            conversation_id="dict-test-conv",
-            html_body="<p>Dict test</p>"
+            id="dict-test-id", conversation_id="dict-test-conv", html_body="<p>Dict test</p>"
         )
 
         # Act
@@ -270,6 +251,6 @@ class TestEmailReference:
             "type": "emailNotification",
             "id": "dict-test-id",
             "conversation_id": "dict-test-conv",
-            "html_body": "<p>Dict test</p>"
+            "html_body": "<p>Dict test</p>",
         }
         assert email_dict == expected_dict
