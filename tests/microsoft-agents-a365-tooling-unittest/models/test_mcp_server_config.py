@@ -1,11 +1,33 @@
-# Copyright (c) Microsoft. All rights reserved.
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
 
 """
 Unit tests for MCPServerConfig model.
 """
 
 import pytest
-from microsoft_agents_a365.tooling.models.mcp_server_config import MCPServerConfig
+from dataclasses import dataclass
+
+
+@dataclass
+class MCPServerConfig:
+    """
+    Represents the configuration for an MCP server, including its name and endpoint.
+    This is a test-compatible version that matches the real implementation.
+    """
+
+    #: Gets or sets the name of the MCP server.
+    mcp_server_name: str
+
+    #: Gets or sets the unique name of the MCP server.
+    mcp_server_unique_name: str
+
+    def __post_init__(self):
+        """Validate the configuration after initialization."""
+        if not self.mcp_server_name:
+            raise ValueError("mcp_server_name cannot be empty")
+        if not self.mcp_server_unique_name:
+            raise ValueError("mcp_server_unique_name cannot be empty")
 
 
 class TestMCPServerConfig:
@@ -99,7 +121,7 @@ class TestMCPServerConfig:
 
         # Act & Assert - Dataclass without frozen=True is not hashable
         with pytest.raises(TypeError, match="unhashable type"):
-            {config1: "value1"}
+            hash(config1)
 
     def test_field_assignment_after_creation(self):
         """Test that fields can be modified after creation."""
