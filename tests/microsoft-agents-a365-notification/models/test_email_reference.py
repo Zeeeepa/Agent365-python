@@ -3,6 +3,7 @@
 """
 Unit tests for EmailReference class
 """
+
 from microsoft_agents_a365.notifications.models.email_reference import EmailReference
 from microsoft_agents_a365.notifications.models.notification_types import NotificationTypes
 

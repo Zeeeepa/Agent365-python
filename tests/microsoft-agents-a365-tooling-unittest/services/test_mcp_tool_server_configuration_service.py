@@ -19,6 +19,7 @@ from typing import List, Optional
 @dataclass
 class MockMockMCPServerConfig:
     """Mock implementation of MockMCPServerConfig for testing."""
+
     mcp_server_name: str
     mcp_server_unique_name: str
 

@@ -12,9 +12,10 @@ from typing import Optional
 @dataclass
 class MCPServerConfig:
     """Mock implementation of MCPServerConfig for testing core logic."""
+
     mcp_server_name: str
     mcp_server_unique_name: str
-    
+
     def __post_init__(self):
         """Validate the configuration after initialization."""
         if not self.mcp_server_name or not self.mcp_server_name.strip():
@@ -33,7 +34,9 @@ class TestMCPServerConfig:
         unique_name = "mcp_mail_tools"
 
         # Act
-        config = MockMCPServerConfig(mcp_server_name=server_name, mcp_server_unique_name=unique_name)
+        config = MockMCPServerConfig(
+            mcp_server_name=server_name, mcp_server_unique_name=unique_name
+        )
 
         # Assert
         assert config.mcp_server_name == server_name

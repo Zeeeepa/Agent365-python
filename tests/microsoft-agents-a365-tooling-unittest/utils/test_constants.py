@@ -3,6 +3,7 @@
 """
 Unit tests for Constants class and its nested classes.
 """
+
 import sys
 from pathlib import Path
 
