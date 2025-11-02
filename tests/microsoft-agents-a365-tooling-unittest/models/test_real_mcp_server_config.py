@@ -2,36 +2,16 @@
 # Licensed under the MIT License.
 
 """
-Unit tests for MCPServerConfig model.
+Unit tests for the real MCPServerConfig model from the tooling library.
+Tests the actual validation logic and dataclass behavior.
 """
 
 import pytest
-from dataclasses import dataclass
+from microsoft_agents_a365.tooling.models.mcp_server_config import MCPServerConfig
 
 
-@dataclass
-class MCPServerConfig:
-    """
-    Represents the configuration for an MCP server, including its name and endpoint.
-    This is a test-compatible version that matches the real implementation.
-    """
-
-    #: Gets or sets the name of the MCP server.
-    mcp_server_name: str
-
-    #: Gets or sets the unique name of the MCP server.
-    mcp_server_unique_name: str
-
-    def __post_init__(self):
-        """Validate the configuration after initialization."""
-        if not self.mcp_server_name:
-            raise ValueError("mcp_server_name cannot be empty")
-        if not self.mcp_server_unique_name:
-            raise ValueError("mcp_server_unique_name cannot be empty")
-
-
-class TestMCPServerConfig:
-    """Test class for MCPServerConfig dataclass."""
+class TestRealMCPServerConfig:
+    """Test class for the actual MCPServerConfig dataclass from the tooling library."""
 
     def test_valid_initialization(self):
         """Test successful initialization with valid parameters."""
@@ -175,3 +155,33 @@ class TestMCPServerConfig:
         assert config.mcp_server_unique_name == long_unique_name
         assert len(config.mcp_server_name) == 1000
         assert len(config.mcp_server_unique_name) == 1000
+
+    def test_post_init_validation_called(self):
+        """Test that __post_init__ validation is properly called during initialization."""
+        # This test ensures that the validation logic is triggered during object creation
+
+        # Test that valid initialization works
+        config = MCPServerConfig(mcp_server_name="valid", mcp_server_unique_name="valid")
+        assert config.mcp_server_name == "valid"
+
+        # Test that validation prevents invalid objects from being created
+        with pytest.raises(ValueError):
+            MCPServerConfig(mcp_server_name="", mcp_server_unique_name="valid")
+
+    def test_dataclass_properties(self):
+        """Test that MCPServerConfig has expected dataclass properties."""
+        # Arrange
+        config = MCPServerConfig(mcp_server_name="test", mcp_server_unique_name="test")
+
+        # Act & Assert
+        # Test that it's a dataclass with the expected fields
+        assert hasattr(config, "mcp_server_name")
+        assert hasattr(config, "mcp_server_unique_name")
+        assert hasattr(config, "__post_init__")
+
+        # Test field annotations exist
+        annotations = MCPServerConfig.__annotations__
+        assert "mcp_server_name" in annotations
+        assert "mcp_server_unique_name" in annotations
+        assert annotations["mcp_server_name"] == str
+        assert annotations["mcp_server_unique_name"] == str
