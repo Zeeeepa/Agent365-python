@@ -82,7 +82,7 @@ class TestMockMcpToolServerConfigurationService:
     def test_initialization_default_logger(self):
         """Test service initialization with default logger."""
         # Act
-        service = MockMcpToolServerConfigurationService()
+        service = MockMockMcpToolServerConfigurationService()
 
         # Assert
         assert service is not None
@@ -95,7 +95,7 @@ class TestMockMcpToolServerConfigurationService:
         custom_logger = logging.getLogger("CustomTestLogger")
 
         # Act
-        service = MockMcpToolServerConfigurationService(custom_logger)
+        service = MockMockMcpToolServerConfigurationService(custom_logger)
 
         # Assert
         assert service is not None
@@ -266,7 +266,7 @@ class TestMockMcpToolServerConfigurationService:
 
             # Assert
             assert len(result) == 2
-            assert all(isinstance(config, MockMCPServerConfig) for config in result)
+            assert all(isinstance(config, MockMockMCPServerConfig) for config in result)
             assert result[0].mcp_server_name == "mailServer"
             assert result[1].mcp_server_name == "sharePointServer"
         finally:

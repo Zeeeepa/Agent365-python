@@ -33,25 +33,25 @@ class MockMCPStreamableHttpPlugin:
         self.name = name
         self.url = url
         self.headers = headers
-        self.connect = AsyncMock()
-        self.close = AsyncMock()
-        self.disconnect = AsyncMock()
+        self.connect_mock = AsyncMock()
+        self.close_mock = AsyncMock()
+        self.disconnect_mock = AsyncMock()
         self._connected = False
 
     async def connect(self):
         """Mock connect method."""
         self._connected = True
-        await self.connect()
+        await self.connect_mock()
 
     async def close(self):
         """Mock close method."""
         self._connected = False
-        await self.close()
+        await self.close_mock()
 
     async def disconnect(self):
         """Mock disconnect method."""
         self._connected = False
-        await self.disconnect()
+        await self.disconnect_mock()
 
 
 class MockSemanticKernelService:

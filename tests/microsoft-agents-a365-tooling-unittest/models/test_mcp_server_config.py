@@ -25,7 +25,7 @@ class MCPServerConfig:
 
 
 class TestMCPServerConfig:
-    """Test class for MockMCPServerConfig dataclass."""
+    """Test class for MCPServerConfig dataclass."""
 
     def test_valid_initialization(self):
         """Test successful initialization with valid parameters."""
@@ -34,7 +34,7 @@ class TestMCPServerConfig:
         unique_name = "mcp_mail_tools"
 
         # Act
-        config = MockMCPServerConfig(
+        config = MCPServerConfig(
             mcp_server_name=server_name, mcp_server_unique_name=unique_name
         )
 
@@ -66,23 +66,17 @@ class TestMCPServerConfig:
         with pytest.raises(ValueError, match="mcp_server_unique_name cannot be empty"):
             MCPServerConfig(mcp_server_name="valid_server_name", mcp_server_unique_name=None)
 
-    def test_initialization_with_whitespace_server_name_succeeds(self):
-        """Test initialization succeeds with whitespace-only server name (implementation allows this)."""
-        # Arrange & Act - The current implementation allows whitespace strings
-        config = MCPServerConfig(mcp_server_name="   ", mcp_server_unique_name="valid_unique_name")
+    def test_initialization_with_whitespace_server_name_raises_error(self):
+        """Test initialization fails with whitespace-only server name."""
+        # Arrange & Act & Assert
+        with pytest.raises(ValueError, match="mcp_server_name cannot be empty"):
+            MCPServerConfig(mcp_server_name="   ", mcp_server_unique_name="valid_unique_name")
 
-        # Assert
-        assert config.mcp_server_name == "   "
-        assert config.mcp_server_unique_name == "valid_unique_name"
-
-    def test_initialization_with_whitespace_unique_name_succeeds(self):
-        """Test initialization succeeds with whitespace-only unique name (implementation allows this)."""
-        # Arrange & Act - The current implementation allows whitespace strings
-        config = MCPServerConfig(mcp_server_name="valid_server_name", mcp_server_unique_name="   ")
-
-        # Assert
-        assert config.mcp_server_name == "valid_server_name"
-        assert config.mcp_server_unique_name == "   "
+    def test_initialization_with_whitespace_unique_name_raises_error(self):
+        """Test initialization fails with whitespace-only unique name."""
+        # Arrange & Act & Assert
+        with pytest.raises(ValueError, match="mcp_server_unique_name cannot be empty"):
+            MCPServerConfig(mcp_server_name="valid_server_name", mcp_server_unique_name="   ")
 
     def test_equality_comparison(self):
         """Test equality comparison between MCPServerConfig instances."""
