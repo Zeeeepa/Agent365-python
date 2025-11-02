@@ -11,9 +11,6 @@ from microsoft_agents.activity import Activity
 from microsoft_agents_a365.notifications.models.agent_notification_activity import (
     AgentNotificationActivity,
 )
-from microsoft_agents_a365.notifications.models.notification_types import (
-    NotificationTypes,
-)
 from microsoft_agents_a365.notifications.models.email_reference import EmailReference
 from microsoft_agents_a365.notifications.models.wpx_comment import WpxComment
 
@@ -383,7 +380,7 @@ class TestAgentNotificationActivity:
         ana = AgentNotificationActivity(mock_activity)
 
         # Act
-        result = ana.as_model(mock_model_class)
+        ana.as_model(mock_model_class)
 
         # Assert
         mock_model_class.model_validate.assert_called_once_with({})

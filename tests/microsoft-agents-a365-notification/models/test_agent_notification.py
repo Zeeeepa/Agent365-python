@@ -39,18 +39,14 @@ except ImportError:
 from microsoft_agents_a365.notifications.agent_notification import AgentNotification
 from microsoft_agents_a365.notifications.models.agent_notification_activity import (
     AgentNotificationActivity,
-    NotificationTypes,
 )
 from microsoft_agents_a365.notifications.models.agent_subchannel import (
     AgentSubChannel,
 )
-from microsoft_agents_a365.notifications.models.agent_lifecycle_event import (
-    AgentLifecycleEvent,
-)
 
 
-class TestAgentNotification:
-    """Test cases for AgentNotification class"""
+class TestAgentSubChannel:
+    """Test cases for AgentSubChannel enum"""
 
     def test_subchannel_values(self):
         """Test that AgentSubChannel has correct enum values"""

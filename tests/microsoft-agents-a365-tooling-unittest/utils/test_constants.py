@@ -3,8 +3,6 @@
 """
 Unit tests for Constants class and its nested classes.
 """
-
-import pytest
 import sys
 from pathlib import Path
 

@@ -141,11 +141,11 @@ class TestNotificationTypes:
         assert "AGENT_LIFECYCLE" in lifecycle_repr
 
     def test_enum_equality_with_same_values(self):
-        """Test equality between same enum values"""
+        """Test equality between same enum values and their string representations"""
         # Assert
-        assert NotificationTypes.EMAIL_NOTIFICATION == NotificationTypes.EMAIL_NOTIFICATION
-        assert NotificationTypes.WPX_COMMENT == NotificationTypes.WPX_COMMENT
-        assert NotificationTypes.AGENT_LIFECYCLE == NotificationTypes.AGENT_LIFECYCLE
+        assert NotificationTypes.EMAIL_NOTIFICATION == "emailNotification"
+        assert NotificationTypes.WPX_COMMENT == "wpxComment"
+        assert NotificationTypes.AGENT_LIFECYCLE == "agentLifecycle"
 
     def test_enum_inequality_with_different_values(self):
         """Test inequality between different enum values"""
@@ -226,5 +226,5 @@ class TestNotificationTypes:
         """Test enum comparison with None values"""
         # Act & Assert
         assert NotificationTypes.EMAIL_NOTIFICATION is not None
-        assert NotificationTypes.EMAIL_NOTIFICATION != None
-        assert not (NotificationTypes.EMAIL_NOTIFICATION == None)
+        assert NotificationTypes.WPX_COMMENT is not None
+        assert NotificationTypes.AGENT_LIFECYCLE is not None

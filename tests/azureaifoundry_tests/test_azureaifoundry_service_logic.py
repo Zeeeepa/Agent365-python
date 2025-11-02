@@ -7,8 +7,8 @@ Tests the business logic without requiring external dependencies.
 
 import logging
 import pytest
-from typing import List, Optional, Dict, Any
-from unittest.mock import AsyncMock, MagicMock, patch
+from typing import Optional
+from unittest.mock import AsyncMock, MagicMock
 
 
 class MockMcpToolRegistrationService:

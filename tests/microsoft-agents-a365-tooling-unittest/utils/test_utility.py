@@ -6,7 +6,7 @@ Unit tests for utility functions in the tooling package.
 
 import os
 import pytest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
 # Add the parent directory to the path to import the modules
 import sys

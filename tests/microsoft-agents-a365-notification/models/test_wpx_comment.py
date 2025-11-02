@@ -4,7 +4,6 @@
 Unit tests for WpxComment class
 """
 
-import pytest
 from microsoft_agents_a365.notifications.models.wpx_comment import WpxComment
 from microsoft_agents_a365.notifications.models.notification_types import NotificationTypes
 

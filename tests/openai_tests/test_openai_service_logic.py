@@ -5,7 +5,7 @@ Unit tests for OpenAI MCP Tool Registration Service core logic.
 """
 
 import pytest
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock
 from dataclasses import dataclass
 from typing import Dict, Optional
 
@@ -299,7 +299,7 @@ class TestOpenAIMcpToolRegistrationServiceLogic:
         mock_token_response.token = "exchanged_token"
         mock_auth.exchange_token = AsyncMock(return_value=mock_token_response)
 
-        result = await service.add_tool_servers_to_agent(
+        await service.add_tool_servers_to_agent(
             agent=mock_agent,
             agent_user_id="user123",
             environment_id="env123",
@@ -569,7 +569,6 @@ class TestOpenAIMcpToolRegistrationServiceLogic:
 
     def test_server_url_detection_various_formats(self):
         """Test server URL detection for different server formats."""
-        service = MockMcpToolRegistrationService()
 
         # Test params dict format
         server1 = MagicMock()
@@ -697,8 +696,6 @@ class TestOpenAIMcpToolRegistrationServiceLogic:
         service.config_service.list_tool_servers.return_value = sample_server_configs
 
         # Override to simulate agent creation failure
-        original_method = service.add_tool_servers_to_agent
-
         async def failing_agent_creation(*args, **kwargs):
             # Start the normal process
             if not kwargs.get("auth_token"):
@@ -718,6 +715,12 @@ class TestOpenAIMcpToolRegistrationServiceLogic:
             connected_servers = []
             for config in configs:
                 server = MagicMock()
+                server.name = getattr(config, "name", None)
+                server.url = getattr(config, "url", None)
+                server.server_type = getattr(config, "server_type", None)
+                server.headers = getattr(config, "headers", None)
+                server.require_approval = getattr(config, "require_approval", None)
+                server.timeout = getattr(config, "timeout", None)
                 server.connect = AsyncMock()
                 server.cleanup = AsyncMock()
                 await server.connect()

@@ -7,7 +7,7 @@ Unit tests for SemanticKernel MCP Tool Registration Service core logic.
 import logging
 import os
 import pytest
-from unittest.mock import AsyncMock, MagicMock, patch, call
+from unittest.mock import AsyncMock, MagicMock, patch
 from typing import Optional, Any
 
 
@@ -653,17 +653,6 @@ class TestSemanticKernelMcpToolRegistrationServiceLogic:
 
         mock_config_service.list_tool_servers.return_value = servers
 
-        # Create a service that will simulate connection failure for second server
-        original_add_method = service.add_tool_servers_to_agent
-
-        async def mock_add_with_failure(*args, **kwargs):
-            # Call original method but simulate failure during plugin creation
-            try:
-                await original_add_method(*args, **kwargs)
-            except Exception:
-                # Simulate that one server failed but processing continued
-                pass
-
         # Test that service continues processing even with failures
         await service.add_tool_servers_to_agent(
             kernel=mock_kernel,
@@ -843,8 +832,6 @@ class TestSemanticKernelMcpToolRegistrationServiceLogic:
 
     def test_case_insensitive_hardcoded_server_matching(self, mock_config_service):
         """Test that hardcoded server matching is case-insensitive."""
-        service = MockSemanticKernelService(mcp_server_configuration_service=mock_config_service)
-
         test_cases = [
             ("mcp_MailTools", True),
             ("MCP_MAILTOOLS", True),
@@ -860,9 +847,6 @@ class TestSemanticKernelMcpToolRegistrationServiceLogic:
         ]
 
         for server_name, should_match in test_cases:
-            server = MockMCPServerConfig(server_name, "https://example.com")
-            kernel = MagicMock()
-
             # This is testing the internal logic, but we can verify through the mock calls
             # We'll test this by checking if warnings are logged for unknown servers
             if should_match:
