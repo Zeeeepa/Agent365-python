@@ -33,7 +33,7 @@ def get_tooling_gateway_for_digital_worker(agent_user_id: str) -> str:
         str: The tooling gateway URL for the digital worker.
     """
     # The endpoint needs to be updated based on the environment (prod, dev, etc.)
-    return f"{_get_mcp_platform_base_url()}/agentGateway/agentApplicationInstances/{agent_user_id}/mcpServers"
+    return f"{_get_mcp_platform_base_url()}/agents/{agent_user_id}/mcpServers"
 
 
 def get_mcp_base_url() -> str:
@@ -135,6 +135,11 @@ def get_ppapi_token_scope():
         list: A list containing the appropriate PPAI token scope.
     """
     environment = _get_current_environment().lower()
+
+    envScope = os.getenv("MCP_PLATFORM_AUTHENTICATION_SCOPE", "")
+
+    if envScope:
+        return envScope;
 
     if environment == "development":
         return [PPAPI_TEST_TOKEN_SCOPE + "/.default"]
