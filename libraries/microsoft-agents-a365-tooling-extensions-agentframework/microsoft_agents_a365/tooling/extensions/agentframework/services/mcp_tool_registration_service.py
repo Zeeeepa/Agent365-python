@@ -16,6 +16,7 @@ from microsoft_agents_a365.tooling.utils.constants import Constants
 
 from microsoft_agents_a365.tooling.utils.utility import get_ppapi_token_scope
 
+
 class McpToolRegistrationService:
     """
     Provides MCP tool registration services for Agent Framework agents.
