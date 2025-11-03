@@ -139,7 +139,7 @@ def get_ppapi_token_scope():
     envScope = os.getenv("MCP_PLATFORM_AUTHENTICATION_SCOPE", "")
 
     if envScope:
-        return envScope;
+        return envScope
 
     if environment == "development":
         return [PPAPI_TEST_TOKEN_SCOPE + "/.default"]
