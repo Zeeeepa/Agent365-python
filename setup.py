@@ -1,14 +1,11 @@
-# Copyright (c) Microsoft. All rights reserved.
-
-# Kairo Python SDK for AI agents with observability, identity, and tooling capabilities.
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
 
 from __future__ import annotations
 
 import os
 import tomllib
-from datetime import datetime
 from pathlib import Path
-from zoneinfo import ZoneInfo
 
 from setuptools import find_packages, setup
 
@@ -25,26 +22,11 @@ def read_pyproject():
 
 PROJECT_NAME, PROJECT_DESCRIPTION, REQUIRED_PY_VERSION = read_pyproject()
 
-MODULE_NAME = (PROJECT_NAME or "microsoft-kairo").replace("-", "_")
+MODULE_NAME = (PROJECT_NAME or "microsoft-agents-a365").replace("-", "_")
 
-
-def build_version():
-    """
-    Example: 2025.10.3+preview.65532  (PEP 440 compliant; avoids hyphens)
-    Uses America/Los_Angeles so CI in other timezones stamps same 'day'.
-    """
-
-    if defined_version := os.getenv("A365_SDK_VERSION"):
-        return defined_version  # For CI/CD to set a specific version.
-
-    today = datetime.now(ZoneInfo("America/Los_Angeles"))
-
-    return (
-        f"{today.year}.{today.month}.{today.day}+preview.{today.hour}{today.minute}{today.second}"
-    )
-
-
-VERSION = build_version()
+# Get version from environment variable set by CI/CD
+# This will be set by setuptools-git-versioning in the CI pipeline
+VERSION = os.environ.get("PackageVersion", "0.0.0")
 
 
 # Write the version attr used by [tool.setuptools.dynamic].version
