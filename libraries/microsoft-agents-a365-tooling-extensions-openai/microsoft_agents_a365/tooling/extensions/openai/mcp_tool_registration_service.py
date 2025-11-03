@@ -86,7 +86,9 @@ class McpToolRegistrationService:
             f"Listing MCP tool servers for agent {agent_instance_id} in environment {environment_id}"
         )
         mcp_server_configs = await self.config_service.list_tool_servers(
-            agent_instance_id=agent_instance_id, environment_id=environment_id, auth_token=auth_token
+            agent_instance_id=agent_instance_id,
+            environment_id=environment_id,
+            auth_token=auth_token,
         )
 
         self._logger.info(f"Loaded {len(mcp_server_configs)} MCP server configurations")

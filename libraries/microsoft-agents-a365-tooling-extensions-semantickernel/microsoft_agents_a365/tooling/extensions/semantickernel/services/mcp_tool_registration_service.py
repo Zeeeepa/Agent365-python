@@ -24,7 +24,11 @@ from ...common.services.mcp_tool_server_configuration_service import (
 )
 from ...common.models import MCPServerConfig
 from ...common.utils.constants import Constants
-from ...common.utils.utility import get_tools_mode, get_mcp_platform_authentication_scope, get_use_environment_id
+from ...common.utils.utility import (
+    get_tools_mode,
+    get_mcp_platform_authentication_scope,
+    get_use_environment_id,
+)
 
 
 from semantic_kernel.connectors.mcp import MCPStreamableHttpPlugin

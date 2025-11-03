@@ -21,6 +21,7 @@ MCP_PLATFORM_PROD_BASE_URL = "https://agent365.svc.cloud.microsoft"
 PPAPI_TOKEN_SCOPE = "https://api.powerplatform.com"
 PROD_MCP_PLATFORM_AUTHENTICATION_SCOPE = "ea9ffc3e-8a23-4a7d-836d-234d7c7565c1/.default"
 
+
 def get_tooling_gateway_for_digital_worker(agent_instance_id: str) -> str:
     """
     Gets the tooling gateway URL for the specified digital worker.
