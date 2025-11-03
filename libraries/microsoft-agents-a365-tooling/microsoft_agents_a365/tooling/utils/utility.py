@@ -19,21 +19,20 @@ class ToolsMode(Enum):
 MCP_PLATFORM_PROD_BASE_URL = "https://agent365.svc.cloud.microsoft"
 
 PPAPI_TOKEN_SCOPE = "https://api.powerplatform.com"
-PPAPI_TEST_TOKEN_SCOPE = "https://api.test.powerplatform.com"
+PROD_MCP_PLATFORM_AUTHENTICATION_SCOPE = "ea9ffc3e-8a23-4a7d-836d-234d7c7565c1/.default"
 
-
-def get_tooling_gateway_for_digital_worker(agent_user_id: str) -> str:
+def get_tooling_gateway_for_digital_worker(agent_instance_id: str) -> str:
     """
     Gets the tooling gateway URL for the specified digital worker.
 
     Args:
-        agent_user_id: The unique identifier of the digital worker.
+        agent_instance_id: The unique identifier of the digital worker.
 
     Returns:
         str: The tooling gateway URL for the digital worker.
     """
     # The endpoint needs to be updated based on the environment (prod, dev, etc.)
-    return f"{_get_mcp_platform_base_url()}/agents/{agent_user_id}/mcpServers"
+    return f"{_get_mcp_platform_base_url()}/agents/{agent_instance_id}/mcpServers"
 
 
 def get_mcp_base_url() -> str:
@@ -127,12 +126,12 @@ def get_tools_mode() -> ToolsMode:
         return ToolsMode.MCP_PLATFORM
 
 
-def get_ppapi_token_scope():
+def get_mcp_platform_authentication_scope():
     """
-    Gets the PPAI token scope based on the current environment.
+    Gets the MCP platform authentication scope based on the current environment.
 
     Returns:
-        list: A list containing the appropriate PPAI token scope.
+        list: A list containing the appropriate MCP platform authentication scope.
     """
     environment = _get_current_environment().lower()
 
@@ -141,7 +140,4 @@ def get_ppapi_token_scope():
     if envScope:
         return [envScope]
 
-    if environment == "development":
-        return [PPAPI_TEST_TOKEN_SCOPE + "/.default"]
-    else:
-        return [PPAPI_TOKEN_SCOPE + "/.default"]
+    return [PROD_MCP_PLATFORM_AUTHENTICATION_SCOPE]
