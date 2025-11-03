@@ -14,7 +14,10 @@ from microsoft_agents_a365.tooling.services.mcp_tool_server_configuration_servic
 )
 from microsoft_agents_a365.tooling.utils.constants import Constants
 
-from microsoft_agents_a365.tooling.utils.utility import get_ppapi_token_scope
+from microsoft_agents_a365.tooling.utils.utility import (
+    get_ppapi_token_scope,
+    get_use_environment_id,
+)
 
 
 class McpToolRegistrationService:
@@ -104,7 +107,7 @@ class McpToolRegistrationService:
                         headers[Constants.Headers.AUTHORIZATION] = (
                             f"{Constants.Headers.BEARER_PREFIX} {auth_token}"
                         )
-                    if environment_id:
+                    if get_use_environment_id() and environment_id:
                         headers[Constants.Headers.ENVIRONMENT_ID] = environment_id
 
                     server_name = getattr(config, "mcp_server_name", "Unknown")
