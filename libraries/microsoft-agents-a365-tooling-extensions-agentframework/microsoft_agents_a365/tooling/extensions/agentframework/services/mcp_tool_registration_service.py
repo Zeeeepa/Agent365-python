@@ -14,11 +14,7 @@ from microsoft_agents_a365.tooling.services.mcp_tool_server_configuration_servic
 )
 from microsoft_agents_a365.tooling.utils.constants import Constants
 
-from microsoft_agents_a365.tooling.utils.utility import (
-    get_ppapi_token_scope,
-    get_use_environment_id,
-)
-
+from microsoft_agents_a365.tooling.utils.utility import get_ppapi_token_scope
 
 class McpToolRegistrationService:
     """
