@@ -18,7 +18,7 @@ from azure.identity import DefaultAzureCredential
 from azure.ai.agents.models import McpTool, ToolResources
 from microsoft_agents.hosting.core import Authorization, TurnContext
 
-from ...common.utils.utility import get_ppapi_token_scope
+from ...common.utils.utility import get_ppapi_token_scope, get_use_environment_id
 
 # Local imports
 from microsoft_kairo.tooling.common.services.mcp_tool_server_configuration_service import (
@@ -194,7 +194,8 @@ class McpToolRegistrationService:
                 mcp_tool.update_headers(Constants.Headers.AUTHORIZATION, header_value)
 
             # Set environment ID header
-            mcp_tool.update_headers(Constants.Headers.ENVIRONMENT_ID, environment_id)
+            if get_use_environment_id() and environment_id:
+                mcp_tool.update_headers(Constants.Headers.ENVIRONMENT_ID, environment_id)
 
             # Add to collections
             tool_definitions.extend(mcp_tool.definitions)

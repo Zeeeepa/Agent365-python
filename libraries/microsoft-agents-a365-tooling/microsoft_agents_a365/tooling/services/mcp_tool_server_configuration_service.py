@@ -30,7 +30,11 @@ import aiohttp
 # Local imports
 from ..models import MCPServerConfig
 from ..utils import Constants
-from ..utils.utility import get_tooling_gateway_for_digital_worker, build_mcp_server_url
+from ..utils.utility import (
+    get_tooling_gateway_for_digital_worker,
+    build_mcp_server_url,
+    get_use_environment_id,
+)
 
 
 # ==============================================================================
@@ -346,9 +350,13 @@ class McpToolServerConfigurationService:
         Returns:
             Dictionary of HTTP headers.
         """
+        if get_use_environment_id():
+            return {
+                "Authorization": f"{Constants.Headers.BEARER_PREFIX} {auth_token}",
+                Constants.Headers.ENVIRONMENT_ID: environment_id,
+            }
         return {
             "Authorization": f"{Constants.Headers.BEARER_PREFIX} {auth_token}",
-            Constants.Headers.ENVIRONMENT_ID: environment_id,
         }
 
     async def _parse_gateway_response(

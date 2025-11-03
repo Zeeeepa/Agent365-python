@@ -50,6 +50,9 @@ def get_mcp_base_url() -> str:
         if tools_mode == ToolsMode.MOCK_MCP_SERVER:
             return os.getenv("MOCK_MCP_SERVER_URL", "http://localhost:5309/mcp-mock/agents/servers")
 
+    if not get_use_environment_id():
+        return f"{_get_mcp_platform_base_url()}/agents/servers"
+
     return f"{_get_mcp_platform_base_url()}/mcp/environments"
 
 
@@ -67,7 +70,9 @@ def build_mcp_server_url(environment_id: str, server_name: str) -> str:
     base_url = get_mcp_base_url()
     environment = _get_current_environment().lower()
 
-    if environment == "development" and base_url.endswith("servers"):
+    if not get_use_environment_id() or (
+        environment == "development" and base_url.endswith("servers")
+    ):
         return f"{base_url}/{server_name}"
     else:
         return f"{base_url}/{environment_id}/servers/{server_name}"
@@ -94,6 +99,17 @@ def _get_mcp_platform_base_url() -> str:
         return os.getenv("MCP_PLATFORM_ENDPOINT")
 
     return MCP_PLATFORM_PROD_BASE_URL
+
+
+def get_use_environment_id() -> bool:
+    """
+    Determines whether to use environment ID in MCP server URL construction.
+
+    Returns:
+        bool: True if environment ID should be used, False otherwise.
+    """
+    use_environment = os.getenv("USE_ENVIRONMENT_ID", "true").lower()
+    return use_environment == "true"
 
 
 def get_tools_mode() -> ToolsMode:
