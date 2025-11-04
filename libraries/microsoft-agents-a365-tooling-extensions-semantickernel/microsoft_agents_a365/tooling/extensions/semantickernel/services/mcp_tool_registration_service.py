@@ -84,7 +84,7 @@ class McpToolRegistrationService:
     async def add_tool_servers_to_agent(
         self,
         kernel: sk.Kernel,
-        agent_instance_id: str,
+        agentic_app_id: str,
         environment_id: str,
         auth: Authorization,
         context: TurnContext,
@@ -95,7 +95,7 @@ class McpToolRegistrationService:
 
         Args:
             kernel: The Semantic Kernel instance to which the tools will be added.
-            agent_instance_id: Agent Instance ID for the agent.
+            agentic_app_id: Agentic App ID for the agent.
             environment_id: Environment ID for the environment.
             auth_token: Authentication token to access the MCP servers.
 
@@ -109,11 +109,11 @@ class McpToolRegistrationService:
             authToken = await auth.exchange_token(context, scopes, "AGENTIC")
             auth_token = authToken.token
 
-        self._validate_inputs(kernel, agent_instance_id, environment_id, auth_token)
+        self._validate_inputs(kernel, agentic_app_id, environment_id, auth_token)
 
         # Get and process servers
         servers = await self._mcp_server_configuration_service.list_tool_servers(
-            agent_instance_id, environment_id, auth_token
+            agentic_app_id, environment_id, auth_token
         )
         self._logger.info(f"🔧 Adding MCP tools from {len(servers)} servers")
 
@@ -178,13 +178,13 @@ class McpToolRegistrationService:
     # ============================================================================
 
     def _validate_inputs(
-        self, kernel: Any, agent_instance_id: str, environment_id: str, auth_token: str
+        self, kernel: Any, agentic_app_id: str, environment_id: str, auth_token: str
     ) -> None:
         """Validate all required inputs."""
         if kernel is None:
             raise ValueError("kernel cannot be None")
-        if not agent_instance_id or not agent_instance_id.strip():
-            raise ValueError("agent_instance_id cannot be null or empty")
+        if not agentic_app_id or not agentic_app_id.strip():
+            raise ValueError("agentic_app_id cannot be null or empty")
         if not environment_id or not environment_id.strip():
             raise ValueError("environment_id cannot be null or empty")
         if not auth_token or not auth_token.strip():

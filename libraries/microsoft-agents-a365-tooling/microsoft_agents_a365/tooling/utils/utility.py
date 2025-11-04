@@ -22,18 +22,18 @@ PPAPI_TOKEN_SCOPE = "https://api.powerplatform.com"
 PROD_MCP_PLATFORM_AUTHENTICATION_SCOPE = "ea9ffc3e-8a23-4a7d-836d-234d7c7565c1/.default"
 
 
-def get_tooling_gateway_for_digital_worker(agent_instance_id: str) -> str:
+def get_tooling_gateway_for_digital_worker(agentic_app_id: str) -> str:
     """
     Gets the tooling gateway URL for the specified digital worker.
 
     Args:
-        agent_instance_id: The unique identifier of the digital worker.
+        agentic_app_id: The agentic app identifier of the digital worker.
 
     Returns:
         str: The tooling gateway URL for the digital worker.
     """
     # The endpoint needs to be updated based on the environment (prod, dev, etc.)
-    return f"{_get_mcp_platform_base_url()}/agents/{agent_instance_id}/mcpServers"
+    return f"{_get_mcp_platform_base_url()}/agents/{agentic_app_id}/mcpServers"
 
 
 def get_mcp_base_url() -> str:

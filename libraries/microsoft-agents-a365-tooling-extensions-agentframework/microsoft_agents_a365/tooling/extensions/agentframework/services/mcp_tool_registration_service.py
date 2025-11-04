@@ -41,7 +41,7 @@ class McpToolRegistrationService:
         chat_client: Union[OpenAIChatClient, AzureOpenAIChatClient],
         agent_instructions: str,
         initial_tools: List[Any],
-        agent_instance_id: str,
+        agentic_app_id: str,
         environment_id: str,
         auth: Optional[Authorization] = None,
         auth_token: Optional[str] = None,
@@ -54,7 +54,7 @@ class McpToolRegistrationService:
             chat_client: The chat client instance (Union[OpenAIChatClient, AzureOpenAIChatClient])
             agent_instructions: Instructions for the agent behavior
             initial_tools: List of initial tools to add to the agent
-            agent_instance_id: Unique identifier for the agent instance
+            agentic_app_id: Agentic app identifier for the agent
             environment_id: Environment identifier for MCP server discovery
             auth: Optional authorization context
             auth_token: Optional bearer token for authentication
@@ -65,18 +65,12 @@ class McpToolRegistrationService:
         """
         try:
             self._logger.info(
-                f"Listing MCP tool servers for agent {agent_instance_id} in environment {environment_id}"
+                f"Listing MCP tool servers for agent {agentic_app_id} in environment {environment_id}"
             )
-
-            agentic_app_id = agent_instance_id
-            if turn_context and turn_context.activity and turn_context.activity.recipient:
-                agentic_app_id = getattr(
-                    turn_context.activity.recipient, "agentic_app_id", agent_instance_id
-                )
 
             # Get MCP server configurations
             server_configs = await self._mcp_server_configuration_service.list_tool_servers(
-                agent_instance_id=agentic_app_id,
+                agentic_app_id=agentic_app_id,
                 environment_id=environment_id,
                 auth_token=auth_token,
             )

@@ -70,13 +70,13 @@ class McpToolServerConfigurationService:
     # --------------------------------------------------------------------------
 
     async def list_tool_servers(
-        self, agent_instance_id: str, environment_id: str, auth_token: str
+        self, agentic_app_id: str, environment_id: str, auth_token: str
     ) -> List[MCPServerConfig]:
         """
         Gets the list of MCP Servers that are configured for the agent.
 
         Args:
-            agent_instance_id: Agent Instance ID for the agent.
+            agentic_app_id: Agentic App ID for the agent.
             environment_id: Environment ID for the environment.
             auth_token: Authentication token to access the MCP servers.
 
@@ -88,10 +88,10 @@ class McpToolServerConfigurationService:
             Exception: If there's an error communicating with the tooling gateway.
         """
         # Validate input parameters
-        self._validate_input_parameters(agent_instance_id, environment_id, auth_token)
+        self._validate_input_parameters(agentic_app_id, environment_id, auth_token)
 
         self._logger.info(
-            f"Listing MCP tool servers for agent {agent_instance_id} in environment {environment_id}"
+            f"Listing MCP tool servers for agent {agentic_app_id} in environment {environment_id}"
         )
 
         # Determine configuration source based on environment
@@ -99,7 +99,7 @@ class McpToolServerConfigurationService:
             return self._load_servers_from_manifest(environment_id)
         else:
             return await self._load_servers_from_gateway(
-                agent_instance_id, environment_id, auth_token
+                agentic_app_id, environment_id, auth_token
             )
 
     # --------------------------------------------------------------------------
@@ -292,13 +292,13 @@ class McpToolServerConfigurationService:
     # --------------------------------------------------------------------------
 
     async def _load_servers_from_gateway(
-        self, agent_instance_id: str, environment_id: str, auth_token: str
+        self, agentic_app_id: str, environment_id: str, auth_token: str
     ) -> List[MCPServerConfig]:
         """
         Reads MCP server configurations from tooling gateway endpoint for production scenario.
 
         Args:
-            agent_instance_id: Agent Instance ID for the agent.
+            agentic_app_id: Agentic App ID for the agent.
             environment_id: Environment ID for the environment.
             auth_token: Authentication token to access the tooling gateway.
 
@@ -311,7 +311,7 @@ class McpToolServerConfigurationService:
         mcp_servers: List[MCPServerConfig] = []
 
         try:
-            config_endpoint = get_tooling_gateway_for_digital_worker(agent_instance_id)
+            config_endpoint = get_tooling_gateway_for_digital_worker(agentic_app_id)
             headers = self._prepare_gateway_headers(auth_token, environment_id)
 
             self._logger.info(f"Calling tooling gateway endpoint: {config_endpoint}")
@@ -447,21 +447,21 @@ class McpToolServerConfigurationService:
     # --------------------------------------------------------------------------
 
     def _validate_input_parameters(
-        self, agent_instance_id: str, environment_id: str, auth_token: str
+        self, agentic_app_id: str, environment_id: str, auth_token: str
     ) -> None:
         """
         Validates input parameters for the main API method.
 
         Args:
-            agent_instance_id: Agent Instance ID to validate.
+            agentic_app_id: Agentic App ID to validate.
             environment_id: Environment ID to validate.
             auth_token: Authentication token to validate.
 
         Raises:
             ValueError: If any parameter is invalid or empty.
         """
-        if not agent_instance_id:
-            raise ValueError("agent_instance_id cannot be empty or None")
+        if not agentic_app_id:
+            raise ValueError("agentic_app_id cannot be empty or None")
         if not environment_id:
             raise ValueError("environment_id cannot be empty or None")
         if not auth_token:

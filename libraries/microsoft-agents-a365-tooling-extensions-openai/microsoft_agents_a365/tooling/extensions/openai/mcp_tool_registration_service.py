@@ -51,7 +51,7 @@ class McpToolRegistrationService:
     async def add_tool_servers_to_agent(
         self,
         agent: Agent,
-        agent_instance_id: str,
+        agentic_app_id: str,
         environment_id: str,
         auth: Authorization,
         context: TurnContext,
@@ -66,7 +66,7 @@ class McpToolRegistrationService:
 
         Args:
             agent: The existing agent to add servers to
-            agent_instance_id: Agent Instance ID for the agent
+            agentic_app_id: Agentic App ID for the agent
             environment_id: Environment ID for the environment
             auth_token: Authentication token to access the MCP servers
 
@@ -83,10 +83,10 @@ class McpToolRegistrationService:
         # mcp_server_configs = []
         # TODO: radevika: Update once the common project is merged.
         self._logger.info(
-            f"Listing MCP tool servers for agent {agent_instance_id} in environment {environment_id}"
+            f"Listing MCP tool servers for agent {agentic_app_id} in environment {environment_id}"
         )
         mcp_server_configs = await self.config_service.list_tool_servers(
-            agent_instance_id=agent_instance_id,
+            agentic_app_id=agentic_app_id,
             environment_id=environment_id,
             auth_token=auth_token,
         )

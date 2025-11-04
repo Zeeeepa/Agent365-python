@@ -72,7 +72,7 @@ class McpToolRegistrationService:
     async def add_tool_servers_to_agent(
         self,
         project_client: "AIProjectClient",
-        agent_instance_id: str,
+        agentic_app_id: str,
         environment_id: str,
         auth: Authorization,
         context: TurnContext,
@@ -83,7 +83,7 @@ class McpToolRegistrationService:
 
         Args:
             project_client: The Azure Foundry AIProjectClient instance.
-            agent_instance_id: Agent Instance ID for the agent.
+            agentic_app_id: Agentic App ID for the agent.
             environment_id: Environment ID for the environment.
             auth_token: Authentication token to access the MCP servers.
 
@@ -102,12 +102,12 @@ class McpToolRegistrationService:
         try:
             # Get the tool definitions and resources using the async implementation
             tool_definitions, tool_resources = await self._get_mcp_tool_definitions_and_resources(
-                agent_instance_id, environment_id, auth_token or ""
+                agentic_app_id, environment_id, auth_token or ""
             )
 
             # Update the agent with the tools
             project_client.agents.update_agent(
-                agent_instance_id, tools=tool_definitions, tool_resources=tool_resources
+                agentic_app_id, tools=tool_definitions, tool_resources=tool_resources
             )
 
             self._logger.info(
@@ -116,12 +116,12 @@ class McpToolRegistrationService:
 
         except Exception as ex:
             self._logger.error(
-                f"Unhandled failure during MCP tool registration workflow for agent user {agent_instance_id}: {ex}"
+                f"Unhandled failure during MCP tool registration workflow for agent user {agentic_app_id}: {ex}"
             )
             raise
 
     async def _get_mcp_tool_definitions_and_resources(
-        self, agent_instance_id: str, environment_id: str, auth_token: str
+        self, agentic_app_id: str, environment_id: str, auth_token: str
     ) -> Tuple[List[McpTool], Optional[ToolResources]]:
         """
         Internal method to get MCP tool definitions and resources.
@@ -129,7 +129,7 @@ class McpToolRegistrationService:
         This implements the core logic equivalent to the C# method of the same name.
 
         Args:
-            agent_instance_id: Agent Instance ID for the agent.
+            agentic_app_id: Agentic App ID for the agent.
             environment_id: Environment ID for the environment.
             auth_token: Authentication token to access the MCP servers.
 
@@ -143,17 +143,17 @@ class McpToolRegistrationService:
         # Get MCP server configurations
         try:
             servers = await self._mcp_server_configuration_service.list_tool_servers(
-                agent_instance_id, environment_id, auth_token
+                agentic_app_id, environment_id, auth_token
             )
         except Exception as ex:
             self._logger.error(
-                f"Failed to list MCP tool servers for AgentInstanceId={agent_instance_id}: {ex}"
+                f"Failed to list MCP tool servers for AgenticAppId={agentic_app_id}: {ex}"
             )
             return ([], None)
 
         if len(servers) == 0:
             self._logger.info(
-                f"No MCP servers configured for AgentInstanceId={agent_instance_id}, EnvironmentId={environment_id}"
+                f"No MCP servers configured for AgenticAppId={agentic_app_id}, EnvironmentId={environment_id}"
             )
             return ([], None)
 
