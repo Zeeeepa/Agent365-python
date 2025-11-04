@@ -55,7 +55,7 @@ registration_service = McpToolRegistrationService()
 # Add MCP tool servers to your Semantic Kernel
 await registration_service.add_tool_servers_to_kernel(
     kernel=kernel,
-    agent_user_id="user-123",
+    agentic_app_id="user-123",
     environment_id="prod",
     auth_token="your-auth-token"
 )

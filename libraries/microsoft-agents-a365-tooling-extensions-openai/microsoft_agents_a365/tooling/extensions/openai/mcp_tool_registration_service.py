@@ -17,7 +17,7 @@ from microsoft_agents_a365.tooling.services.mcp_tool_server_configuration_servic
 )
 
 from microsoft_agents_a365.tooling.utils.utility import (
-    get_ppapi_token_scope,
+    get_mcp_platform_authentication_scope,
     get_use_environment_id,
 )
 
@@ -51,7 +51,7 @@ class McpToolRegistrationService:
     async def add_tool_servers_to_agent(
         self,
         agent: Agent,
-        agent_user_id: str,
+        agentic_app_id: str,
         environment_id: str,
         auth: Authorization,
         context: TurnContext,
@@ -66,7 +66,7 @@ class McpToolRegistrationService:
 
         Args:
             agent: The existing agent to add servers to
-            agent_user_id: Agent User ID for the agent
+            agentic_app_id: Agentic App ID for the agent
             environment_id: Environment ID for the environment
             auth_token: Authentication token to access the MCP servers
 
@@ -75,7 +75,7 @@ class McpToolRegistrationService:
         """
 
         if not auth_token:
-            scopes = get_ppapi_token_scope()
+            scopes = get_mcp_platform_authentication_scope()
             authToken = await auth.exchange_token(context, scopes, "AGENTIC")
             auth_token = authToken.token
 
@@ -83,10 +83,12 @@ class McpToolRegistrationService:
         # mcp_server_configs = []
         # TODO: radevika: Update once the common project is merged.
         self._logger.info(
-            f"Listing MCP tool servers for agent {agent_user_id} in environment {environment_id}"
+            f"Listing MCP tool servers for agent {agentic_app_id} in environment {environment_id}"
         )
         mcp_server_configs = await self.config_service.list_tool_servers(
-            agent_user_id=agent_user_id, environment_id=environment_id, auth_token=auth_token
+            agentic_app_id=agentic_app_id,
+            environment_id=environment_id,
+            auth_token=auth_token,
         )
 
         self._logger.info(f"Loaded {len(mcp_server_configs)} MCP server configurations")

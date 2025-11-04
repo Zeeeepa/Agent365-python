@@ -18,7 +18,7 @@ from azure.identity import DefaultAzureCredential
 from azure.ai.agents.models import McpTool, ToolResources
 from microsoft_agents.hosting.core import Authorization, TurnContext
 
-from ...common.utils.utility import get_ppapi_token_scope, get_use_environment_id
+from ...common.utils.utility import get_mcp_platform_authentication_scope, get_use_environment_id
 
 # Local imports
 from microsoft_kairo.tooling.common.services.mcp_tool_server_configuration_service import (
@@ -72,7 +72,7 @@ class McpToolRegistrationService:
     async def add_tool_servers_to_agent(
         self,
         project_client: "AIProjectClient",
-        agent_user_id: str,
+        agentic_app_id: str,
         environment_id: str,
         auth: Authorization,
         context: TurnContext,
@@ -83,7 +83,7 @@ class McpToolRegistrationService:
 
         Args:
             project_client: The Azure Foundry AIProjectClient instance.
-            agent_user_id: Agent User ID for the agent.
+            agentic_app_id: Agentic App ID for the agent.
             environment_id: Environment ID for the environment.
             auth_token: Authentication token to access the MCP servers.
 
@@ -95,19 +95,19 @@ class McpToolRegistrationService:
             raise ValueError("project_client cannot be None")
 
         if not auth_token:
-            scopes = get_ppapi_token_scope()
+            scopes = get_mcp_platform_authentication_scope()
             authToken = await auth.exchange_token(context, scopes, "AGENTIC")
             auth_token = authToken.token
 
         try:
             # Get the tool definitions and resources using the async implementation
             tool_definitions, tool_resources = await self._get_mcp_tool_definitions_and_resources(
-                agent_user_id, environment_id, auth_token or ""
+                agentic_app_id, environment_id, auth_token or ""
             )
 
             # Update the agent with the tools
             project_client.agents.update_agent(
-                agent_user_id, tools=tool_definitions, tool_resources=tool_resources
+                agentic_app_id, tools=tool_definitions, tool_resources=tool_resources
             )
 
             self._logger.info(
@@ -116,12 +116,12 @@ class McpToolRegistrationService:
 
         except Exception as ex:
             self._logger.error(
-                f"Unhandled failure during MCP tool registration workflow for agent user {agent_user_id}: {ex}"
+                f"Unhandled failure during MCP tool registration workflow for agent user {agentic_app_id}: {ex}"
             )
             raise
 
     async def _get_mcp_tool_definitions_and_resources(
-        self, agent_user_id: str, environment_id: str, auth_token: str
+        self, agentic_app_id: str, environment_id: str, auth_token: str
     ) -> Tuple[List[McpTool], Optional[ToolResources]]:
         """
         Internal method to get MCP tool definitions and resources.
@@ -129,7 +129,7 @@ class McpToolRegistrationService:
         This implements the core logic equivalent to the C# method of the same name.
 
         Args:
-            agent_user_id: Agent User ID for the agent.
+            agentic_app_id: Agentic App ID for the agent.
             environment_id: Environment ID for the environment.
             auth_token: Authentication token to access the MCP servers.
 
@@ -143,17 +143,17 @@ class McpToolRegistrationService:
         # Get MCP server configurations
         try:
             servers = await self._mcp_server_configuration_service.list_tool_servers(
-                agent_user_id, environment_id, auth_token
+                agentic_app_id, environment_id, auth_token
             )
         except Exception as ex:
             self._logger.error(
-                f"Failed to list MCP tool servers for AgentUserId={agent_user_id}: {ex}"
+                f"Failed to list MCP tool servers for AgenticAppId={agentic_app_id}: {ex}"
             )
             return ([], None)
 
         if len(servers) == 0:
             self._logger.info(
-                f"No MCP servers configured for AgentUserId={agent_user_id}, EnvironmentId={environment_id}"
+                f"No MCP servers configured for AgenticAppId={agentic_app_id}, EnvironmentId={environment_id}"
             )
             return ([], None)
 
