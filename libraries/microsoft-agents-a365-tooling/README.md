@@ -58,7 +58,7 @@ mcp_config = MCPServerConfig(
 # Use configuration service to list available MCP servers
 config_service = McpToolServerConfigurationService()
 mcp_servers = await config_service.list_tool_servers(
-    agent_user_id="agent-123",
+    agentic_app_id="agent-123",
     environment_id="prod",
     auth_token="your-auth-token"
 )
