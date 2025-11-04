@@ -80,7 +80,7 @@ A development version is generated in these scenarios:
 The CI pipeline automatically:
 1. Checks out the full Git history (`fetch-depth: 0`)
 2. Runs `setuptools-git-versioning` in the `versioning/` directory
-3. Sets the `PackageVersion` environment variable
+3. Sets the `AGENT365_PYTHON_SDK_PACKAGE_VERSION` environment variable
 4. Builds all packages with that version
 
 **No manual intervention needed!**
@@ -276,13 +276,13 @@ You need to create a hotfix `0.2.1` after `0.2.0` has been released:
 
 ### Problem: Version shows `0.0.0`
 
-**Cause:** The `PackageVersion` environment variable is not set.
+**Cause:** The `AGENT365_PYTHON_SDK_PACKAGE_VERSION` environment variable is not set.
 
 **Solution:**
 ```bash
 # Set the environment variable before building
 cd versioning
-export PackageVersion=$(python -m setuptools_git_versioning)
+export AGENT365_PYTHON_SDK_PACKAGE_VERSION=$(python -m setuptools_git_versioning)
 cd ..
 uv build --all-packages --wheel
 ```

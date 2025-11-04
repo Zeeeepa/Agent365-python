@@ -26,7 +26,7 @@ MODULE_NAME = (PROJECT_NAME or "microsoft-agents-a365").replace("-", "_")
 
 # Get version from environment variable set by CI/CD
 # This will be set by setuptools-git-versioning in the CI pipeline
-VERSION = os.environ.get("PackageVersion", "0.0.0")
+VERSION = os.environ.get("AGENT365_PYTHON_SDK_PACKAGE_VERSION", "0.0.0")
 
 
 # Write the version attr used by [tool.setuptools.dynamic].version
