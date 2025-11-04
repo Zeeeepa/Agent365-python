@@ -15,7 +15,7 @@ from microsoft_agents_a365.tooling.services.mcp_tool_server_configuration_servic
 from microsoft_agents_a365.tooling.utils.constants import Constants
 
 from microsoft_agents_a365.tooling.utils.utility import (
-    get_ppapi_token_scope,
+    get_mcp_platform_authentication_scope,
     get_use_environment_id,
 )
 
@@ -71,7 +71,7 @@ class McpToolRegistrationService:
         try:
             # Exchange token if not provided
             if not auth_token:
-                scopes = get_ppapi_token_scope()
+                scopes = get_mcp_platform_authentication_scope()
                 authToken = await auth.exchange_token(turn_context, scopes, "AGENTIC")
                 auth_token = authToken.token
 
