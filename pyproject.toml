@@ -9,6 +9,7 @@ members = [
     "libraries/microsoft-agents-a365-observability-extensions-langchain",
     "libraries/microsoft-agents-a365-observability-extensions-openai",
     "libraries/microsoft-agents-a365-observability-extensions-semantickernel", 
+    "libraries/microsoft-agents-a365-observability-extensions-agentframework",
     "libraries/microsoft-agents-a365-runtime",
     "libraries/microsoft-agents-a365-tooling",
     "libraries/microsoft-agents-a365-tooling-extensions-azureaifoundry",
