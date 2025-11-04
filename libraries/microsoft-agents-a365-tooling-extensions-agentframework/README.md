@@ -82,7 +82,7 @@ async def main():
         chat_client=chat_client,
         agent_instructions="You are a helpful assistant that can provide weather and restaurant information.",
         initial_tools=[],  # Your existing tools
-        agent_user_id="user-123",
+        agentic_app_id="user-123",
         environment_id="prod",
         auth_token="your-auth-token"
     )
@@ -139,7 +139,7 @@ async def main():
         loaded from configured servers. Use these tools to enhance your capabilities.
         """,
         initial_tools=existing_tools,
-        agent_user_id="user-123",
+        agentic_app_id="user-123",
         environment_id="production",
         auth_token="your-auth-token"
     )
@@ -190,7 +190,7 @@ agent = await service.add_tool_servers_to_agent(
     chat_client=chat_client,
     agent_instructions="You are a helpful assistant with access to various tools.",
     initial_tools=[],  # Your existing tools
-    agent_user_id="user-123",
+    agentic_app_id="user-123",
     environment_id="prod",
     auth_token="your-token"
 )
