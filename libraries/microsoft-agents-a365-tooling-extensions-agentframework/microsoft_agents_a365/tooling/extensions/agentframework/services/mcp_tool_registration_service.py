@@ -68,9 +68,15 @@ class McpToolRegistrationService:
                 f"Listing MCP tool servers for agent {agent_instance_id} in environment {environment_id}"
             )
 
+            agentic_app_id = agent_instance_id
+            if turn_context and turn_context.activity and turn_context.activity.recipient:
+                agentic_app_id = getattr(
+                    turn_context.activity.recipient, "agentic_app_id", agent_instance_id
+                )
+
             # Get MCP server configurations
             server_configs = await self._mcp_server_configuration_service.list_tool_servers(
-                agent_instance_id=agent_instance_id,
+                agent_instance_id=agentic_app_id,
                 environment_id=environment_id,
                 auth_token=auth_token,
             )
