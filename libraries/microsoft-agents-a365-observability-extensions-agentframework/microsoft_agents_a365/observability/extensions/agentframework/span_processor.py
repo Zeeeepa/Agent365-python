@@ -7,7 +7,7 @@ from opentelemetry.sdk.trace.export import SpanProcessor
 from microsoft_agents_a365.observability.core.constants import (
     GEN_AI_OPERATION_NAME_KEY,
     EXECUTE_TOOL_OPERATION_NAME,
-    GEN_AI_EVENT_CONTENT
+    GEN_AI_EVENT_CONTENT,
 )
 
 
@@ -21,7 +21,7 @@ class AgentFrameworkSpanProcessor(SpanProcessor):
     def __init__(self, service_name: str | None = None):
         self.service_name = service_name
         super().__init__()
-        
+
     def on_start(self, span, parent_context):
         pass
 
