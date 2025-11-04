@@ -14,6 +14,11 @@ from microsoft_agents_a365.tooling.services.mcp_tool_server_configuration_servic
 )
 from microsoft_agents_a365.tooling.utils.constants import Constants
 
+from microsoft_agents_a365.tooling.utils.utility import (
+    get_mcp_platform_authentication_scope,
+    get_use_environment_id,
+)
+
 
 class McpToolRegistrationService:
     """
@@ -43,9 +48,9 @@ class McpToolRegistrationService:
         initial_tools: List[Any],
         agentic_app_id: str,
         environment_id: str,
-        auth: Optional[Authorization] = None,
+        auth: Authorization,
+        turn_context: TurnContext,
         auth_token: Optional[str] = None,
-        turn_context: Optional[TurnContext] = None,
     ) -> Optional[ChatAgent]:
         """
         Add MCP tool servers to a chat agent (mirrors .NET implementation).
@@ -56,14 +61,20 @@ class McpToolRegistrationService:
             initial_tools: List of initial tools to add to the agent
             agentic_app_id: Agentic app identifier for the agent
             environment_id: Environment identifier for MCP server discovery
-            auth: Optional authorization context
+            auth: Authorization context for token exchange
+            turn_context: Turn context for the operation
             auth_token: Optional bearer token for authentication
-            turn_context: Optional turn context for the operation
 
         Returns:
             ChatAgent instance with MCP tools registered, or None if creation failed
         """
         try:
+            # Exchange token if not provided
+            if not auth_token:
+                scopes = get_mcp_platform_authentication_scope()
+                authToken = await auth.exchange_token(turn_context, scopes, "AGENTIC")
+                auth_token = authToken.token
+
             self._logger.info(
                 f"Listing MCP tool servers for agent {agentic_app_id} in environment {environment_id}"
             )
@@ -96,7 +107,7 @@ class McpToolRegistrationService:
                         headers[Constants.Headers.AUTHORIZATION] = (
                             f"{Constants.Headers.BEARER_PREFIX} {auth_token}"
                         )
-                    if environment_id:
+                    if get_use_environment_id() and environment_id:
                         headers[Constants.Headers.ENVIRONMENT_ID] = environment_id
 
                     server_name = getattr(config, "mcp_server_name", "Unknown")
