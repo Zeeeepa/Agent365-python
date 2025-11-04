@@ -11,4 +11,3 @@ package_version = environ.get("AGENT365_PYTHON_SDK_PACKAGE_VERSION", "0.0.0")
 setup(
     version=package_version,
 )
-
