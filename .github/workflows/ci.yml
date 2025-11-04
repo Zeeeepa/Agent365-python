@@ -115,6 +115,8 @@ jobs:
     - name: Build package
       run: |
         AGENT365_PYTHON_SDK_PACKAGE_VERSION=${{ needs.version-number.outputs.PACKAGE_VERSION }} uv build --all-packages --wheel
+      env:
+        AGENT365_PYTHON_SDK_PACKAGE_VERSION: ${{ needs.version-number.outputs.PACKAGE_VERSION }}
 
     - name: Run unit tests
       run: |
