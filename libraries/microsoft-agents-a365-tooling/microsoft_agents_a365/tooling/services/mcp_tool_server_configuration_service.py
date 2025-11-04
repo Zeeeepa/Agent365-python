@@ -98,9 +98,7 @@ class McpToolServerConfigurationService:
         if self._is_development_scenario():
             return self._load_servers_from_manifest(environment_id)
         else:
-            return await self._load_servers_from_gateway(
-                agentic_app_id, environment_id, auth_token
-            )
+            return await self._load_servers_from_gateway(agentic_app_id, environment_id, auth_token)
 
     # --------------------------------------------------------------------------
     # ENVIRONMENT DETECTION
