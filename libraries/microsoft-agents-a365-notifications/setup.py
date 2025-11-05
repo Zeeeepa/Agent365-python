@@ -1,30 +1,13 @@
-# Copyright (c) Microsoft. All rights reserved.
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
 
-import os
-from datetime import datetime
-from zoneinfo import ZoneInfo
-
+from os import environ
 from setuptools import setup
 
-
-def build_version():
-    """
-    Example: 2025.10.3+preview.65532  (PEP 440 compliant; avoids hyphens)
-    Uses UTC.
-    """
-
-    if defined_version := os.getenv("A365_SDK_VERSION"):
-        return defined_version  # For CI/CD to set a specific version.
-
-    today = datetime.now(ZoneInfo("UTC"))
-
-    return (
-        f"{today.year}.{today.month}.{today.day}+preview.{today.hour}{today.minute}{today.second}"
-    )
-
-
-VERSION = build_version()
+# Get version from environment variable set by CI/CD
+# This will be set by setuptools-git-versioning in the CI pipeline
+package_version = environ.get("AGENT365_PYTHON_SDK_PACKAGE_VERSION", "0.0.0")
 
 setup(
-    version=VERSION,
+    version=package_version,
 )

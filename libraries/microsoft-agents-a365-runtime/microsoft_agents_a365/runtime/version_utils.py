@@ -1,27 +1,34 @@
-# Copyright (c) Microsoft. All rights reserved.
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+"""
+Version utilities for Agent365 SDK packages.
+
+This module is deprecated. Versioning is now handled automatically by
+setuptools-git-versioning. See versioning/TARGET-VERSION and
+HOW_TO_SET_A_VERSION.md for details.
+"""
 
 from __future__ import annotations
 
 import os
-from datetime import datetime
-from zoneinfo import ZoneInfo
 
 
 def build_version():
     """
-    Build version string for Agent365 SDK packages.
+    DEPRECATED: This function is no longer used.
 
-    Example: 2025.10.3+preview.65532  (PEP 440 compliant; avoids hyphens)
-    Uses UTC.
+    Version is now automatically calculated by setuptools-git-versioning
+    based on Git history and tags. See HOW_TO_SET_A_VERSION.md for details.
 
     Returns:
-        str: Version string in format YYYY.M.D+preview.HHMMSS or environment override
+        str: Version from AGENT365_PYTHON_SDK_PACKAGE_VERSION environment variable or "0.0.0"
     """
-    if defined_version := os.getenv("A365_SDK_VERSION"):
-        return defined_version  # For CI/CD to set a specific version.
+    import warnings
 
-    today = datetime.now(ZoneInfo("UTC"))
-
-    return (
-        f"{today.year}.{today.month}.{today.day}+preview.{today.hour}{today.minute}{today.second}"
+    warnings.warn(
+        "build_version() is deprecated. Version is now managed by setuptools-git-versioning.",
+        DeprecationWarning,
+        stacklevel=2,
     )
+    return os.environ.get("AGENT365_PYTHON_SDK_PACKAGE_VERSION", "0.0.0")
