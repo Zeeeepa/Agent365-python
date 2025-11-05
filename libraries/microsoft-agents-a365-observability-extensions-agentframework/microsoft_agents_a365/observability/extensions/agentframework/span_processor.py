@@ -24,12 +24,12 @@ class AgentFrameworkSpanProcessor(SpanProcessor):
         super().__init__()
 
     def on_start(self, span, parent_context):
-        pass
-
-    def on_end(self, span):
         if hasattr(span, "attributes"):
             operation_name = span.attributes.get(GEN_AI_OPERATION_NAME_KEY)
             if isinstance(operation_name, str) and operation_name == EXECUTE_TOOL_OPERATION_NAME:
                 tool_call_result = span.attributes.get(self.TOOL_CALL_RESULT_TAG)
                 if tool_call_result is not None:
                     span.set_attribute(GEN_AI_EVENT_CONTENT, tool_call_result)
+
+    def on_end(self, span):
+        pass
