@@ -56,7 +56,6 @@ class TestAgentFrameworkTraceProcessorIntegration:
     def test_agentframework_trace_processor_integration(self, azure_openai_config, agent365_config):
         """Test AgentFramework trace processor with real Azure OpenAI call."""
 
-
         # Configure observability
         configure(
             service_name="integration-test-service",
@@ -96,6 +95,7 @@ class TestAgentFrameworkTraceProcessorIntegration:
             async def run_agent():
                 result = await agent.run("What can you do with agent framework?")
                 return result
+
             response = asyncio.run(run_agent())
             print(f"Agent response: {response}")
             # Give some time for spans to be processed
@@ -120,7 +120,9 @@ class TestAgentFrameworkTraceProcessorIntegration:
             # Clean up
             instrumentor.uninstrument()
 
-    def test_agentframework_trace_processor_with_tool_calls(self, azure_openai_config, agent365_config):
+    def test_agentframework_trace_processor_with_tool_calls(
+        self, azure_openai_config, agent365_config
+    ):
         """Test AgentFramework trace processor with tool calls."""
 
         # Configure observability
@@ -158,7 +160,6 @@ class TestAgentFrameworkTraceProcessorIntegration:
 
             # Execute a prompt that requires tool usage
             import asyncio
-
 
             async def run_agent_with_tool():
                 result = await agent.run("What is 15 + 27?")
@@ -201,9 +202,6 @@ class TestAgentFrameworkTraceProcessorIntegration:
             # Check common attributes
             if TENANT_ID_KEY in attributes:
                 assert attributes[TENANT_ID_KEY] == agent365_config["tenant_id"]
-
-            #if GEN_AI_AGENT_ID_KEY in attributes:
-             #   assert attributes[GEN_AI_AGENT_ID_KEY] == agent365_config["agent_id"]
 
             # Check for LLM spans (generation spans)
             if GEN_AI_SYSTEM_KEY in attributes and attributes[GEN_AI_SYSTEM_KEY] == "openai":
@@ -248,9 +246,6 @@ class TestAgentFrameworkTraceProcessorIntegration:
             # Check common attributes
             if TENANT_ID_KEY in attributes:
                 assert attributes[TENANT_ID_KEY] == agent365_config["tenant_id"]
-
-            #if GEN_AI_AGENT_ID_KEY in attributes:
-            #    assert attributes[GEN_AI_AGENT_ID_KEY] == agent365_config["agent_id"]
 
             # Check for LLM spans (generation spans)
             if GEN_AI_SYSTEM_KEY in attributes and attributes[GEN_AI_SYSTEM_KEY] == "openai":
