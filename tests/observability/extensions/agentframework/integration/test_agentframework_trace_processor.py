@@ -244,8 +244,8 @@ class TestAgentFrameworkTraceProcessorIntegration:
             if TENANT_ID_KEY in attributes:
                 assert attributes[TENANT_ID_KEY] == agent365_config["tenant_id"]
 
-            # Check for LLM spans (generation spans)
-            if GEN_AI_SYSTEM_KEY in attributes and attributes[GEN_AI_SYSTEM_KEY] == "openai":
+            # Check for LLM spans
+            if "chat" in span.name.lower():
                 if GEN_AI_REQUEST_MODEL_KEY in attributes:
                     llm_spans_found += 1
                     print(f"✓ Found LLM span with model: {attributes[GEN_AI_REQUEST_MODEL_KEY]}")
