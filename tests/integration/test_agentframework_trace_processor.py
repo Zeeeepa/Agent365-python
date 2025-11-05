@@ -6,7 +6,6 @@ import time
 import pytest
 from microsoft_agents_a365.observability.core import configure, get_tracer_provider
 from microsoft_agents_a365.observability.core.constants import (
-    GEN_AI_AGENT_ID_KEY,
     GEN_AI_INPUT_MESSAGES_KEY,
     GEN_AI_OUTPUT_MESSAGES_KEY,
     GEN_AI_REQUEST_MODEL_KEY,
