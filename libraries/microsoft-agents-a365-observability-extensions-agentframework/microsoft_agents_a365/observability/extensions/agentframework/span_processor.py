@@ -25,7 +25,7 @@ class AgentFrameworkSpanProcessor(SpanProcessor):
     def on_start(self, span, parent_context):
         pass
 
-    def on_end(self, span, parent_context):
+    def on_end(self, span):
         if hasattr(span, "attributes"):
             operation_name = span.attributes.get(GEN_AI_OPERATION_NAME_KEY)
             if isinstance(operation_name, str) and operation_name == EXECUTE_TOOL_OPERATION_NAME:
