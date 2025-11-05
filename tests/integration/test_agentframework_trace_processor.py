@@ -264,7 +264,7 @@ class TestAgentFrameworkTraceProcessorIntegration:
                 print(f"✓ Found agent span: {span.name}")
 
             # Check for tool execution spans
-            if "execute_tool" in span.name.lower() or "calculator_tool" in span.name.lower():
+            if "execute_tool" in span.name.lower() or "add_numbers" in span.name.lower():
                 tool_spans_found += 1
                 print(f"✓ Found tool execution span: {span.name}")
 
