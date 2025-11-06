@@ -1,8 +1,8 @@
 name: Feature Request
 description: Suggest a new feature or improvement for the Agent365 Python SDK.
 title: "[FEATURE] - [short description]"
-labels: enhancement
-assignees: ''
+labels: ["enhancement"]
+assignees: []
 
 body:
   - type: markdown
