@@ -1,8 +1,8 @@
 name: Bug Report
 description: Report an issue with the Agent365 Python SDK.
 title: "[BUG] - [short description]"
-labels: bug
-assignees: ''
+labels: ["bug"]
+assignees: []
 
 body:
   - type: markdown
