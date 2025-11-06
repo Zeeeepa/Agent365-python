@@ -44,7 +44,7 @@ class McpToolRegistrationService:
 
     Example:
         >>> service = McpToolRegistrationService()
-        >>> service.add_tool_servers_to_agent(project_client, agent_id, env_id, token)
+        >>> service.add_tool_servers_to_agent(project_client, agent_id, token)
     """
 
     def __init__(

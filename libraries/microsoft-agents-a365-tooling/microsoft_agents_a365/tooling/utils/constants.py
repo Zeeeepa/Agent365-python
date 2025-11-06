@@ -12,7 +12,7 @@ class Constants:
 
     class Headers:
         """
-        Provides constant header values used for authentication and environment identification.
+        Provides constant header values used for authentication.
         """
 
         #: The header name used for HTTP authorization tokens.

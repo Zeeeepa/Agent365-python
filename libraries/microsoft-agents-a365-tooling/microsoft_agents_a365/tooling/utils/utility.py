@@ -55,7 +55,7 @@ def get_mcp_base_url() -> str:
 
 def build_mcp_server_url(server_name: str) -> str:
     """
-    Constructs the full MCP server URL using the base URL, environment ID, and server name.
+    Constructs the full MCP server URL using the base URL and server name.
 
     Args:
         server_name: The MCP server name.
