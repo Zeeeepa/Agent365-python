@@ -1,0 +1,48 @@
+name: Feature Request
+description: Suggest a new feature or improvement.
+title: "[FEATURE] - [short description]"
+labels: enhancement
+assignees: ''
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Feature Request
+
+        Please fill out the following template to help us evaluate your request.
+
+  - type: input
+    attributes:
+      label: "Feature Description"
+      description: "Describe the feature or enhancement you would like to see."
+      placeholder: "e.g., Add dark mode support to the app."
+      required: true
+
+  - type: textarea
+    attributes:
+      label: "Use Case"
+      description: "What problem does this feature solve or how would it improve the project?"
+      placeholder: "e.g., Dark mode would make the app more comfortable to use at night."
+      required: true
+
+  - type: input
+    attributes:
+      label: "Potential Impact"
+      description: "How would this feature impact the project or the user experience?"
+      placeholder: "e.g., It would improve accessibility for users with vision impairments."
+      required: true
+
+  - type: input
+    attributes:
+      label: "Priority"
+      description: "How important is this feature? (Low, Medium, High)"
+      placeholder: "e.g., High"
+      required: true
+
+  - type: textarea
+    attributes:
+      label: "Additional Context"
+      description: "Add any other information that might be helpful."
+      placeholder: "e.g., Related issues, screenshots, external resources."
+      required: false

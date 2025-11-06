@@ -1,0 +1,55 @@
+name: Bug Report
+description: Report an issue with the project.
+title: "[BUG] - [short description]"
+labels: bug
+assignees: ''
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Bug Report
+
+        Please fill out the following information to help us better understand the issue.
+
+  - type: input
+    attributes:
+      label: "Bug Description"
+      description: "Provide a clear and concise description of the bug."
+      placeholder: "e.g., The app crashes when I try to login."
+      required: true
+
+  - type: textarea
+    attributes:
+      label: "Steps to Reproduce"
+      description: "List the steps to reproduce the behavior."
+      placeholder: "e.g., 1. Go to login page, 2. Enter username and password, 3. Click login"
+      required: true
+
+  - type: input
+    attributes:
+      label: "Expected Behavior"
+      description: "What did you expect to happen?"
+      placeholder: "e.g., The app should log me in successfully."
+      required: true
+
+  - type: input
+    attributes:
+      label: "Environment"
+      description: "Please specify the environment where the bug occurs (e.g., OS, browser version)."
+      placeholder: "e.g., Windows 10, Chrome 92"
+      required: true
+
+  - type: input
+    attributes:
+      label: "Version"
+      description: "What version of the project are you using?"
+      placeholder: "e.g., 1.0.0"
+      required: true
+
+  - type: textarea
+    attributes:
+      label: "Additional Context"
+      description: "Add any other context or screenshots that might help us understand the issue."
+      placeholder: "e.g., Logs, stack traces, screenshots"
+      required: false

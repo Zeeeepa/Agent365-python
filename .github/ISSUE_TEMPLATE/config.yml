@@ -1,0 +1,7 @@
+# .github/ISSUE_TEMPLATE/config.yml
+default:
+  - bug_report
+  - feature_request
+labels:
+  - "type: bug"
+  - "type: enhancement"
