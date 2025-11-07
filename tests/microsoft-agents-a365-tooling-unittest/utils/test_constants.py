@@ -1,18 +1,8 @@
-# Copyright (c) Microsoft Corporation.
-# Licensed under the MIT License.
+# Copyright (c) Microsoft. All rights reserved.
 
 """
 Unit tests for Constants class and its nested classes.
 """
-
-import sys
-from pathlib import Path
-
-# Add the parent directory to the path to import the modules
-sys.path.insert(
-    0,
-    str(Path(__file__).parent.parent.parent.parent / "libraries" / "microsoft-agents-a365-tooling"),
-)
 
 from microsoft_agents_a365.tooling.utils.constants import Constants
 

@@ -1,5 +1,4 @@
-# Copyright (c) Microsoft Corporation.
-# Licensed under the MIT License.
+# Copyright (c) Microsoft. All rights reserved.
 
 """
 Unit tests for utility functions in the tooling package.
@@ -7,15 +6,6 @@ Unit tests for utility functions in the tooling package.
 
 import os
 from unittest.mock import patch
-
-# Add the parent directory to the path to import the modules
-import sys
-from pathlib import Path
-
-sys.path.insert(
-    0,
-    str(Path(__file__).parent.parent.parent.parent / "libraries" / "microsoft-agents-a365-tooling"),
-)
 
 from microsoft_agents_a365.tooling.utils.utility import (
     get_tooling_gateway_for_digital_worker,
@@ -41,8 +31,7 @@ class TestUtilityFunctions:
         self.original_env = {
             key: os.environ.get(key)
             for key in [
-                "ASPNETCORE_ENVIRONMENT",
-                "DOTNET_ENVIRONMENT",
+                "ENVIRONMENT",
                 "MCP_PLATFORM_ENDPOINT",
                 "TOOLS_MODE",
                 "MOCK_MCP_SERVER_URL",
@@ -86,8 +75,7 @@ class TestUtilityFunctions:
     def test_get_mcp_base_url_production(self):
         """Test get_mcp_base_url in production environment."""
         # Arrange - Set production environment
-        os.environ.pop("ASPNETCORE_ENVIRONMENT", None)
-        os.environ.pop("DOTNET_ENVIRONMENT", None)
+        os.environ.pop("ENVIRONMENT", None)
 
         # Act
         result = get_mcp_base_url()
@@ -96,7 +84,7 @@ class TestUtilityFunctions:
         expected = f"{MCP_PLATFORM_PROD_BASE_URL}/mcp/environments"
         assert result == expected
 
-    @patch.dict(os.environ, {"ASPNETCORE_ENVIRONMENT": "Development"}, clear=False)
+    @patch.dict(os.environ, {"ENVIRONMENT": "Development"}, clear=False)
     def test_get_mcp_base_url_development_default_mode(self):
         """Test get_mcp_base_url in development environment with default mode."""
         # Act
@@ -108,7 +96,7 @@ class TestUtilityFunctions:
 
     @patch.dict(
         os.environ,
-        {"ASPNETCORE_ENVIRONMENT": "Development", "TOOLS_MODE": "MockMCPServer"},
+        {"ENVIRONMENT": "Development", "TOOLS_MODE": "MockMCPServer"},
         clear=False,
     )
     def test_get_mcp_base_url_development_mock_mode_default_url(self):
@@ -123,7 +111,7 @@ class TestUtilityFunctions:
     @patch.dict(
         os.environ,
         {
-            "ASPNETCORE_ENVIRONMENT": "Development",
+            "ENVIRONMENT": "Development",
             "TOOLS_MODE": "MockMCPServer",
             "MOCK_MCP_SERVER_URL": "http://custom-mock:8080/mock/servers",
         },
@@ -155,7 +143,7 @@ class TestUtilityFunctions:
 
     @patch.dict(
         os.environ,
-        {"ASPNETCORE_ENVIRONMENT": "Development", "TOOLS_MODE": "MockMCPServer"},
+        {"ENVIRONMENT": "Development", "TOOLS_MODE": "MockMCPServer"},
         clear=False,
     )
     def test_build_mcp_server_url_development_mock_mode(self):
@@ -171,7 +159,7 @@ class TestUtilityFunctions:
         expected = "http://localhost:5309/mcp-mock/agents/servers/test_server"
         assert result == expected
 
-    @patch.dict(os.environ, {"ASPNETCORE_ENVIRONMENT": "Development"}, clear=False)
+    @patch.dict(os.environ, {"ENVIRONMENT": "Development"}, clear=False)
     def test_build_mcp_server_url_development_platform_mode(self):
         """Test build_mcp_server_url in development with platform mode."""
         # Arrange
@@ -190,8 +178,7 @@ class TestUtilityFunctions:
     def test_get_current_environment_default(self):
         """Test _get_current_environment returns default when no env vars set."""
         # Arrange - Clear environment variables
-        os.environ.pop("ASPNETCORE_ENVIRONMENT", None)
-        os.environ.pop("DOTNET_ENVIRONMENT", None)
+        os.environ.pop("ENVIRONMENT", None)
 
         # Act
         result = _get_current_environment()
@@ -199,31 +186,9 @@ class TestUtilityFunctions:
         # Assert
         assert result == "Development"
 
-    @patch.dict(os.environ, {"ASPNETCORE_ENVIRONMENT": "Production"}, clear=False)
-    def test_get_current_environment_aspnetcore(self):
-        """Test _get_current_environment returns ASPNETCORE_ENVIRONMENT value."""
-        # Act
-        result = _get_current_environment()
-
-        # Assert
-        assert result == "Production"
-
-    @patch.dict(os.environ, {"DOTNET_ENVIRONMENT": "Staging"}, clear=False)
-    def test_get_current_environment_dotnet(self):
-        """Test _get_current_environment returns DOTNET_ENVIRONMENT value."""
-        # Act
-        result = _get_current_environment()
-
-        # Assert
-        assert result == "Staging"
-
-    @patch.dict(
-        os.environ,
-        {"ASPNETCORE_ENVIRONMENT": "Production", "DOTNET_ENVIRONMENT": "Staging"},
-        clear=False,
-    )
-    def test_get_current_environment_aspnetcore_priority(self):
-        """Test _get_current_environment prioritizes ASPNETCORE_ENVIRONMENT."""
+    @patch.dict(os.environ, {"ENVIRONMENT": "Production"}, clear=False)
+    def test_get_current_environment_set(self):
+        """Test _get_current_environment returns ENVIRONMENT value."""
         # Act
         result = _get_current_environment()
 
@@ -300,10 +265,9 @@ class TestUtilityFunctions:
     def test_get_ppapi_token_scope_production(self):
         """Test get_ppapi_token_scope returns production scope."""
         # Arrange - Set environment to production explicitly
-        os.environ.pop("ASPNETCORE_ENVIRONMENT", None)
-        os.environ.pop("DOTNET_ENVIRONMENT", None)
+        os.environ.pop("ENVIRONMENT", None)
         # The _get_current_environment defaults to "Development", so we need to set it to something else
-        os.environ["ASPNETCORE_ENVIRONMENT"] = "Production"
+        os.environ["ENVIRONMENT"] = "Production"
 
         # Act
         result = get_ppapi_token_scope()
@@ -312,19 +276,9 @@ class TestUtilityFunctions:
         expected = [PPAPI_TOKEN_SCOPE + "/.default"]
         assert result == expected
 
-    @patch.dict(os.environ, {"ASPNETCORE_ENVIRONMENT": "Development"}, clear=False)
+    @patch.dict(os.environ, {"ENVIRONMENT": "Development"}, clear=False)
     def test_get_ppapi_token_scope_development(self):
         """Test get_ppapi_token_scope returns test scope in development."""
-        # Act
-        result = get_ppapi_token_scope()
-
-        # Assert
-        expected = [PPAPI_TEST_TOKEN_SCOPE + "/.default"]
-        assert result == expected
-
-    @patch.dict(os.environ, {"DOTNET_ENVIRONMENT": "Development"}, clear=False)
-    def test_get_ppapi_token_scope_development_dotnet_env(self):
-        """Test get_ppapi_token_scope works with DOTNET_ENVIRONMENT."""
         # Act
         result = get_ppapi_token_scope()
 

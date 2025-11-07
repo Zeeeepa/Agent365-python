@@ -1,5 +1,4 @@
-# Copyright (c) Microsoft Corporation.
-# Licensed under the MIT License.
+# Copyright (c) Microsoft. All rights reserved.
 
 """
 Unit tests for AgentNotification class
@@ -8,34 +7,9 @@ Unit tests for AgentNotification class
 from unittest.mock import AsyncMock, Mock
 
 import pytest
-
-# Mock external dependencies for testing
-try:
-    from microsoft_agents.activity import Activity, ChannelId
-    from microsoft_agents.hosting.core import TurnContext
-    from microsoft_agents.hosting.core.app.state import TurnState
-except ImportError:
-    # Create mocks if microsoft_agents v0.50+ is not available
-    class ChannelId:
-        MSTeams = "msteams"
-        Directline = "directline"
-        Webchat = "webchat"
-
-    class Activity:
-        def __init__(self, **kwargs):
-            for k, v in kwargs.items():
-                setattr(self, k, v)
-
-    class TurnContext:
-        def __init__(self, **kwargs):
-            for k, v in kwargs.items():
-                setattr(self, k, v)
-
-    class TurnState:
-        def __init__(self, **kwargs):
-            for k, v in kwargs.items():
-                setattr(self, k, v)
-
+from microsoft_agents.activity import Activity, ChannelId
+from microsoft_agents.hosting.core import TurnContext
+from microsoft_agents.hosting.core.app.state import TurnState
 
 from microsoft_agents_a365.notifications.agent_notification import AgentNotification
 from microsoft_agents_a365.notifications.models.agent_notification_activity import (

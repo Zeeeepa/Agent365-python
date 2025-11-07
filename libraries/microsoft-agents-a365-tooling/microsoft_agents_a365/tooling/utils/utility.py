@@ -80,7 +80,7 @@ def _get_current_environment() -> str:
     Returns:
         str: The current environment name.
     """
-    return os.getenv("ASPNETCORE_ENVIRONMENT") or os.getenv("DOTNET_ENVIRONMENT") or "Development"
+    return os.getenv("ENVIRONMENT") or "Development"
 
 
 def _get_mcp_platform_base_url() -> str:
