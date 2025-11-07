@@ -1903,7 +1903,7 @@ test = [
 
 [package.metadata]
 requires-dist = [
-    { name = "azure-ai-agents", specifier = ">=1.1.0b4" },
+    { name = "azure-ai-agents", specifier = ">=1.0.0b251001" },
     { name = "azure-ai-projects", specifier = ">=1.0.0" },
     { name = "azure-identity", specifier = ">=1.12.0" },
     { name = "black", marker = "extra == 'dev'", specifier = ">=23.0.0" },
