@@ -23,6 +23,6 @@ setup(
     version=package_version,
     install_requires=get_dynamic_dependencies(
         use_compatible_release=False,  # No upper bound
-        use_exact_match=False,          # Not exact match
+        use_exact_match=False,  # Not exact match
     ),
 )
