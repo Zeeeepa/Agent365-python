@@ -23,7 +23,7 @@ classifiers = [
 ]
 license = {text = "MIT"}
 dependencies = [
-    "microsoft-agents-a365-tooling >= 0.1.0",
+    "microsoft-agents-a365-tooling >= 0.1.0.dev0",
     "semantic-kernel >= 1.0.0",
     "aiohttp >= 3.8.0",
 ]
