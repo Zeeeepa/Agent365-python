@@ -24,8 +24,10 @@ classifiers = [
 ]
 license = {text = "MIT"}
 keywords = ["observability", "telemetry", "tracing", "opentelemetry", "semantic-kernel", "agents", "ai"]
+# Note: Internal package versions (microsoft-agents-a365-*) are automatically set at build time
+# The placeholder below will be replaced with >= {current_version} by setup.py
 dependencies = [
-    "microsoft-agents-a365-observability-core >= 0.1.0.dev0",
+    "microsoft-agents-a365-observability-core >= 0.0.0",
     "semantic-kernel >= 1.0.0",
     "opentelemetry-api >= 1.36.0",
     "opentelemetry-sdk >= 1.36.0",
