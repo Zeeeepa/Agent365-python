@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=68", "wheel", "tzdata", "tomli>=2.0.0; python_version < '3.11'"]
+requires = ["setuptools>=68", "wheel", "tzdata"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -24,10 +24,8 @@ classifiers = [
 ]
 license = {text = "MIT"}
 keywords = ["observability", "telemetry", "tracing", "opentelemetry", "semantic-kernel", "agents", "ai"]
-# Note: Internal package versions (microsoft-agents-a365-*) are dynamically set at build time
-# The version below is a placeholder and will be replaced by setup.py based on AGENT365_PYTHON_SDK_PACKAGE_VERSION
 dependencies = [
-    "microsoft-agents-a365-observability-core >= 0.0.0",
+    "microsoft-agents-a365-observability-core >= 0.1.0.dev0",
     "semantic-kernel >= 1.0.0",
     "opentelemetry-api >= 1.36.0",
     "opentelemetry-sdk >= 1.36.0",
