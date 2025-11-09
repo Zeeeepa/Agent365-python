@@ -23,7 +23,7 @@ classifiers = [
 ]
 license = {text = "MIT"}
 dependencies = [
-    "microsoft-agents-a365-tooling >= 0.1.0.dev0",
+    "microsoft-agents-a365-tooling >= 0.0.0",
     "openai-agents",
     "asyncio-throttle",
 ]
