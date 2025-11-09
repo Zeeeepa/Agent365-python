@@ -1,20 +1,9 @@
-# Microsoft Agent 365 Tooling Extensions - OpenAI
-[![PyPI version](https://badge.fury.io/py/microsoft-agents-a365-tooling-extensions-openai.svg)](https://badge.fury.io/py/microsoft-agents-a365-tooling-extensions-openai)
+# microsoft-agents-a365-tooling-extensions-openai
 
-OpenAI Agents SDK integration tools and MCP tool registration services for AI agent applications built with the Microsoft Agent 365 SDK. Provides specialized tooling for integrating MCP (Model Context Protocol) servers with OpenAI Agents SDK applications.
+[![PyPI](https://img.shields.io/pypi/v/microsoft-agents-a365-tooling-extensions-openai?label=PyPI&logo=pypi)](https://pypi.org/project/microsoft-agents-a365-tooling-extensions-openai)
+[![PyPI Downloads](https://img.shields.io/pypi/dm/microsoft-agents-a365-tooling-extensions-openai?label=Downloads&logo=pypi)](https://pypi.org/project/microsoft-agents-a365-tooling-extensions-openai)
 
-## What is this?
-
-This library is part of the Microsoft Agent 365 SDK for Python - a comprehensive framework for building enterprise-grade conversational AI agents. The OpenAI tooling extensions specifically provide integration with the OpenAI Agents SDK, enabling seamless registration and management of MCP tool servers within OpenAI-based agent applications.
-
-## Key Features
-
-✅ **OpenAI Agents SDK Integration** - Native integration with OpenAI Agents SDK and framework  
-✅ **MCP Tool Registration** - Automatic registration of MCP servers with OpenAI agents  
-✅ **Multiple Server Types** - Support for hosted, streamable HTTP, SSE, and stdio MCP servers  
-✅ **Dynamic Tool Management** - Runtime addition and management of MCP tool servers  
-✅ **Authentication Integration** - Seamless integration with Microsoft Agent 365 authentication  
-✅ **Enterprise Ready** - Production-grade tooling for OpenAI-based agent deployments  
+OpenAI Agents SDK specific tools and services for AI agent development. Provides sample implementations and utilities for integrating MCP (Model Context Protocol) servers with OpenAI-based agents.
 
 ## Installation
 
@@ -22,32 +11,40 @@ This library is part of the Microsoft Agent 365 SDK for Python - a comprehensive
 pip install microsoft-agents-a365-tooling-extensions-openai
 ```
 
-## Quick Start
+## Usage
 
-### Basic Concepts
+This package provides sample implementations and patterns for OpenAI agent integration. Refer to the included sample files for implementation examples:
 
-The Microsoft Agent 365 OpenAI Tooling Extensions enable seamless integration between MCP tool servers and OpenAI Agents SDK applications. Key concepts include:
+- `mcp_demo.py`: Complete working demonstration
+- `sample_agent.py`: Basic agent with MCP management
+- `advanced_tool_service.py`: Advanced service with multiple server types
+- `tool_service_interface.py`: Interface definitions and patterns
 
-- **MCP Tool Registration**: Automatic registration of MCP servers with OpenAI agents
-- **OpenAI Agents Integration**: Native integration with OpenAI Agents SDK framework
-- **Multiple Server Types**: Support for various MCP server deployment types
-- **Dynamic Tool Management**: Runtime management of tool servers and configurations
-
-### Getting Started
-
-1. Install the package: `pip install microsoft-agents-a365-tooling-extensions-openai`
-2. Configure your OpenAI agent application with MCP support
-3. Use the MCP tool registration service to add tools to your agents
-4. Deploy and manage your OpenAI agents with MCP capabilities
-
-### Basic Usage
+### Basic Pattern
 
 ```python
-from microsoft_agents_a365.tooling.extensions.openai import McpToolRegistrationService
-from agents import Agent
-from microsoft_agents.hosting.core import Authorization, TurnContext
+from openai import OpenAI
 
-# Create MCP tool registration service
+# Initialize OpenAI client
+client = OpenAI(api_key="your-api-key")
+
+# Use MCP tool discovery patterns from samples
+# See package samples for complete implementation examples
+```
+
+## Support
+
+For issues, questions, or feedback:
+
+- File issues in the [GitHub Issues](https://github.com/microsoft/Agent365-python/issues) section
+- See the [main documentation](../../../README.md) for more information
+
+## License
+
+Copyright (c) Microsoft Corporation. All rights reserved.
+
+Licensed under the MIT License - see the [LICENSE](../../../LICENSE.md) file for details.
+
 registration_service = McpToolRegistrationService()
 
 # Add MCP tool servers to your OpenAI agent

@@ -1,20 +1,9 @@
-# Microsoft Agent 365 Tooling Extensions - Azure AI Foundry
-[![PyPI version](https://badge.fury.io/py/microsoft-agents-a365-tooling-extensions-azureaifoundry.svg)](https://badge.fury.io/py/microsoft-agents-a365-tooling-extensions-azureaifoundry)
+# microsoft-agents-a365-tooling-extensions-azureaifoundry
 
-Azure AI Foundry integration tools and MCP tool registration services for AI agent applications built with the Microsoft Agent 365 SDK. Provides specialized tooling for integrating MCP (Model Context Protocol) servers with Azure AI Foundry agents and projects.
+[![PyPI](https://img.shields.io/pypi/v/microsoft-agents-a365-tooling-extensions-azureaifoundry?label=PyPI&logo=pypi)](https://pypi.org/project/microsoft-agents-a365-tooling-extensions-azureaifoundry)
+[![PyPI Downloads](https://img.shields.io/pypi/dm/microsoft-agents-a365-tooling-extensions-azureaifoundry?label=Downloads&logo=pypi)](https://pypi.org/project/microsoft-agents-a365-tooling-extensions-azureaifoundry)
 
-## What is this?
-
-This library is part of the Microsoft Agent 365 SDK for Python - a comprehensive framework for building enterprise-grade conversational AI agents. The Azure AI Foundry tooling extensions specifically provide integration with Azure AI Foundry (Azure AI Projects and Agents), enabling seamless registration and management of MCP tool servers within the Azure AI ecosystem.
-
-## Key Features
-
-✅ **Azure AI Foundry Integration** - Native integration with Azure AI Projects and Agents  
-✅ **MCP Tool Registration** - Automatic registration of MCP servers with Azure AI Foundry agents  
-✅ **Azure Identity Support** - Built-in Azure authentication with DefaultAzureCredential  
-✅ **Tool Resource Management** - Comprehensive management of tool definitions and resources  
-✅ **Multi-Environment Support** - Support for development and production deployment scenarios  
-✅ **Enterprise Ready** - Production-grade tooling for Azure-based agent deployments  
+Azure AI Foundry specific tools and services for AI agent development. Provides MCP (Model Context Protocol) tool registration service for dynamically adding MCP servers to Azure AI Foundry agents.
 
 ## Installation
 
@@ -22,32 +11,55 @@ This library is part of the Microsoft Agent 365 SDK for Python - a comprehensive
 pip install microsoft-agents-a365-tooling-extensions-azureaifoundry
 ```
 
-## Quick Start
+## Usage
 
-### Basic Concepts
-
-The Microsoft Agent 365 Azure AI Foundry Tooling Extensions enable seamless integration between MCP tool servers and Azure AI Foundry agents. Key concepts include:
-
-- **MCP Tool Registration**: Automatic registration of MCP servers with Azure AI Foundry agents
-- **Azure AI Projects Integration**: Native integration with Azure AI Projects and project clients
-- **Tool Resource Management**: Management of tool definitions, resources, and configurations
-- **Azure Identity Integration**: Seamless authentication using Azure DefaultAzureCredential
-
-### Getting Started
-
-1. Install the package: `pip install microsoft-agents-a365-tooling-extensions-azureaifoundry`
-2. Configure Azure credentials and project settings
-3. Use the MCP tool registration service to add tools to your agents
-4. Deploy and manage your Azure AI Foundry agents with MCP capabilities
-
-### Basic Usage
+### Basic MCP Tool Registration
 
 ```python
-from microsoft_agents_a365.tooling.extensions.azureaifoundry import McpToolRegistrationService
+from microsoft_agents_a365.tooling.extensions.azureaifoundry import (
+    McpToolRegistrationService
+)
 from azure.ai.projects import AIProjectClient
 from azure.identity import DefaultAzureCredential
 
+# Initialize the tool registration service
+mcp_service = McpToolRegistrationService()
+
 # Create Azure AI Project client
+project_client = AIProjectClient(
+    credential=DefaultAzureCredential(),
+    subscription_id="your-subscription-id",
+    resource_group_name="your-resource-group",
+    project_name="your-project-name"
+)
+
+# Add MCP tool servers to agent
+agent = await mcp_service.add_tool_servers_to_agent(
+    project_client=project_client,
+    agent_instructions="You are a helpful assistant",
+    agentic_app_id="your-agent-id",
+    environment_id="your-environment-id",
+    auth=authorization,
+    turn_context=turn_context
+)
+
+# Use the agent with registered MCP tools
+response = await agent.run("Help me with my task")
+```
+
+## Support
+
+For issues, questions, or feedback:
+
+- File issues in the [GitHub Issues](https://github.com/microsoft/Agent365-python/issues) section
+- See the [main documentation](../../../README.md) for more information
+
+## License
+
+Copyright (c) Microsoft Corporation. All rights reserved.
+
+Licensed under the MIT License - see the [LICENSE](../../../LICENSE.md) file for details.
+
 credential = DefaultAzureCredential()
 project_client = AIProjectClient(
     credential=credential,

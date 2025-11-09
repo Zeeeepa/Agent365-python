@@ -1,20 +1,9 @@
-# Microsoft Agent 365 Tooling Extensions - Semantic Kernel
-[![PyPI version](https://badge.fury.io/py/microsoft-agents-a365-tooling-extensions-semantickernel.svg)](https://badge.fury.io/py/microsoft-agents-a365-tooling-extensions-semantickernel)
+# microsoft-agents-a365-tooling-extensions-semantickernel
 
-Microsoft Semantic Kernel integration tools and MCP tool registration services for AI agent applications built with the Microsoft Agent 365 SDK. Provides specialized tooling for integrating MCP (Model Context Protocol) servers with Semantic Kernel-based agent applications.
+[![PyPI](https://img.shields.io/pypi/v/microsoft-agents-a365-tooling-extensions-semantickernel?label=PyPI&logo=pypi)](https://pypi.org/project/microsoft-agents-a365-tooling-extensions-semantickernel)
+[![PyPI Downloads](https://img.shields.io/pypi/dm/microsoft-agents-a365-tooling-extensions-semantickernel?label=Downloads&logo=pypi)](https://pypi.org/project/microsoft-agents-a365-tooling-extensions-semantickernel)
 
-## What is this?
-
-This library is part of the Microsoft Agent 365 SDK for Python - a comprehensive framework for building enterprise-grade conversational AI agents. The Semantic Kernel tooling extensions specifically provide integration with the Microsoft Semantic Kernel framework, enabling seamless registration and management of MCP tool servers within Semantic Kernel-based agent applications.
-
-## Key Features
-
-✅ **Semantic Kernel Integration** - Native integration with Microsoft Semantic Kernel framework  
-✅ **MCP Tool Registration** - Automatic registration of MCP servers with Semantic Kernel agents  
-✅ **Plugin Management** - Seamless integration with Semantic Kernel's plugin architecture  
-✅ **Streamable HTTP Support** - Built-in support for MCP streamable HTTP plugins  
-✅ **Kernel Function Integration** - Integration with Semantic Kernel's function calling system  
-✅ **Enterprise Ready** - Production-grade tooling for Semantic Kernel-based agent deployments  
+Semantic Kernel specific tools and services for AI agent development. Provides MCP (Model Context Protocol) tool registration service for dynamically adding MCP servers to Semantic Kernel-based agents.
 
 ## Installation
 
@@ -22,32 +11,48 @@ This library is part of the Microsoft Agent 365 SDK for Python - a comprehensive
 pip install microsoft-agents-a365-tooling-extensions-semantickernel
 ```
 
-## Quick Start
+## Usage
 
-### Basic Concepts
-
-The Microsoft Agent 365 Semantic Kernel Tooling Extensions enable seamless integration between MCP tool servers and Semantic Kernel applications. Key concepts include:
-
-- **MCP Tool Registration**: Automatic registration of MCP servers with Semantic Kernel agents
-- **Semantic Kernel Integration**: Native integration with Semantic Kernel framework and plugins
-- **Plugin Architecture**: Leverage Semantic Kernel's plugin system for MCP server integration
-- **Kernel Function Support**: Integration with Semantic Kernel's function calling capabilities
-
-### Getting Started
-
-1. Install the package: `pip install microsoft-agents-a365-tooling-extensions-semantickernel`
-2. Configure your Semantic Kernel application with MCP support
-3. Use the MCP tool registration service to add tools to your kernel
-4. Deploy and manage your Semantic Kernel agents with MCP capabilities
-
-### Basic Usage
+### Basic MCP Tool Registration
 
 ```python
-from microsoft_agents_a365.tooling.extensions.semantickernel import McpToolRegistrationService
+from microsoft_agents_a365.tooling.extensions.semantickernel import (
+    McpToolRegistrationService
+)
 from semantic_kernel import Kernel
+
+# Initialize the tool registration service
+mcp_service = McpToolRegistrationService()
 
 # Create Semantic Kernel instance
 kernel = Kernel()
+
+# Add MCP tool servers to kernel
+await mcp_service.add_tool_servers_to_kernel(
+    kernel=kernel,
+    agentic_app_id="your-agent-id",
+    environment_id="your-environment-id",
+    auth=authorization,
+    turn_context=turn_context
+)
+
+# Use the kernel with registered MCP tools
+result = await kernel.invoke("Help me with my task")
+```
+
+## Support
+
+For issues, questions, or feedback:
+
+- File issues in the [GitHub Issues](https://github.com/microsoft/Agent365-python/issues) section
+- See the [main documentation](../../../README.md) for more information
+
+## License
+
+Copyright (c) Microsoft Corporation. All rights reserved.
+
+Licensed under the MIT License - see the [LICENSE](../../../LICENSE.md) file for details.
+
 
 # Create MCP tool registration service
 registration_service = McpToolRegistrationService()
