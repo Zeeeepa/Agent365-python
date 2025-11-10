@@ -23,7 +23,7 @@ classifiers = [
 ]
 license = {text = "MIT"}
 dependencies = [
-    "microsoft-agents-a365-tooling >= 0.1.0",
+    "microsoft-agents-a365-tooling >= 0.0.0",
     "azure-ai-projects >= 1.0.0",
     "azure-ai-agents >= 1.0.0b251001",
     "azure-identity >= 1.12.0",
