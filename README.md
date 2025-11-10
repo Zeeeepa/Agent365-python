@@ -71,14 +71,14 @@ For more detailed build instructions, see the [BUILD.md](BUILD.md).
 
 ## Project Structure
 
-- **libraries/microsoft-agents-a365-notifications**: Microsoft Agents A365 Notifications - Agent notification services and models
-- **libraries/microsoft-agents-a365-observability-core**: Microsoft Agents A365 Observability Core - Core observability functionality
+- **libraries/microsoft-agents-a365-notifications**: Microsoft Agents 365 Notifications - Agent notification services and models
+- **libraries/microsoft-agents-a365-observability-core**: Microsoft Agents 365 Observability Core - Core observability functionality
 - **libraries/microsoft-agents-a365-observability-extensions-agentframework**: Agent Framework observability extensions
 - **libraries/microsoft-agents-a365-observability-extensions-langchain**: LangChain observability extensions
 - **libraries/microsoft-agents-a365-observability-extensions-openai**: OpenAI observability extensions
 - **libraries/microsoft-agents-a365-observability-extensions-semantickernel**: Semantic Kernel observability extensions
-- **libraries/microsoft-agents-a365-runtime**: Microsoft Agents A365 Runtime - Core runtime utilities and extensions
-- **libraries/microsoft-agents-a365-tooling**: Microsoft Agents A365 Tooling - Agent tooling and MCP integration
+- **libraries/microsoft-agents-a365-runtime**: Microsoft Agents 365 Runtime - Core runtime utilities and extensions
+- **libraries/microsoft-agents-a365-tooling**: Microsoft Agents 365 Tooling - Agent tooling and MCP integration
 - **libraries/microsoft-agents-a365-tooling-extensions-agentframework**: Agent Framework tooling extensions
 - **libraries/microsoft-agents-a365-tooling-extensions-azureaifoundry**: Azure AI Foundry tooling extensions
 - **libraries/microsoft-agents-a365-tooling-extensions-openai**: OpenAI tooling extensions

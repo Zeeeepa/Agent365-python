@@ -3,7 +3,7 @@
 [![PyPI](https://img.shields.io/pypi/v/microsoft-agents-a365-tooling?label=PyPI&logo=pypi)](https://pypi.org/project/microsoft-agents-a365-tooling)
 [![PyPI Downloads](https://img.shields.io/pypi/dm/microsoft-agents-a365-tooling?label=Downloads&logo=pypi)](https://pypi.org/project/microsoft-agents-a365-tooling)
 
-Core tooling functionality for MCP (Model Context Protocol) tool server management in Microsoft Agents A365 applications. This package provides the foundation for discovering, registering, and managing tool servers across different AI frameworks.
+Core tooling functionality for MCP (Model Context Protocol) tool server management in Microsoft Agents 365 applications. This package provides the foundation for discovering, registering, and managing tool servers across different AI frameworks.
 
 ## Installation
 
