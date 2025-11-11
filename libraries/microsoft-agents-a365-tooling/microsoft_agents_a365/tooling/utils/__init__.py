@@ -9,7 +9,6 @@ from .utility import (
     get_tooling_gateway_for_digital_worker,
     get_mcp_base_url,
     build_mcp_server_url,
-    get_tools_mode,
     get_ppapi_token_scope,
 )
 
@@ -18,6 +17,5 @@ __all__ = [
     "get_tooling_gateway_for_digital_worker",
     "get_mcp_base_url",
     "build_mcp_server_url",
-    "get_tools_mode",
     "get_ppapi_token_scope",
 ]

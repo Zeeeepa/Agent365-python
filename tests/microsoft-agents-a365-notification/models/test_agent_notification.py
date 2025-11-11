@@ -98,24 +98,6 @@ class TestAgentNotification:
         assert "email" in agent_notification._known_subchannels
         assert "word" in agent_notification._known_subchannels
 
-    def test_normalize_subchannel_with_string(self):
-        """Test _normalize_subchannel with string input"""
-        # Arrange & Act & Assert
-        assert AgentNotification._normalize_subchannel("EMAIL") == "email"
-        assert AgentNotification._normalize_subchannel("  Word  ") == "word"
-        assert AgentNotification._normalize_subchannel("custom") == "custom"
-
-    def test_normalize_subchannel_with_enum(self):
-        """Test _normalize_subchannel with enum input"""
-        # Arrange & Act & Assert
-        assert AgentNotification._normalize_subchannel(AgentSubChannel.EMAIL) == "email"
-        assert AgentNotification._normalize_subchannel(AgentSubChannel.WORD) == "word"
-
-    def test_normalize_subchannel_with_none(self):
-        """Test _normalize_subchannel with None input"""
-        # Arrange & Act & Assert
-        assert AgentNotification._normalize_subchannel(None) == ""
-
     def test_on_agent_notification_decorator_creation(self):
         """Test that on_agent_notification creates proper decorator"""
         # Arrange

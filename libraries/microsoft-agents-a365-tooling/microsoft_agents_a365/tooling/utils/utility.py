@@ -5,14 +5,6 @@ Provides utility functions for the Tooling components.
 """
 
 import os
-from enum import Enum
-
-
-class ToolsMode(Enum):
-    """Enumeration for different tools modes."""
-
-    MOCK_MCP_SERVER = "MockMCPServer"
-    MCP_PLATFORM = "MCPPlatform"
 
 
 # Constants for base URLs
@@ -43,13 +35,6 @@ def get_mcp_base_url() -> str:
     Returns:
         str: The base URL for MCP servers.
     """
-    environment = _get_current_environment().lower()
-
-    if environment == "development":
-        tools_mode = get_tools_mode()
-        if tools_mode == ToolsMode.MOCK_MCP_SERVER:
-            return os.getenv("MOCK_MCP_SERVER_URL", "http://localhost:5309/mcp-mock/agents/servers")
-
     return f"{_get_mcp_platform_base_url()}/mcp/environments"
 
 
@@ -65,12 +50,7 @@ def build_mcp_server_url(environment_id: str, server_name: str) -> str:
         str: The full MCP server URL.
     """
     base_url = get_mcp_base_url()
-    environment = _get_current_environment().lower()
-
-    if environment == "development" and base_url.endswith("servers"):
-        return f"{base_url}/{server_name}"
-    else:
-        return f"{base_url}/{environment_id}/servers/{server_name}"
+    return f"{base_url}/{environment_id}/servers/{server_name}"
 
 
 def _get_current_environment() -> str:
@@ -94,21 +74,6 @@ def _get_mcp_platform_base_url() -> str:
         return os.getenv("MCP_PLATFORM_ENDPOINT")
 
     return MCP_PLATFORM_PROD_BASE_URL
-
-
-def get_tools_mode() -> ToolsMode:
-    """
-    Gets the tools mode for the application.
-
-    Returns:
-        ToolsMode: The tools mode enum value.
-    """
-    tools_mode = os.getenv("TOOLS_MODE", "MCPPlatform").lower()
-
-    if tools_mode == "mockmcpserver":
-        return ToolsMode.MOCK_MCP_SERVER
-    else:
-        return ToolsMode.MCP_PLATFORM
 
 
 def get_ppapi_token_scope():

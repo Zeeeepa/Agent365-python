@@ -13,9 +13,7 @@ from microsoft_agents_a365.tooling.utils.utility import (
     build_mcp_server_url,
     _get_current_environment,
     _get_mcp_platform_base_url,
-    get_tools_mode,
     get_ppapi_token_scope,
-    ToolsMode,
     MCP_PLATFORM_PROD_BASE_URL,
     PPAPI_TOKEN_SCOPE,
     PPAPI_TEST_TOKEN_SCOPE,
@@ -33,8 +31,6 @@ class TestUtilityFunctions:
             for key in [
                 "ENVIRONMENT",
                 "MCP_PLATFORM_ENDPOINT",
-                "TOOLS_MODE",
-                "MOCK_MCP_SERVER_URL",
             ]
         }
 
@@ -84,46 +80,14 @@ class TestUtilityFunctions:
         expected = f"{MCP_PLATFORM_PROD_BASE_URL}/mcp/environments"
         assert result == expected
 
-    @patch.dict(os.environ, {"ENVIRONMENT": "Development"}, clear=False)
-    def test_get_mcp_base_url_development_default_mode(self):
-        """Test get_mcp_base_url in development environment with default mode."""
+    @patch.dict(os.environ, {"MCP_PLATFORM_ENDPOINT": "https://custom.endpoint.com"}, clear=False)
+    def test_get_mcp_base_url_with_custom_endpoint(self):
+        """Test get_mcp_base_url with custom MCP platform endpoint."""
         # Act
         result = get_mcp_base_url()
 
         # Assert
-        expected = f"{MCP_PLATFORM_PROD_BASE_URL}/mcp/environments"
-        assert result == expected
-
-    @patch.dict(
-        os.environ,
-        {"ENVIRONMENT": "Development", "TOOLS_MODE": "MockMCPServer"},
-        clear=False,
-    )
-    def test_get_mcp_base_url_development_mock_mode_default_url(self):
-        """Test get_mcp_base_url in development with mock mode using default URL."""
-        # Act
-        result = get_mcp_base_url()
-
-        # Assert
-        expected = "http://localhost:5309/mcp-mock/agents/servers"
-        assert result == expected
-
-    @patch.dict(
-        os.environ,
-        {
-            "ENVIRONMENT": "Development",
-            "TOOLS_MODE": "MockMCPServer",
-            "MOCK_MCP_SERVER_URL": "http://custom-mock:8080/mock/servers",
-        },
-        clear=False,
-    )
-    def test_get_mcp_base_url_development_mock_mode_custom_url(self):
-        """Test get_mcp_base_url in development with mock mode using custom URL."""
-        # Act
-        result = get_mcp_base_url()
-
-        # Assert
-        expected = "http://custom-mock:8080/mock/servers"
+        expected = "https://custom.endpoint.com/mcp/environments"
         assert result == expected
 
     def test_build_mcp_server_url_production(self):
@@ -139,24 +103,6 @@ class TestUtilityFunctions:
         expected = (
             f"{MCP_PLATFORM_PROD_BASE_URL}/mcp/environments/{environment_id}/servers/{server_name}"
         )
-        assert result == expected
-
-    @patch.dict(
-        os.environ,
-        {"ENVIRONMENT": "Development", "TOOLS_MODE": "MockMCPServer"},
-        clear=False,
-    )
-    def test_build_mcp_server_url_development_mock_mode(self):
-        """Test build_mcp_server_url in development with mock mode."""
-        # Arrange
-        environment_id = "dev-env-123"
-        server_name = "test_server"
-
-        # Act
-        result = build_mcp_server_url(environment_id, server_name)
-
-        # Assert
-        expected = "http://localhost:5309/mcp-mock/agents/servers/test_server"
         assert result == expected
 
     @patch.dict(os.environ, {"ENVIRONMENT": "Development"}, clear=False)
@@ -215,53 +161,6 @@ class TestUtilityFunctions:
         # Assert
         assert result == "https://test.platform.com"
 
-    def test_get_tools_mode_default(self):
-        """Test get_tools_mode returns default MCP_PLATFORM mode."""
-        # Arrange
-        os.environ.pop("TOOLS_MODE", None)
-
-        # Act
-        result = get_tools_mode()
-
-        # Assert
-        assert result == ToolsMode.MCP_PLATFORM
-
-    @patch.dict(os.environ, {"TOOLS_MODE": "MockMCPServer"}, clear=False)
-    def test_get_tools_mode_mock(self):
-        """Test get_tools_mode returns MOCK_MCP_SERVER mode."""
-        # Act
-        result = get_tools_mode()
-
-        # Assert
-        assert result == ToolsMode.MOCK_MCP_SERVER
-
-    @patch.dict(os.environ, {"TOOLS_MODE": "mockmcpserver"}, clear=False)
-    def test_get_tools_mode_mock_lowercase(self):
-        """Test get_tools_mode handles lowercase input."""
-        # Act
-        result = get_tools_mode()
-
-        # Assert
-        assert result == ToolsMode.MOCK_MCP_SERVER
-
-    @patch.dict(os.environ, {"TOOLS_MODE": "MCPPlatform"}, clear=False)
-    def test_get_tools_mode_platform_explicit(self):
-        """Test get_tools_mode returns MCP_PLATFORM when explicitly set."""
-        # Act
-        result = get_tools_mode()
-
-        # Assert
-        assert result == ToolsMode.MCP_PLATFORM
-
-    @patch.dict(os.environ, {"TOOLS_MODE": "InvalidMode"}, clear=False)
-    def test_get_tools_mode_invalid_defaults_to_platform(self):
-        """Test get_tools_mode defaults to MCP_PLATFORM for invalid values."""
-        # Act
-        result = get_tools_mode()
-
-        # Assert
-        assert result == ToolsMode.MCP_PLATFORM
-
     def test_get_ppapi_token_scope_production(self):
         """Test get_ppapi_token_scope returns production scope."""
         # Arrange - Set environment to production explicitly
@@ -285,12 +184,6 @@ class TestUtilityFunctions:
         # Assert
         expected = [PPAPI_TEST_TOKEN_SCOPE + "/.default"]
         assert result == expected
-
-    def test_tools_mode_enum_values(self):
-        """Test ToolsMode enum has expected values."""
-        # Assert
-        assert ToolsMode.MOCK_MCP_SERVER.value == "MockMCPServer"
-        assert ToolsMode.MCP_PLATFORM.value == "MCPPlatform"
 
     def test_constants_values(self):
         """Test that constants have expected values."""
