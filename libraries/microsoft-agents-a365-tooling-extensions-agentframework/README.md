@@ -13,38 +13,7 @@ pip install microsoft-agents-a365-tooling-extensions-agentframework
 
 ## Usage
 
-### Basic MCP Tool Registration
-
-```python
-from microsoft_agents_a365.tooling.extensions.agentframework import (
-    McpToolRegistrationService
-)
-from agent_framework.azure import AzureOpenAIChatClient
-
-# Initialize the tool registration service
-mcp_service = McpToolRegistrationService()
-
-# Create chat client
-chat_client = AzureOpenAIChatClient(
-    endpoint="https://your-endpoint.openai.azure.com",
-    api_key="your-api-key",
-    model="gpt-4"
-)
-
-# Add MCP tool servers to agent
-agent = await mcp_service.add_tool_servers_to_agent(
-    chat_client=chat_client,
-    agent_instructions="You are a helpful assistant",
-    initial_tools=[],  # Any initial tools
-    agentic_app_id="your-agent-id",
-    environment_id="your-environment-id",
-    auth=authorization,
-    turn_context=turn_context
-)
-
-# Use the agent with registered MCP tools
-response = await agent.run("Help me with my task")
-```
+For usage examples and detailed documentation, see the [Tooling documentation](https://learn.microsoft.com/microsoft-agent-365/developer/tooling?tabs=python) on Microsoft Learn.
 
 ## Support
 

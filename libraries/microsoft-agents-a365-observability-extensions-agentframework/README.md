@@ -13,25 +13,7 @@ pip install microsoft-agents-a365-observability-extensions-agentframework
 
 ## Usage
 
-### Basic Configuration
-
-```python
-from microsoft_agents_a365.observability.extensions.agentframework import (
-    AgentFrameworkTraceInstrumentor
-)
-
-# Initialize instrumentor
-instrumentor = AgentFrameworkTraceInstrumentor()
-
-# Instrument your agent framework application
-instrumentor.instrument()
-
-# Your agent code runs with automatic tracing
-# ...
-
-# Optional: Uninstrument when done
-instrumentor.uninstrument()
-```
+For usage examples and detailed documentation, see the [Observability documentation](https://learn.microsoft.com/microsoft-agent-365/developer/observability?tabs=python) on Microsoft Learn.
 
 ## Support
 

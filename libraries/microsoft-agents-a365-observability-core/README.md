@@ -13,70 +13,7 @@ pip install microsoft-agents-a365-observability-core
 
 ## Usage
 
-### Basic Configuration
-
-```python
-from microsoft_agents_a365.observability.core import configure, get_tracer
-
-# Configure observability with service details
-configure(
-    service_name="my-agent-service",
-    service_namespace="my.namespace"
-)
-
-# Get tracer instance
-tracer = get_tracer()
-```
-
-### Using Tracing Scopes
-
-```python
-from microsoft_agents_a365.observability.core import (
-    InvokeAgentScope,
-    ExecuteToolScope,
-    InferenceScope,
-    InvokeAgentDetails,
-    ToolCallDetails,
-    InferenceCallDetails,
-    AgentDetails,
-    TenantDetails,
-    Request
-)
-
-# Trace agent invocation
-agent_details = AgentDetails(agent_id="my-agent", agent_name="My Agent")
-tenant_details = TenantDetails(tenant_id="tenant-123")
-request = Request(content="User query")
-
-invoke_details = InvokeAgentDetails(
-    details=agent_details,
-    session_id="session-42"
-)
-
-with InvokeAgentScope.start(invoke_details, tenant_details, request):
-    # Agent execution code here
-    result = await process_request()
-
-# Trace tool execution
-tool_details = ToolCallDetails(
-    tool_name="search_tool",
-    tool_type="function"
-)
-
-with ExecuteToolScope.start(tool_details, agent_details, tenant_details):
-    # Tool execution code
-    search_result = await execute_search()
-
-# Trace LLM inference
-inference_details = InferenceCallDetails(
-    operationName="chat",
-    model="gpt-4"
-)
-
-with InferenceScope.start(inference_details, agent_details, tenant_details, request):
-    # LLM call
-    response = await llm.complete(prompt)
-```
+For usage examples and detailed documentation, see the [Observability documentation](https://learn.microsoft.com/microsoft-agent-365/developer/observability?tabs=python) on Microsoft Learn.
 
 ## Support
 

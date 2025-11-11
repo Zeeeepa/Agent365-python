@@ -13,39 +13,7 @@ pip install microsoft-agents-a365-tooling-extensions-azureaifoundry
 
 ## Usage
 
-### Basic MCP Tool Registration
-
-```python
-from microsoft_agents_a365.tooling.extensions.azureaifoundry import (
-    McpToolRegistrationService
-)
-from azure.ai.projects import AIProjectClient
-from azure.identity import DefaultAzureCredential
-
-# Initialize the tool registration service
-mcp_service = McpToolRegistrationService()
-
-# Create Azure AI Project client
-project_client = AIProjectClient(
-    credential=DefaultAzureCredential(),
-    subscription_id="your-subscription-id",
-    resource_group_name="your-resource-group",
-    project_name="your-project-name"
-)
-
-# Add MCP tool servers to agent
-agent = await mcp_service.add_tool_servers_to_agent(
-    project_client=project_client,
-    agent_instructions="You are a helpful assistant",
-    agentic_app_id="your-agent-id",
-    environment_id="your-environment-id",
-    auth=authorization,
-    turn_context=turn_context
-)
-
-# Use the agent with registered MCP tools
-response = await agent.run("Help me with my task")
-```
+For usage examples and detailed documentation, see the [Tooling documentation](https://learn.microsoft.com/microsoft-agent-365/developer/tooling?tabs=python) on Microsoft Learn.
 
 ## Support
 

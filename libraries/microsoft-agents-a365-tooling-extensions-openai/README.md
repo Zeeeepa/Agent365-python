@@ -13,35 +13,7 @@ pip install microsoft-agents-a365-tooling-extensions-openai
 
 ## Usage
 
-### Basic MCP Tool Registration
-
-```python
-from microsoft_agents_a365.tooling.extensions.openai import (
-    McpToolRegistrationService
-)
-from agents import Agent
-
-# Initialize the tool registration service
-mcp_service = McpToolRegistrationService()
-
-# Create your OpenAI agent
-agent = Agent(
-    name="my-agent",
-    instructions="You are a helpful assistant"
-)
-
-# Add MCP tool servers to agent
-await mcp_service.add_tool_servers_to_agent(
-    agent=agent,
-    agentic_app_id="your-agent-id",
-    environment_id="your-environment-id",
-    auth=authorization,
-    context=turn_context
-)
-
-# Use the agent with registered MCP tools
-response = await agent.run("Help me with my task")
-```
+For usage examples and detailed documentation, see the [Tooling documentation](https://learn.microsoft.com/microsoft-agent-365/developer/tooling?tabs=python) on Microsoft Learn.
 
 ## Support
 

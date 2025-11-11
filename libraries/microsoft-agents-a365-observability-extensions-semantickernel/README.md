@@ -13,30 +13,7 @@ pip install microsoft-agents-a365-observability-extensions-semantickernel
 
 ## Usage
 
-### Basic Configuration
-
-```python
-from microsoft_agents_a365.observability.core import configure
-from microsoft_agents_a365.observability.extensions.semantickernel import (
-    SemanticKernelInstrumentor
-)
-
-# Configure observability
-configure(
-    service_name="my-semantic-kernel-agent",
-    service_namespace="ai.agents"
-)
-
-# Enable automatic instrumentation
-instrumentor = SemanticKernelInstrumentor()
-instrumentor.instrument()
-
-# Your Semantic Kernel code is now automatically traced
-from semantic_kernel import Kernel
-
-kernel = Kernel()
-# All kernel operations will be automatically instrumented
-```
+For usage examples and detailed documentation, see the [Observability documentation](https://learn.microsoft.com/microsoft-agent-365/developer/observability?tabs=python) on Microsoft Learn.
 
 ## Support
 

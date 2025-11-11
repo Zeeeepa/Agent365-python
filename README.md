@@ -1,4 +1,4 @@
-# Microsoft Agents 365 SDK - Python
+# Microsoft Agent 365 SDK - Python
 
 [![PyPI](https://img.shields.io/pypi/v/microsoft-agents-a365-observability-core?label=PyPI&logo=pypi)](https://pypi.org/search/?q=microsoft-agents-a365)
 [![PyPI Downloads](https://img.shields.io/pypi/dm/microsoft-agents-a365-observability-core?label=Downloads&logo=pypi)](https://pypi.org/search/?q=microsoft-agents-a365)
@@ -8,11 +8,11 @@
 [![Contributors](https://img.shields.io/github/contributors/microsoft/Agent365-python?label=Contributors&logo=github)](https://github.com/microsoft/Agent365-python/graphs/contributors)
 
 > #### Note:
-> Use the information in this README to contribute to this open-source project. To learn about using this SDK in your projects, refer to the [Microsoft Agents 365 Developer documentation](https://learn.microsoft.com/microsoft-agent-365/developer/).
+> Use the information in this README to contribute to this open-source project. To learn about using this SDK in your projects, refer to the [Microsoft Agent 365 Developer documentation](https://learn.microsoft.com/microsoft-agent-365/developer/).
 
-The Microsoft Agents 365 SDK extends the Microsoft 365 Agents SDK with enterprise-grade capabilities for building sophisticated agents. This SDK provides comprehensive tooling for observability, notifications, runtime utilities, and development tools that help developers create production-ready agents for platforms including M365, Teams, Copilot Studio, and Webchat.
+The Microsoft Agent 365 SDK extends the Microsoft 365 Agents SDK with enterprise-grade capabilities for building sophisticated agents. This SDK provides comprehensive tooling for observability, notifications, runtime utilities, and development tools that help developers create production-ready agents for platforms including M365, Teams, Copilot Studio, and Webchat.
 
-The Microsoft Agents 365 SDK focuses on four core areas:
+The Microsoft Agent 365 SDK focuses on four core areas:
 
 - **Observability**: Comprehensive tracing, caching, and monitoring capabilities for agent applications
 - **Notifications**: Agent notification services and models for handling user notifications
@@ -71,14 +71,14 @@ For more detailed build instructions, see the [BUILD.md](BUILD.md).
 
 ## Project Structure
 
-- **libraries/microsoft-agents-a365-notifications**: Microsoft Agents 365 Notifications - Agent notification services and models
-- **libraries/microsoft-agents-a365-observability-core**: Microsoft Agents 365 Observability Core - Core observability functionality
+- **libraries/microsoft-agents-a365-notifications**: Microsoft Agent 365 Notifications SDK - Agent notification services and models
+- **libraries/microsoft-agents-a365-observability-core**: Microsoft Agent 365 Observability Core - Core observability functionality
 - **libraries/microsoft-agents-a365-observability-extensions-agentframework**: Agent Framework observability extensions
 - **libraries/microsoft-agents-a365-observability-extensions-langchain**: LangChain observability extensions
 - **libraries/microsoft-agents-a365-observability-extensions-openai**: OpenAI observability extensions
 - **libraries/microsoft-agents-a365-observability-extensions-semantickernel**: Semantic Kernel observability extensions
-- **libraries/microsoft-agents-a365-runtime**: Microsoft Agents 365 Runtime - Core runtime utilities and extensions
-- **libraries/microsoft-agents-a365-tooling**: Microsoft Agents 365 Tooling - Agent tooling and MCP integration
+- **libraries/microsoft-agents-a365-runtime**: Microsoft Agent 365 Runtime - Core runtime utilities and extensions
+- **libraries/microsoft-agents-a365-tooling**: Microsoft Agent 365 Tooling SDK - Agent tooling and MCP integration
 - **libraries/microsoft-agents-a365-tooling-extensions-agentframework**: Agent Framework tooling extensions
 - **libraries/microsoft-agents-a365-tooling-extensions-azureaifoundry**: Azure AI Foundry tooling extensions
 - **libraries/microsoft-agents-a365-tooling-extensions-openai**: OpenAI tooling extensions
@@ -108,7 +108,7 @@ This project may contain trademarks or logos for projects, products, or services
 
 ## Useful Links
 
-### Microsoft 365 Agents SDK
+### Microsoft 365 Agent SDK
 
 The core SDK for building conversational AI agents for Microsoft 365 platforms.
 
@@ -126,7 +126,7 @@ Enterprise-grade extensions for observability, notifications, runtime utilities,
 - [Agent365-python repository](https://github.com/microsoft/Agent365-python) - You are here
 - [Agent365-nodejs repository](https://github.com/microsoft/Agent365-nodejs)
 - [Agent365-Samples repository](https://github.com/microsoft/Agent365-Samples)
-- [Microsoft Agents 365 developer documentation](https://learn.microsoft.com/microsoft-agent-365/developer/)
+- [Microsoft Agent 365 developer documentation](https://learn.microsoft.com/microsoft-agent-365/developer/)
 
 ### Additional Resources
 

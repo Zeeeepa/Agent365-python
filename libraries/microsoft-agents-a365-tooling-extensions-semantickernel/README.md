@@ -13,32 +13,7 @@ pip install microsoft-agents-a365-tooling-extensions-semantickernel
 
 ## Usage
 
-### Basic MCP Tool Registration
-
-```python
-from microsoft_agents_a365.tooling.extensions.semantickernel import (
-    McpToolRegistrationService
-)
-from semantic_kernel import Kernel
-
-# Initialize the tool registration service
-mcp_service = McpToolRegistrationService()
-
-# Create Semantic Kernel instance
-kernel = Kernel()
-
-# Add MCP tool servers to kernel
-await mcp_service.add_tool_servers_to_kernel(
-    kernel=kernel,
-    agentic_app_id="your-agent-id",
-    environment_id="your-environment-id",
-    auth=authorization,
-    turn_context=turn_context
-)
-
-# Use the kernel with registered MCP tools
-result = await kernel.invoke("Help me with my task")
-```
+For usage examples and detailed documentation, see the [Tooling documentation](https://learn.microsoft.com/microsoft-agent-365/developer/tooling?tabs=python) on Microsoft Learn.
 
 ## Support
 

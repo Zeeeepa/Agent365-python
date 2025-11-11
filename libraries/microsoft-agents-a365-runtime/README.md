@@ -13,31 +13,7 @@ pip install microsoft-agents-a365-runtime
 
 ## Usage
 
-### Power Platform API Discovery
-
-```python
-from microsoft_agents_a365.runtime import (
-    PowerPlatformApiDiscovery,
-    ClusterCategory
-)
-
-# Initialize API discovery for preprod environment
-api_discovery = PowerPlatformApiDiscovery(ClusterCategory.PREPROD)
-
-# Discover API endpoint for an environment
-endpoint = api_discovery.discover_api(environment_id="env-123")
-print(f"API Endpoint: {endpoint}")
-```
-
-### Get Authentication Scope
-
-```python
-from microsoft_agents_a365.runtime import get_observability_authentication_scope
-
-# Get authentication scope for observability services
-scope = get_observability_authentication_scope(environment_id="env-123")
-print(f"Auth Scope: {scope}")
-```
+For usage examples and detailed documentation, see the [Microsoft Agent 365 Developer documentation](https://learn.microsoft.com/microsoft-agent-365/developer/?tabs=python) on Microsoft Learn.
 
 ## Support
 

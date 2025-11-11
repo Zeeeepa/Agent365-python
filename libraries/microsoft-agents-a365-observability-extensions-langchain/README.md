@@ -13,32 +13,7 @@ pip install microsoft-agents-a365-observability-extensions-langchain
 
 ## Usage
 
-### Basic Configuration
-
-```python
-from microsoft_agents_a365.observability.core import configure
-from microsoft_agents_a365.observability.extensions.langchain import (
-    CustomLangChainInstrumentor
-)
-
-# Configure observability
-configure(
-    service_name="my-langchain-agent",
-    service_namespace="ai.agents"
-)
-
-# Enable automatic instrumentation
-instrumentor = CustomLangChainInstrumentor()
-instrumentor.instrument()
-
-# Your LangChain code is now automatically traced
-from langchain.chains import LLMChain
-from langchain.prompts import PromptTemplate
-
-# All LangChain operations will be automatically instrumented
-chain = LLMChain(llm=llm, prompt=prompt_template)
-result = chain.run(input_text)
-```
+For usage examples and detailed documentation, see the [Observability documentation](https://learn.microsoft.com/microsoft-agent-365/developer/observability?tabs=python) on Microsoft Learn.
 
 ## Support
 

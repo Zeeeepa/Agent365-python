@@ -13,51 +13,7 @@ pip install microsoft-agents-a365-notifications
 
 ## Usage
 
-### Basic Notification Handler
-
-```python
-from microsoft_agents_a365.notifications import AgentNotification, AgentNotificationActivity
-from microsoft_agents.activity import ChannelId
-from microsoft_agents.hosting.core import TurnContext, TurnState
-
-# Initialize notification handler
-agent_notification = AgentNotification(
-    app=app,
-    known_subchannels=["email", "word", "excel"],
-)
-
-# Register notification handler for specific channel
-@agent_notification.on_agent_notification(
-    channel_id=ChannelId(channel="msteams", sub_channel="email")
-)
-async def handle_email_notification(
-    context: TurnContext,
-    state: TurnState,
-    notification: AgentNotificationActivity
-):
-    # Process email notification
-    print(f"Received notification: {notification.notification_type}")
-    await context.send_activity("Processing your email notification")
-```
-
-### Handle Multiple Subchannels
-
-```python
-# Handle all notifications for a channel (wildcard)
-@agent_notification.on_agent_notification(
-    channel_id=ChannelId(channel="msteams", sub_channel="*")
-)
-async def handle_all_notifications(
-    context: TurnContext,
-    state: TurnState,
-    notification: AgentNotificationActivity
-):
-    # Route based on notification type
-    if notification.notification_type == "email":
-        await handle_email(context, notification)
-    elif notification.notification_type == "document":
-        await handle_document(context, notification)
-```
+For usage examples and detailed documentation, see the [Notification documentation](https://learn.microsoft.com/microsoft-agent-365/developer/notification?tabs=python) on Microsoft Learn.
 
 ## Support
 
