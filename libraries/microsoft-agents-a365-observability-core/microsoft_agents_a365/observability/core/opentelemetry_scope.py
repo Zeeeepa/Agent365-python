@@ -2,6 +2,7 @@
 
 # Base class for OpenTelemetry tracing scopes.
 
+import logging
 import os
 import time
 from threading import Lock
@@ -14,9 +15,13 @@ from .constants import (
     ENABLE_A365_OBSERVABILITY,
     ENABLE_OBSERVABILITY,
     ERROR_TYPE_KEY,
+    GEN_AI_AGENT_AUID_KEY,
+    GEN_AI_AGENT_BLUEPRINT_ID_KEY,
     GEN_AI_AGENT_DESCRIPTION_KEY,
     GEN_AI_AGENT_ID_KEY,
     GEN_AI_AGENT_NAME_KEY,
+    GEN_AI_AGENT_TYPE_KEY,
+    GEN_AI_AGENT_UPN_KEY,
     GEN_AI_CONVERSATION_ID_KEY,
     GEN_AI_EVENT_CONTENT,
     GEN_AI_ICON_URI_KEY,
@@ -30,6 +35,9 @@ from .constants import (
 if TYPE_CHECKING:
     from .agent_details import AgentDetails
     from .tenant_details import TenantDetails
+
+# Create logger for this module - inherits from 'microsoft_agents_a365.observability.core'
+logger = logging.getLogger(__name__)
 
 
 class OpenTelemetryScope:
@@ -100,6 +108,13 @@ class OpenTelemetryScope:
                 activity_name, kind=activity_kind, context=current_context
             )
 
+            # Log span creation
+            if self._span:
+                span_id = f"{self._span.context.span_id:016x}" if self._span.context else "unknown"
+                logger.info(f"Span started: '{activity_name}' ({span_id})")
+            else:
+                logger.error(f"Failed to create span: '{activity_name}' - tracer returned None")
+
             # Set common tags
             if self._span:
                 self._span.set_attribute(GEN_AI_SYSTEM_KEY, GEN_AI_SYSTEM_VALUE)
@@ -112,6 +127,16 @@ class OpenTelemetryScope:
                     self.set_tag_maybe(
                         GEN_AI_AGENT_DESCRIPTION_KEY, agent_details.agent_description
                     )
+                    self.set_tag_maybe(GEN_AI_AGENT_AUID_KEY, agent_details.agent_auid)
+                    self.set_tag_maybe(GEN_AI_AGENT_UPN_KEY, agent_details.agent_upn)
+                    self.set_tag_maybe(
+                        GEN_AI_AGENT_BLUEPRINT_ID_KEY, agent_details.agent_blueprint_id
+                    )
+                    self.set_tag_maybe(
+                        GEN_AI_AGENT_TYPE_KEY,
+                        agent_details.agent_type.value if agent_details.agent_type else None,
+                    )
+                    self.set_tag_maybe(TENANT_ID_KEY, agent_details.tenant_id)
                     self.set_tag_maybe(GEN_AI_CONVERSATION_ID_KEY, agent_details.conversation_id)
                     self.set_tag_maybe(GEN_AI_ICON_URI_KEY, agent_details.icon_uri)
 
@@ -196,6 +221,9 @@ class OpenTelemetryScope:
         """End the span and record metrics."""
         if self._span and self._is_telemetry_enabled() and not self._has_ended:
             self._has_ended = True
+            span_id = f"{self._span.context.span_id:016x}" if self._span.context else "unknown"
+            logger.info(f"Span ended: '{self._span.name}' ({span_id})")
+
             self._span.end()
 
     def __enter__(self):

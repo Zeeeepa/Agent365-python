@@ -1,30 +1,28 @@
-# Copyright (c) Microsoft. All rights reserved.
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
 
-import os
-from datetime import datetime
-from zoneinfo import ZoneInfo
-
+import sys
+from pathlib import Path
+from os import environ
 from setuptools import setup
 
+# Get version from environment variable set by CI/CD
+package_version = environ.get("AGENT365_PYTHON_SDK_PACKAGE_VERSION", "0.0.0")
 
-def build_version():
-    """
-    Example: 2025.10.3+preview.65532  (PEP 440 compliant; avoids hyphens)
-    Uses UTC.
-    """
+# Add versioning helper to path
+helper_path = Path(__file__).parent.parent.parent / "versioning" / "helper"
+sys.path.insert(0, str(helper_path))
 
-    if defined_version := os.getenv("A365_SDK_VERSION"):
-        return defined_version  # For CI/CD to set a specific version.
+from setup_utils import get_dynamic_dependencies
 
-    today = datetime.now(ZoneInfo("UTC"))
-
-    return (
-        f"{today.year}.{today.month}.{today.day}+preview.{today.hour}{today.minute}{today.second}"
-    )
-
-
-VERSION = build_version()
-
+# Use minimum version strategy:
+# - Internal packages get: >= current_base_version (e.g., >= 0.1.0)
+# - Automatically updates when you build new versions
+# - Consumers can upgrade to any higher version
 setup(
-    version=VERSION,
+    version=package_version,
+    install_requires=get_dynamic_dependencies(
+        use_compatible_release=False,  # No upper bound
+        use_exact_match=False,  # Not exact match
+    ),
 )

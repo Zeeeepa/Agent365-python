@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=68", "wheel", "tzdata"]
+requires = ["setuptools>=68", "wheel", "setuptools-git-versioning>=2.0,<3"]
 build-backend = "setuptools.build_meta"
 
 [tool.uv.workspace]
@@ -9,11 +9,13 @@ members = [
     "libraries/microsoft-agents-a365-observability-extensions-langchain",
     "libraries/microsoft-agents-a365-observability-extensions-openai",
     "libraries/microsoft-agents-a365-observability-extensions-semantickernel", 
+    "libraries/microsoft-agents-a365-observability-extensions-agentframework",
     "libraries/microsoft-agents-a365-runtime",
     "libraries/microsoft-agents-a365-tooling",
     "libraries/microsoft-agents-a365-tooling-extensions-azureaifoundry",
     "libraries/microsoft-agents-a365-tooling-extensions-openai",
     "libraries/microsoft-agents-a365-tooling-extensions-semantickernel",
+    "libraries/microsoft-agents-a365-tooling-extensions-agentframework",
 ]
 exclude = [
     ".",
@@ -26,6 +28,35 @@ microsoft-agents-a365-notifications = { workspace = true }
 microsoft-agents-a365-observability-core = { workspace = true }
 microsoft-agents-a365-runtime = { workspace = true }
 microsoft-agents-a365-tooling = { workspace = true }
+
+# Development dependencies for the entire workspace
+[tool.uv]
+dev-dependencies = [
+    "pytest>=7.0.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-mock>=3.10.0",
+    "ruff>=0.1.0",
+    "python-dotenv>=1.0.0",
+    "openai>=1.0.0",
+    "agent-framework-azure-ai >= 0.1.0",
+    "azure-identity>=1.12.0",
+    "openai-agents >= 0.2.6",
+]
+
+# Test configuration
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = [
+    "-v",
+    "--tb=short", 
+    "--strict-markers",
+    "--strict-config",
+]
+testpaths = ["tests"]
+markers = [
+    "unit: Unit tests (fast, mocked)",
+    "integration: Integration tests (slow, real services)",
+]
 
 [tool.ruff]
 # Set the maximum line length to 100.

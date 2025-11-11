@@ -1,42 +1,46 @@
 name: CI - Build, Test, and Publish SDKs
 
+# This workflow builds, tests, and publishes Python SDK packages
+# - Builds and tests run on all branches (main, release/*)
+# - Publishing to package repository ONLY happens on release/* branches
+# - Development versions (with 'dev' suffix) are created on all non-tagged commits
+# - Official releases (without 'dev' suffix) require a Git tag on a release/* branch
+
 on:
   push:
-    branches: [ main, master ]
+    branches: [ main, "release/*" ]
   pull_request:
-    branches: [ main, master ]
+    branches: [ main, "release/*" ]
 
 jobs:
   version-number:
     runs-on: ubuntu-latest
     steps:
-    - name: Set current date in UTC as env variable
-      run: |
-        export CURRENT_DATE="$(date -u +'%Y.%m.%d')"
-        echo "Current date is ${CURRENT_DATE}"
-        echo "CURRENT_DATE=${CURRENT_DATE}" >> $GITHUB_ENV
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Need full history for git versioning
 
-    - id: build_version
-      name: Generate Build Version
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install setuptools-git-versioning
       run: |
-        export BUILD_VERSION="$CURRENT_DATE.${{ github.run_number }}"
-        echo "Build version is ${BUILD_VERSION}"
-        echo "BUILD_VERSION=${BUILD_VERSION}" >> $GITHUB_OUTPUT
+        python -m pip install --upgrade pip
+        python -m pip install setuptools-git-versioning
 
     - id: package_version
-      name: Generate Package Version
+      name: Calculate Package Version
       run: |
-        export PACKAGE_VERSION="$CURRENT_DATE-preview.${{ github.run_number }}"
-        echo "Package version is ${PACKAGE_VERSION}"
-        echo "PACKAGE_VERSION=${PACKAGE_VERSION}" >> $GITHUB_OUTPUT
-        export PYTHON_PACKAGE_VERSION="$CURRENT_DATE+preview.${{ github.run_number }}"
-        echo "Python package version is ${PYTHON_PACKAGE_VERSION}"
-        echo "PYTHON_PACKAGE_VERSION=${PYTHON_PACKAGE_VERSION}" >> $GITHUB_OUTPUT
+        cd ./versioning
+        version=$(python -m setuptools_git_versioning)
+        echo "Package version calculated: $version"
+        echo "PACKAGE_VERSION=$version" >> $GITHUB_OUTPUT
 
     outputs:
-      BUILD_VERSION: ${{ steps.build_version.outputs.BUILD_VERSION }}
       PACKAGE_VERSION: ${{ steps.package_version.outputs.PACKAGE_VERSION }}
-      PYTHON_PACKAGE_VERSION: ${{ steps.package_version.outputs.PYTHON_PACKAGE_VERSION }}
   
   changed-sdks:
     name: Determine Changed SDKs
@@ -63,7 +67,7 @@ jobs:
     - id: check_python_sdk
       name: Check Python SDK changes
       run: |
-        if git diff --name-only "${{ steps.git_refs.outputs.base }}" "${{ steps.git_refs.outputs.head }}" -- 'python/**' | grep -q .; then
+        if git diff --name-only "${{ steps.git_refs.outputs.base }}" "${{ steps.git_refs.outputs.head }}" -- 'libraries/**' 'setup.py' 'pyproject.toml' 'versioning/**' | grep -q .; then
           echo "Python SDK changes detected"
           echo "changed=true" >> $GITHUB_OUTPUT
         else
@@ -110,11 +114,25 @@ jobs:
 
     - name: Build package
       run: |
-        A365_SDK_VERSION=${{ needs.version-number.outputs.PYTHON_PACKAGE_VERSION }} uv build --all-packages --wheel
+        AGENT365_PYTHON_SDK_PACKAGE_VERSION=${{ needs.version-number.outputs.PACKAGE_VERSION }} uv build --all-packages --wheel
+      env:
+        AGENT365_PYTHON_SDK_PACKAGE_VERSION: ${{ needs.version-number.outputs.PACKAGE_VERSION }}
 
-    - name: Run tests
+    - name: Run unit tests
       run: |
-        uv run --frozen python -m pytest tests/ -v --tb=short
+        uv run --frozen pytest tests/ -v --tb=short -m "not integration"
+
+    - name: Run integration tests
+      # Only run integration tests if secrets are available
+      if: ${{ vars.RUN_INTEGRATION_TESTS == 'true' }}
+      run: |
+        uv run --frozen pytest -m integration -v --tb=short
+      env:
+        AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}
+        AZURE_OPENAI_ENDPOINT: ${{ vars.AZURE_OPENAI_ENDPOINT }}
+        AZURE_OPENAI_DEPLOYMENT: ${{ vars.AZURE_OPENAI_DEPLOYMENT }}
+        AZURE_OPENAI_API_VERSION: ${{ vars.AZURE_OPENAI_API_VERSION }}        
+        ENABLE_OBSERVABILITY: true
 
     # Copy package and samples to drop folder
     - name: Copy package and samples to drop folder
@@ -132,7 +150,11 @@ jobs:
         path: ~/drop/python-${{ matrix.python-version }}.zip
 
     - name: Publish
-      if: github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.changed-sdks.outputs.python-sdk == 'true'
+      # Only publish when:
+      # 1. It's a push event (not a PR)
+      # 2. The branch is a release/* branch
+      # 3. There are SDK changes
+      if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/release/') && needs.changed-sdks.outputs.python-sdk == 'true'
       run: |
         uv run twine upload --config-file .pypirc -r Agent365 dist/*
       continue-on-error: true

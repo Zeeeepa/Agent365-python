@@ -4,7 +4,6 @@
 import os
 import unittest
 
-from microsoft_agents_a365.observability.core import config as telemetry_config
 from microsoft_agents_a365.observability.core.constants import (
     CORRELATION_ID_KEY,
     GEN_AI_AGENT_AUID_KEY,
@@ -104,52 +103,30 @@ class TestBaggageBuilder(unittest.TestCase):
 
     def test_baggage_propagates_to_child_spans(self):
         """Test that baggage values are copied as attributes onto parent and child spans via SpanProcessor."""
-        # Configure global telemetry; this will add the SpanProcessor automatically.
-        # Use a temporary tracer provider with our in-memory exporter for assertion.
         exporter = InMemorySpanExporter()
         provider = TracerProvider()
-        provider.add_span_processor(SimpleSpanProcessor(exporter))
-        trace.set_tracer_provider(provider)
-        # Invoke SDK configure to attach Kairo span processor (agent processor)
-        telemetry_config.configure(
-            service_name="baggage-test-service",
-            service_namespace="baggage.test",
-            logger_name="kairo-test",
+        processor = SimpleSpanProcessor(exporter)
+        provider.add_span_processor(processor)
+
+        # Also add the Agent365 span processor directly
+        from microsoft_agents_a365.observability.core.trace_processor.span_processor import (
+            SpanProcessor as Agent365SpanProcessor,
         )
-        tracer = telemetry_config.get_tracer(__name__)
+
+        agent365_processor = Agent365SpanProcessor()
+        provider.add_span_processor(agent365_processor)
+
+        tracer = provider.get_tracer(__name__)
 
         tenant = "tenant-propagation-test"
         agent = "agent-propagation-test"
 
         # Create baggage before starting spans so processor can copy it
         with BaggageBuilder().tenant_id(tenant).agent_id(agent).build():
-            with tracer.start_as_current_span("parent_span") as parent_span:
-                # Attributes should now include baggage-derived keys
-                parent_attrs = getattr(parent_span, "attributes", {})
-                self.assertEqual(
-                    parent_attrs.get(TENANT_ID_KEY),
-                    tenant,
-                    "Parent span missing tenant attribute from baggage",
-                )
-                self.assertEqual(
-                    parent_attrs.get(GEN_AI_AGENT_ID_KEY),
-                    agent,
-                    "Parent span missing agent attribute from baggage",
-                )
-
+            with tracer.start_as_current_span("parent_span"):
                 # Nested child span should also receive baggage-derived attributes at start
-                with tracer.start_as_current_span("child_span") as child_span:
-                    child_attrs = getattr(child_span, "attributes", {})
-                    self.assertEqual(
-                        child_attrs.get(TENANT_ID_KEY),
-                        tenant,
-                        "Child span missing tenant attribute from baggage",
-                    )
-                    self.assertEqual(
-                        child_attrs.get(GEN_AI_AGENT_ID_KEY),
-                        agent,
-                        "Child span missing agent attribute from baggage",
-                    )
+                with tracer.start_as_current_span("child_span"):
+                    pass  # Just create the spans, attributes are set by the processor
 
         # Ensure spans exported contain these attributes (export happens on end)
         finished_spans = exporter.get_finished_spans()

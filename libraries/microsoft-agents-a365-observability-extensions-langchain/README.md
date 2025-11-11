@@ -44,7 +44,7 @@ The Microsoft Agent 365 LangChain Observability Extensions automatically instrum
 
 ```python
 from microsoft_agents_a365.observability.core.config import configure
-from microsoft_agents_a365.observability.extensions.langchain import KairoInstrumentorLangChain
+from microsoft_agents_a365.observability.extensions.langchain import CustomLangChainInstrumentor
 
 # Configure observability
 configure(
@@ -53,7 +53,7 @@ configure(
 )
 
 # Enable automatic instrumentation
-instrumentor = KairoInstrumentorLangChain()
+instrumentor = CustomLangChainInstrumentor()
 instrumentor.instrument()
 
 # Your LangChain code is now automatically traced
@@ -84,7 +84,7 @@ instrumentor.instrument()
 ```properties
 # Core observability settings
 ENABLE_OBSERVABILITY=true
-ENABLE_KAIRO_EXPORTER=true
+ENABLE_A365_OBSERVABILITY_EXPORTER=true
 PYTHON_ENVIRONMENT=production
 
 # LangChain-specific settings  
@@ -125,7 +125,7 @@ Check out these working examples:
 
 - **Python**: 3.11+
 - **Dependencies**:
-  - `microsoft-agents-a365-observability-core >= 2025.10.16`
+  - `microsoft-agents-a365-observability-core >= 0.1.0`
   - `langchain >= 0.1.0`
   - `langchain-core >= 0.1.0`
   - `opentelemetry-api >= 1.20.0`

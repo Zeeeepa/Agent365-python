@@ -24,7 +24,11 @@ from ...common.services.mcp_tool_server_configuration_service import (
 )
 from ...common.models import MCPServerConfig
 from ...common.utils.constants import Constants
-from ...common.utils.utility import get_tools_mode, get_ppapi_token_scope
+from ...common.utils.utility import (
+    get_tools_mode,
+    get_mcp_platform_authentication_scope,
+    get_use_environment_id,
+)
 
 
 from semantic_kernel.connectors.mcp import MCPStreamableHttpPlugin
@@ -41,20 +45,17 @@ class McpToolRegistrationService:
     def __init__(
         self,
         logger: Optional[logging.Logger] = None,
-        service_provider: Optional[Any] = None,
-        mcp_server_configuration_service: Optional[McpToolServerConfigurationService] = None,
     ):
         """
-        Initialize the MCP Tool Registration Service.
+        Initialize the MCP Tool Registration Service for Semantic Kernel.
 
         Args:
             logger: Logger instance for logging operations.
-            service_provider: Service provider for dependency injection.
-            mcp_server_configuration_service: Service for MCP server configuration.
         """
         self._logger = logger or logging.getLogger(self.__class__.__name__)
-        self._service_provider = service_provider
-        self._mcp_server_configuration_service = mcp_server_configuration_service
+        self._mcp_server_configuration_service = McpToolServerConfigurationService(
+            logger=self._logger
+        )
 
         # Store connected plugins to keep them alive
         self._connected_plugins = []
@@ -83,7 +84,7 @@ class McpToolRegistrationService:
     async def add_tool_servers_to_agent(
         self,
         kernel: sk.Kernel,
-        agent_user_id: str,
+        agentic_app_id: str,
         environment_id: str,
         auth: Authorization,
         context: TurnContext,
@@ -94,7 +95,7 @@ class McpToolRegistrationService:
 
         Args:
             kernel: The Semantic Kernel instance to which the tools will be added.
-            agent_user_id: Agent User ID for the agent.
+            agentic_app_id: Agentic App ID for the agent.
             environment_id: Environment ID for the environment.
             auth_token: Authentication token to access the MCP servers.
 
@@ -104,20 +105,15 @@ class McpToolRegistrationService:
         """
 
         if not auth_token:
-            scopes = get_ppapi_token_scope()
+            scopes = get_mcp_platform_authentication_scope()
             authToken = await auth.exchange_token(context, scopes, "AGENTIC")
             auth_token = authToken.token
 
-        self._validate_inputs(kernel, agent_user_id, environment_id, auth_token)
-
-        if self._mcp_server_configuration_service is None:
-            raise ValueError(
-                "MCP server configuration service is required but was not provided during initialization"
-            )
+        self._validate_inputs(kernel, agentic_app_id, environment_id, auth_token)
 
         # Get and process servers
         servers = await self._mcp_server_configuration_service.list_tool_servers(
-            agent_user_id, environment_id, auth_token
+            agentic_app_id, environment_id, auth_token
         )
         self._logger.info(f"🔧 Adding MCP tools from {len(servers)} servers")
 
@@ -135,15 +131,19 @@ class McpToolRegistrationService:
 
                 if tools_mode == "MockMCPServer":
                     # Mock server does not require bearer auth, but still forward environment id if available.
-                    if environment_id:
+                    if get_use_environment_id() and environment_id:
                         headers[Constants.Headers.ENVIRONMENT_ID] = environment_id
 
                     if mock_auth_header := os.getenv("MOCK_MCP_AUTHORIZATION"):
                         headers[Constants.Headers.AUTHORIZATION] = mock_auth_header
-                else:
+                elif get_use_environment_id():
                     headers = {
                         Constants.Headers.AUTHORIZATION: f"{Constants.Headers.BEARER_PREFIX} {auth_token}",
                         Constants.Headers.ENVIRONMENT_ID: environment_id,
+                    }
+                else:
+                    headers = {
+                        Constants.Headers.AUTHORIZATION: f"{Constants.Headers.BEARER_PREFIX} {auth_token}",
                     }
 
                 plugin = MCPStreamableHttpPlugin(
@@ -178,14 +178,14 @@ class McpToolRegistrationService:
     # ============================================================================
 
     def _validate_inputs(
-        self, kernel: Any, agent_user_id: str, environment_id: str, auth_token: str
+        self, kernel: Any, agentic_app_id: str, environment_id: str, auth_token: str
     ) -> None:
         """Validate all required inputs."""
         if kernel is None:
             raise ValueError("kernel cannot be None")
-        if not agent_user_id or not agent_user_id.strip():
-            raise ValueError("agent_user_id cannot be null or empty")
-        if not environment_id or not environment_id.strip():
+        if not agentic_app_id or not agentic_app_id.strip():
+            raise ValueError("agentic_app_id cannot be null or empty")
+        if get_use_environment_id() and (not environment_id or not environment_id.strip()):
             raise ValueError("environment_id cannot be null or empty")
         if not auth_token or not auth_token.strip():
             raise ValueError("auth_token cannot be null or empty")

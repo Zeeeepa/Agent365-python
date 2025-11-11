@@ -1,9 +1,9 @@
 # Copyright (c) Microsoft. All rights reserved.
 
 """
-Wraps the OpenAI Agents SDK tracer to integrate with our Kairo Telemetry Solution.
+Wraps the OpenAI Agents SDK tracer to integrate with our Agent365 Telemetry Solution.
 """
 
-from .trace_instrumentor import KairoInstrumentorOpenAIAgents
+from .trace_instrumentor import OpenAIAgentsTraceInstrumentor
 
-__all__ = ["KairoInstrumentorOpenAIAgents"]
+__all__ = ["OpenAIAgentsTraceInstrumentor"]

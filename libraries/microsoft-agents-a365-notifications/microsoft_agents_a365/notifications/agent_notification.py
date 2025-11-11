@@ -61,10 +61,8 @@ class AgentNotification:
 
         def route_selector(context: TurnContext) -> bool:
             ch = context.activity.channel_id
-            received_channel = ch.channel if ch else ""
-            received_subchannel = ch.sub_channel if ch else ""
-            received_channel = received_channel.lower()
-            received_subchannel = received_subchannel.lower()
+            received_channel = (ch.channel if ch else "").lower()
+            received_subchannel = (ch.sub_channel if ch and ch.sub_channel else "").lower()
             if received_channel != registered_channel:
                 return False
             if registered_subchannel == "*":

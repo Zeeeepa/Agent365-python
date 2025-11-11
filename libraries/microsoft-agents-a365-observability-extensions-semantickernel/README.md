@@ -46,7 +46,7 @@ The Microsoft Agent 365 Semantic Kernel Observability Extensions automatically i
 
 ```python
 from microsoft_agents_a365.observability.core.config import configure
-from microsoft_agents_a365.observability.extensions.semantic_kernel import KairoInstrumentorSemanticKernel
+from microsoft_agents_a365.observability.extensions.semantic_kernel import SemanticKernelInstrumentor
 
 # Configure observability
 configure(
@@ -55,7 +55,7 @@ configure(
 )
 
 # Enable automatic instrumentation
-instrumentor = KairoInstrumentorSemanticKernel()
+instrumentor = SemanticKernelInstrumentor()
 instrumentor.instrument()
 
 # Your Semantic Kernel code is now automatically traced
@@ -86,7 +86,7 @@ instrumentor.instrument()
 ```properties
 # Core observability settings
 ENABLE_OBSERVABILITY=true
-ENABLE_KAIRO_EXPORTER=true
+ENABLE_A365_OBSERVABILITY_EXPORTER=true
 PYTHON_ENVIRONMENT=production
 
 # Semantic Kernel-specific settings
@@ -129,7 +129,7 @@ Check out these working examples:
 
 - **Python**: 3.11+
 - **Dependencies**:
-  - `microsoft-agents-a365-observability-core >= 2025.10.16`
+  - `microsoft-agents-a365-observability-core >= 0.1.0`
   - `semantic-kernel >= 1.0.0`
   - `opentelemetry-api >= 1.20.0`
   - `opentelemetry-sdk >= 1.20.0`

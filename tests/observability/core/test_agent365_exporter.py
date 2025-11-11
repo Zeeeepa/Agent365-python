@@ -213,6 +213,165 @@ class TestAgent365Exporter(unittest.TestCase):
             expected_scopes = [("scope.a", 2), ("scope.b", 1), ("scope.c", 1)]
             self.assertEqual(scope_data, expected_scopes)
 
+    def test_s2s_endpoint_path_when_enabled(self):
+        """Test 4: Test that S2S endpoint path is used when use_s2s_endpoint is True."""
+        # Arrange - Create exporter with S2S endpoint enabled
+        s2s_exporter = Agent365Exporter(
+            token_resolver=self.mock_token_resolver, cluster_category="test", use_s2s_endpoint=True
+        )
+
+        spans = [self._create_mock_span("s2s_span")]
+
+        # Mock the PowerPlatformApiDiscovery class
+        with patch(
+            "microsoft_agents_a365.observability.core.exporters.agent365_exporter.PowerPlatformApiDiscovery"
+        ) as mock_discovery_class:
+            mock_discovery = Mock()
+            mock_discovery.get_tenant_island_cluster_endpoint.return_value = "test-endpoint.com"
+            mock_discovery_class.return_value = mock_discovery
+
+            # Mock the _post_with_retries method
+            with patch.object(s2s_exporter, "_post_with_retries", return_value=True) as mock_post:
+                # Act
+                result = s2s_exporter.export(spans)
+
+                # Assert
+                self.assertEqual(result, SpanExportResult.SUCCESS)
+                mock_post.assert_called_once()
+
+                # Verify the call arguments - should use S2S path
+                args, kwargs = mock_post.call_args
+                url, body, headers = args
+
+                self.assertIn("test-endpoint.com", url)
+                self.assertIn("/maven/agent365/service/agents/test-agent-456/traces", url)
+                self.assertNotIn("/maven/agent365/agents/test-agent-456/traces", url)
+                self.assertEqual(headers["authorization"], "Bearer test_token_123")
+                self.assertEqual(headers["content-type"], "application/json")
+
+    def test_default_endpoint_path_when_s2s_disabled(self):
+        """Test 5: Test that default endpoint path is used when use_s2s_endpoint is False."""
+        # Arrange - Create exporter with S2S endpoint disabled (default behavior)
+        default_exporter = Agent365Exporter(
+            token_resolver=self.mock_token_resolver, cluster_category="test", use_s2s_endpoint=False
+        )
+
+        spans = [self._create_mock_span("default_span")]
+
+        # Mock the PowerPlatformApiDiscovery class
+        with patch(
+            "microsoft_agents_a365.observability.core.exporters.agent365_exporter.PowerPlatformApiDiscovery"
+        ) as mock_discovery_class:
+            mock_discovery = Mock()
+            mock_discovery.get_tenant_island_cluster_endpoint.return_value = "test-endpoint.com"
+            mock_discovery_class.return_value = mock_discovery
+
+            # Mock the _post_with_retries method
+            with patch.object(
+                default_exporter, "_post_with_retries", return_value=True
+            ) as mock_post:
+                # Act
+                result = default_exporter.export(spans)
+
+                # Assert
+                self.assertEqual(result, SpanExportResult.SUCCESS)
+                mock_post.assert_called_once()
+
+                # Verify the call arguments - should use default path
+                args, kwargs = mock_post.call_args
+                url, body, headers = args
+
+                self.assertIn("test-endpoint.com", url)
+                self.assertIn("/maven/agent365/agents/test-agent-456/traces", url)
+                self.assertNotIn("/maven/agent365/service/agents/test-agent-456/traces", url)
+                self.assertEqual(headers["authorization"], "Bearer test_token_123")
+                self.assertEqual(headers["content-type"], "application/json")
+
+    @patch("microsoft_agents_a365.observability.core.exporters.agent365_exporter.logger")
+    @patch(
+        "microsoft_agents_a365.observability.core.exporters.agent365_exporter.PowerPlatformApiDiscovery"
+    )
+    def test_export_logging(self, mock_discovery, mock_logger):
+        """Test that the exporter logs appropriate messages during export."""
+        # Mock the discovery service
+        mock_discovery_instance = Mock()
+        mock_discovery_instance.get_tenant_island_cluster_endpoint.return_value = (
+            "test-endpoint.com"
+        )
+        mock_discovery.return_value = mock_discovery_instance
+
+        # Mock successful HTTP response
+        with patch("requests.Session.post") as mock_post:
+            mock_response = Mock()
+            mock_response.status_code = 200
+            mock_response.text = "success"
+            mock_response.headers = {"x-ms-correlation-id": "test-correlation-123"}
+            mock_post.return_value = mock_response
+
+            # Create test spans
+            spans = [
+                self._create_mock_span(
+                    name="test_span_1",
+                    attributes={
+                        TENANT_ID_KEY: "test-tenant-123",
+                        GEN_AI_AGENT_ID_KEY: "test-agent-456",
+                    },
+                ),
+                self._create_mock_span(
+                    name="test_span_2",
+                    attributes={
+                        TENANT_ID_KEY: "test-tenant-123",
+                        GEN_AI_AGENT_ID_KEY: "test-agent-456",
+                    },
+                ),
+            ]
+
+            # Export spans
+            result = self.exporter.export(spans)
+
+            # Verify export succeeded
+            self.assertEqual(result, SpanExportResult.SUCCESS)
+
+            # Verify logging calls
+            expected_log_calls = [
+                # Should log groups found
+                unittest.mock.call.info("Found 1 identity groups with 2 total spans to export"),
+                # Should log endpoint being used
+                unittest.mock.call.info(
+                    "Exporting 2 spans to endpoint: https://test-endpoint.com/maven/agent365/agents/test-agent-456/traces?api-version=1 "
+                    "(tenant: test-tenant-123, agent: test-agent-456)"
+                ),
+                # Should log token resolution success
+                unittest.mock.call.info("Token resolved successfully for agent test-agent-456"),
+                # Should log HTTP success
+                unittest.mock.call.info(
+                    "HTTP 200 success on attempt 1. Correlation ID: test-correlation-123. Response: success"
+                ),
+            ]
+
+            # Check that all expected info calls were made
+            for expected_call in expected_log_calls:
+                self.assertIn(expected_call, mock_logger.info.call_args_list)
+
+    @patch("microsoft_agents_a365.observability.core.exporters.agent365_exporter.logger")
+    def test_export_error_logging(self, mock_logger):
+        """Test that the exporter logs errors appropriately."""
+        # Create spans without tenant/agent identity - explicitly pass None values
+        spans = [
+            self._create_mock_span(name="test_span", attributes={}, tenant_id=None, agent_id=None)
+        ]
+
+        # Export spans (should succeed but log no identity)
+        result = self.exporter.export(spans)
+
+        # Verify export succeeded (no identity spans are treated as success)
+        self.assertEqual(result, SpanExportResult.SUCCESS)
+
+        # Verify info log for no identity
+        mock_logger.info.assert_called_with(
+            "No spans with tenant/agent identity found; nothing exported."
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

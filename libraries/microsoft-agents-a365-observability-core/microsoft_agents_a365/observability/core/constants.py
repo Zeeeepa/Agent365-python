@@ -18,7 +18,6 @@ ENABLE_OPENTELEMETRY_SWITCH = "Azure.Experimental.EnableActivitySource"
 TRACE_CONTENTS_SWITCH = "Azure.Experimental.TraceGenAIMessageContent"
 TRACE_CONTENTS_ENVIRONMENT_VARIABLE = "AZURE_TRACING_GEN_AI_CONTENT_RECORDING_ENABLED"
 ENABLE_OBSERVABILITY = "ENABLE_OBSERVABILITY"
-ENABLE_KAIRO_EXPORTER = "ENABLE_KAIRO_EXPORTER"
 ENABLE_A365_OBSERVABILITY_EXPORTER = "ENABLE_A365_OBSERVABILITY_EXPORTER"
 ENABLE_A365_OBSERVABILITY = "ENABLE_A365_OBSERVABILITY"
 
@@ -35,6 +34,7 @@ GEN_AI_RESPONSE_FINISH_REASONS_KEY = "gen_ai.response.finish_reasons"
 GEN_AI_RESPONSE_MODEL_KEY = "gen_ai.response.model"
 GEN_AI_SYSTEM_KEY = "gen_ai.system"
 GEN_AI_SYSTEM_VALUE = "az.ai.agent365"
+GEN_AI_THOUGHT_PROCESS_KEY = "gen_ai.agent.thought.process"
 
 GEN_AI_AGENT_ID_KEY = "gen_ai.agent.id"
 GEN_AI_AGENT_NAME_KEY = "gen_ai.agent.name"
@@ -46,6 +46,7 @@ GEN_AI_USAGE_INPUT_TOKENS_KEY = "gen_ai.usage.input_tokens"
 GEN_AI_USAGE_OUTPUT_TOKENS_KEY = "gen_ai.usage.output_tokens"
 GEN_AI_CHOICE = "gen_ai.choice"
 GEN_AI_PROVIDER_NAME_KEY = "gen_ai.provider.name"
+GEN_AI_AGENT_TYPE_KEY = "gen_ai.agent.type"
 
 GEN_AI_SYSTEM_INSTRUCTIONS_KEY = "gen_ai.system_instructions"
 GEN_AI_INPUT_MESSAGES_KEY = "gen_ai.input.messages"
@@ -75,6 +76,7 @@ GEN_AI_CALLER_AGENT_TENANT_ID_KEY = "gen_ai.caller.agent.tenantid"
 GEN_AI_CALLER_AGENT_NAME_KEY = "gen_ai.caller.agent.name"
 GEN_AI_CALLER_AGENT_ID_KEY = "gen_ai.caller.agent.id"
 GEN_AI_CALLER_AGENT_APPLICATION_ID_KEY = "gen_ai.caller.agent.applicationid"
+GEN_AI_CALLER_AGENT_TYPE_KEY = "gen_ai.caller.agent.type"
 
 # Agent-specific dimensions
 AGENT_ID_KEY = "gen_ai.agent.id"
@@ -99,9 +101,6 @@ GEN_AI_EXECUTION_PAYLOAD_KEY = "gen_ai.execution.payload"
 GEN_AI_EXECUTION_SOURCE_ID_KEY = "gen_ai.execution.sourceMetadata.id"
 GEN_AI_EXECUTION_SOURCE_NAME_KEY = "gen_ai.channel.name"
 GEN_AI_EXECUTION_SOURCE_DESCRIPTION_KEY = "gen_ai.channel.link"
-
-# Legacy constant for backward compatibility
-KAIRO_AGENT_ID_KEY = AGENT_ID_KEY
 
 # custom parent id and parent name key
 CUSTOM_PARENT_SPAN_ID_KEY = "custom.parent.span.id"

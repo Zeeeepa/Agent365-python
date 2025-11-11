@@ -1,5 +1,8 @@
+# Copyright (c) Microsoft. All rights reserved.
+
 from typing import Dict, Optional
 from dataclasses import dataclass
+import logging
 
 from agents import Agent
 
@@ -13,7 +16,10 @@ from microsoft_agents_a365.tooling.services.mcp_tool_server_configuration_servic
     McpToolServerConfigurationService,
 )
 
-from microsoft_agents_a365.tooling.utils.utility import get_ppapi_token_scope
+from microsoft_agents_a365.tooling.utils.utility import (
+    get_mcp_platform_authentication_scope,
+    get_use_environment_id,
+)
 
 
 # TODO: This is not needed. Remove this.
@@ -32,13 +38,20 @@ class MCPServerInfo:
 class McpToolRegistrationService:
     """Service for managing MCP tools and servers for an agent"""
 
-    def __init__(self):
-        self.config_service = McpToolServerConfigurationService()
+    def __init__(self, logger: Optional[logging.Logger] = None):
+        """
+        Initialize the MCP Tool Registration Service for OpenAI.
+
+        Args:
+            logger: Logger instance for logging operations.
+        """
+        self._logger = logger or logging.getLogger(self.__class__.__name__)
+        self.config_service = McpToolServerConfigurationService(logger=self._logger)
 
     async def add_tool_servers_to_agent(
         self,
         agent: Agent,
-        agent_user_id: str,
+        agentic_app_id: str,
         environment_id: str,
         auth: Authorization,
         context: TurnContext,
@@ -53,7 +66,7 @@ class McpToolRegistrationService:
 
         Args:
             agent: The existing agent to add servers to
-            agent_user_id: Agent User ID for the agent
+            agentic_app_id: Agentic App ID for the agent
             environment_id: Environment ID for the environment
             auth_token: Authentication token to access the MCP servers
 
@@ -62,16 +75,27 @@ class McpToolRegistrationService:
         """
 
         if not auth_token:
-            scopes = get_ppapi_token_scope()
+            scopes = get_mcp_platform_authentication_scope()
             authToken = await auth.exchange_token(context, scopes, "AGENTIC")
             auth_token = authToken.token
 
         # Get MCP server configurations from the configuration service
         # mcp_server_configs = []
         # TODO: radevika: Update once the common project is merged.
+
+        if get_use_environment_id():
+            self._logger.info(
+                f"Listing MCP tool servers for agent {agentic_app_id} in environment {environment_id}"
+            )
+        else:
+            self._logger.info(f"Listing MCP tool servers for agent {agentic_app_id}")
         mcp_server_configs = await self.config_service.list_tool_servers(
-            agent_user_id=agent_user_id, environment_id=environment_id, auth_token=auth_token
+            agentic_app_id=agentic_app_id,
+            environment_id=environment_id,
+            auth_token=auth_token,
         )
+
+        self._logger.info(f"Loaded {len(mcp_server_configs)} MCP server configurations")
 
         # Convert MCP server configs to MCPServerInfo objects
         mcp_servers_info = []
@@ -114,7 +138,7 @@ class McpToolRegistrationService:
                     headers = si.headers or {}
                     if auth_token:
                         headers["Authorization"] = f"Bearer {auth_token}"
-                    if environment_id:
+                    if get_use_environment_id() and environment_id:
                         headers["x-ms-environment-id"] = environment_id
 
                     # Create MCPServerStreamableHttpParams with proper configuration
@@ -132,16 +156,22 @@ class McpToolRegistrationService:
                     connected_servers.append(mcp_server)
 
                     existing_server_urls.append(si.url)
+                    self._logger.info(
+                        f"Successfully connected to MCP server '{si.name}' at {si.url}"
+                    )
 
                 except Exception as e:
                     # Log the error but continue with other servers
-                    print(f"Failed to connect to MCP server {si.name} at {si.url}: {e}")
+                    self._logger.warning(
+                        f"Failed to connect to MCP server {si.name} at {si.url}: {e}"
+                    )
                     continue
 
         # If we have new servers, we need to recreate the agent
         # The OpenAI Agents SDK requires MCP servers to be set during agent creation
         if new_mcp_servers:
             try:
+                self._logger.info(f"Recreating agent with {len(new_mcp_servers)} new MCP servers")
                 all_mcp_servers = existing_mcp_servers + new_mcp_servers
 
                 # Recreate the agent with all MCP servers
@@ -168,14 +198,19 @@ class McpToolRegistrationService:
                     self._connected_servers = []
                 self._connected_servers.extend(connected_servers)
 
+                self._logger.info(
+                    f"Agent recreated successfully with {len(all_mcp_servers)} total MCP servers"
+                )
                 # Return the new agent (caller needs to replace the old one)
                 return new_agent
 
             except Exception as e:
                 # Clean up connected servers if agent creation fails
+                self._logger.error(f"Failed to recreate agent with new MCP servers: {e}")
                 await self._cleanup_servers(connected_servers)
                 raise e
 
+        self._logger.info("No new MCP servers to add to agent")
         return agent
 
     async def _cleanup_servers(self, servers):
@@ -184,9 +219,9 @@ class McpToolRegistrationService:
             try:
                 if hasattr(server, "cleanup"):
                     await server.cleanup()
-            except Exception:
+            except Exception as e:
                 # Log cleanup errors but don't raise them
-                pass
+                self._logger.debug(f"Error during server cleanup: {e}")
 
     async def cleanup_all_servers(self):
         """Clean up all connected MCP servers"""

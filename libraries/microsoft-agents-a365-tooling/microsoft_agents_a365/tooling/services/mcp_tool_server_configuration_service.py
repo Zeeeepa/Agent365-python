@@ -30,7 +30,11 @@ import aiohttp
 # Local imports
 from ..models import MCPServerConfig
 from ..utils import Constants
-from ..utils.utility import get_tooling_gateway_for_digital_worker, build_mcp_server_url
+from ..utils.utility import (
+    get_tooling_gateway_for_digital_worker,
+    build_mcp_server_url,
+    get_use_environment_id,
+)
 
 
 # ==============================================================================
@@ -66,13 +70,13 @@ class McpToolServerConfigurationService:
     # --------------------------------------------------------------------------
 
     async def list_tool_servers(
-        self, agent_user_id: str, environment_id: str, auth_token: str
+        self, agentic_app_id: str, environment_id: str, auth_token: str
     ) -> List[MCPServerConfig]:
         """
         Gets the list of MCP Servers that are configured for the agent.
 
         Args:
-            agent_user_id: Agent User ID for the agent.
+            agentic_app_id: Agentic App ID for the agent.
             environment_id: Environment ID for the environment.
             auth_token: Authentication token to access the MCP servers.
 
@@ -84,17 +88,20 @@ class McpToolServerConfigurationService:
             Exception: If there's an error communicating with the tooling gateway.
         """
         # Validate input parameters
-        self._validate_input_parameters(agent_user_id, environment_id, auth_token)
+        self._validate_input_parameters(agentic_app_id, environment_id, auth_token)
 
-        self._logger.info(
-            f"Listing MCP tool servers for agent {agent_user_id} in environment {environment_id}"
-        )
+        if get_use_environment_id():
+            self._logger.info(
+                f"Listing MCP tool servers for agent {agentic_app_id} in environment {environment_id}"
+            )
+        else:
+            self._logger.info(f"Listing MCP tool servers for agent {agentic_app_id}")
 
         # Determine configuration source based on environment
         if self._is_development_scenario():
             return self._load_servers_from_manifest(environment_id)
         else:
-            return await self._load_servers_from_gateway(agent_user_id, environment_id, auth_token)
+            return await self._load_servers_from_gateway(agentic_app_id, environment_id, auth_token)
 
     # --------------------------------------------------------------------------
     # ENVIRONMENT DETECTION
@@ -286,13 +293,13 @@ class McpToolServerConfigurationService:
     # --------------------------------------------------------------------------
 
     async def _load_servers_from_gateway(
-        self, agent_user_id: str, environment_id: str, auth_token: str
+        self, agentic_app_id: str, environment_id: str, auth_token: str
     ) -> List[MCPServerConfig]:
         """
         Reads MCP server configurations from tooling gateway endpoint for production scenario.
 
         Args:
-            agent_user_id: Agent User ID for the agent.
+            agentic_app_id: Agentic App ID for the agent.
             environment_id: Environment ID for the environment.
             auth_token: Authentication token to access the tooling gateway.
 
@@ -305,7 +312,7 @@ class McpToolServerConfigurationService:
         mcp_servers: List[MCPServerConfig] = []
 
         try:
-            config_endpoint = get_tooling_gateway_for_digital_worker(agent_user_id)
+            config_endpoint = get_tooling_gateway_for_digital_worker(agentic_app_id)
             headers = self._prepare_gateway_headers(auth_token, environment_id)
 
             self._logger.info(f"Calling tooling gateway endpoint: {config_endpoint}")
@@ -346,9 +353,13 @@ class McpToolServerConfigurationService:
         Returns:
             Dictionary of HTTP headers.
         """
+        if get_use_environment_id():
+            return {
+                "Authorization": f"{Constants.Headers.BEARER_PREFIX} {auth_token}",
+                Constants.Headers.ENVIRONMENT_ID: environment_id,
+            }
         return {
             "Authorization": f"{Constants.Headers.BEARER_PREFIX} {auth_token}",
-            Constants.Headers.ENVIRONMENT_ID: environment_id,
         }
 
     async def _parse_gateway_response(
@@ -437,22 +448,22 @@ class McpToolServerConfigurationService:
     # --------------------------------------------------------------------------
 
     def _validate_input_parameters(
-        self, agent_user_id: str, environment_id: str, auth_token: str
+        self, agentic_app_id: str, environment_id: str, auth_token: str
     ) -> None:
         """
         Validates input parameters for the main API method.
 
         Args:
-            agent_user_id: Agent User ID to validate.
+            agentic_app_id: Agentic App ID to validate.
             environment_id: Environment ID to validate.
             auth_token: Authentication token to validate.
 
         Raises:
             ValueError: If any parameter is invalid or empty.
         """
-        if not agent_user_id:
-            raise ValueError("agent_user_id cannot be empty or None")
-        if not environment_id:
+        if not agentic_app_id:
+            raise ValueError("agentic_app_id cannot be empty or None")
+        if get_use_environment_id() and not environment_id:
             raise ValueError("environment_id cannot be empty or None")
         if not auth_token:
             raise ValueError("auth_token cannot be empty or None")
