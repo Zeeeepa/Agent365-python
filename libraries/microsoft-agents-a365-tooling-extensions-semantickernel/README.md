@@ -56,7 +56,6 @@ registration_service = McpToolRegistrationService()
 await registration_service.add_tool_servers_to_kernel(
     kernel=kernel,
     agentic_app_id="user-123",
-    environment_id="prod",
     auth_token="your-auth-token"
 )
 ```

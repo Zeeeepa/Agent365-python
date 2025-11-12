@@ -83,7 +83,6 @@ async def main():
         agent_instructions="You are a helpful assistant that can provide weather and restaurant information.",
         initial_tools=[],  # Your existing tools
         agentic_app_id="user-123",
-        environment_id="prod",
         auth_token="your-auth-token"
     )
 
@@ -140,7 +139,6 @@ async def main():
         """,
         initial_tools=existing_tools,
         agentic_app_id="user-123",
-        environment_id="production",
         auth_token="your-auth-token"
     )
     
@@ -191,7 +189,6 @@ agent = await service.add_tool_servers_to_agent(
     agent_instructions="You are a helpful assistant with access to various tools.",
     initial_tools=[],  # Your existing tools
     agentic_app_id="user-123",
-    environment_id="prod",
     auth_token="your-token"
 )
 ```
