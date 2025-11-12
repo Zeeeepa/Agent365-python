@@ -8,7 +8,7 @@ dynamic = ["version"]
 authors = [
     { name = "Microsoft", email = "support@microsoft.com" },
 ]
-description = "Agent Framework observability and tracing extensions for Microsoft Agents A365"
+description = "Agent Framework observability and tracing extensions for Microsoft Agent 365"
 readme = "README.md"
 requires-python = ">=3.11"
 classifiers = [
@@ -25,7 +25,7 @@ classifiers = [
 license = "MIT"
 keywords = ["observability", "telemetry", "tracing", "opentelemetry", "agent-framework", "agents", "ai"]
 dependencies = [
-    "microsoft-agents-a365-observability-core >= 0.1.0",
+    "microsoft-agents-a365-observability-core >= 0.0.0",
     "opentelemetry-api >= 1.36.0",
     "opentelemetry-sdk >= 1.36.0",
     "opentelemetry-instrumentation >= 0.47b0",
