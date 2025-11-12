@@ -16,7 +16,6 @@ from microsoft_agents_a365.tooling.utils.constants import Constants
 
 from microsoft_agents_a365.tooling.utils.utility import (
     get_mcp_platform_authentication_scope,
-    get_use_environment_id,
 )
 
 
@@ -47,7 +46,6 @@ class McpToolRegistrationService:
         agent_instructions: str,
         initial_tools: List[Any],
         agentic_app_id: str,
-        environment_id: str,
         auth: Authorization,
         turn_context: TurnContext,
         auth_token: Optional[str] = None,
@@ -60,7 +58,6 @@ class McpToolRegistrationService:
             agent_instructions: Instructions for the agent behavior
             initial_tools: List of initial tools to add to the agent
             agentic_app_id: Agentic app identifier for the agent
-            environment_id: Environment identifier for MCP server discovery
             auth: Authorization context for token exchange
             turn_context: Turn context for the operation
             auth_token: Optional bearer token for authentication
@@ -75,17 +72,11 @@ class McpToolRegistrationService:
                 authToken = await auth.exchange_token(turn_context, scopes, "AGENTIC")
                 auth_token = authToken.token
 
-            if get_use_environment_id():
-                self._logger.info(
-                    f"Listing MCP tool servers for agent {agentic_app_id} in environment {environment_id}"
-                )
-            else:
-                self._logger.info(f"Listing MCP tool servers for agent {agentic_app_id}")
+            self._logger.info(f"Listing MCP tool servers for agent {agentic_app_id}")
 
             # Get MCP server configurations
             server_configs = await self._mcp_server_configuration_service.list_tool_servers(
                 agentic_app_id=agentic_app_id,
-                environment_id=environment_id,
                 auth_token=auth_token,
             )
 
@@ -110,8 +101,6 @@ class McpToolRegistrationService:
                         headers[Constants.Headers.AUTHORIZATION] = (
                             f"{Constants.Headers.BEARER_PREFIX} {auth_token}"
                         )
-                    if get_use_environment_id() and environment_id:
-                        headers[Constants.Headers.ENVIRONMENT_ID] = environment_id
 
                     server_name = getattr(config, "mcp_server_name", "Unknown")
 

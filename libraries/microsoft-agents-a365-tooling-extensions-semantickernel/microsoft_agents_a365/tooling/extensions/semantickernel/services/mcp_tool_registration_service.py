@@ -27,7 +27,6 @@ from ...common.utils.constants import Constants
 from ...common.utils.utility import (
     get_tools_mode,
     get_mcp_platform_authentication_scope,
-    get_use_environment_id,
 )
 
 
@@ -85,7 +84,6 @@ class McpToolRegistrationService:
         self,
         kernel: sk.Kernel,
         agentic_app_id: str,
-        environment_id: str,
         auth: Authorization,
         context: TurnContext,
         auth_token: Optional[str] = None,
@@ -96,7 +94,6 @@ class McpToolRegistrationService:
         Args:
             kernel: The Semantic Kernel instance to which the tools will be added.
             agentic_app_id: Agentic App ID for the agent.
-            environment_id: Environment ID for the environment.
             auth_token: Authentication token to access the MCP servers.
 
         Raises:
@@ -109,11 +106,11 @@ class McpToolRegistrationService:
             authToken = await auth.exchange_token(context, scopes, "AGENTIC")
             auth_token = authToken.token
 
-        self._validate_inputs(kernel, agentic_app_id, environment_id, auth_token)
+        self._validate_inputs(kernel, agentic_app_id, auth_token)
 
         # Get and process servers
         servers = await self._mcp_server_configuration_service.list_tool_servers(
-            agentic_app_id, environment_id, auth_token
+            agentic_app_id, auth_token
         )
         self._logger.info(f"🔧 Adding MCP tools from {len(servers)} servers")
 
@@ -130,17 +127,8 @@ class McpToolRegistrationService:
                 headers = {}
 
                 if tools_mode == "MockMCPServer":
-                    # Mock server does not require bearer auth, but still forward environment id if available.
-                    if get_use_environment_id() and environment_id:
-                        headers[Constants.Headers.ENVIRONMENT_ID] = environment_id
-
                     if mock_auth_header := os.getenv("MOCK_MCP_AUTHORIZATION"):
                         headers[Constants.Headers.AUTHORIZATION] = mock_auth_header
-                elif get_use_environment_id():
-                    headers = {
-                        Constants.Headers.AUTHORIZATION: f"{Constants.Headers.BEARER_PREFIX} {auth_token}",
-                        Constants.Headers.ENVIRONMENT_ID: environment_id,
-                    }
                 else:
                     headers = {
                         Constants.Headers.AUTHORIZATION: f"{Constants.Headers.BEARER_PREFIX} {auth_token}",
@@ -177,16 +165,12 @@ class McpToolRegistrationService:
     # Private Methods - Input Validation & Processing
     # ============================================================================
 
-    def _validate_inputs(
-        self, kernel: Any, agentic_app_id: str, environment_id: str, auth_token: str
-    ) -> None:
+    def _validate_inputs(self, kernel: Any, agentic_app_id: str, auth_token: str) -> None:
         """Validate all required inputs."""
         if kernel is None:
             raise ValueError("kernel cannot be None")
         if not agentic_app_id or not agentic_app_id.strip():
             raise ValueError("agentic_app_id cannot be null or empty")
-        if get_use_environment_id() and (not environment_id or not environment_id.strip()):
-            raise ValueError("environment_id cannot be null or empty")
         if not auth_token or not auth_token.strip():
             raise ValueError("auth_token cannot be null or empty")
 
