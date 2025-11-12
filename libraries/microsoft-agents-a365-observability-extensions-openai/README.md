@@ -35,5 +35,3 @@ Data Collection. The software may collect information about you and your use of 
 Copyright (c) Microsoft Corporation. All rights reserved.
 
 Licensed under the MIT License - see the [LICENSE](../../../LICENSE.md) file for details.
-
-configure(
