@@ -187,6 +187,15 @@ class AgentNotification:
     def create_email_response_activity(
         activity: Activity, email_response_html_body: str
     ) -> Activity:
+        """Create a reply Activity with an EmailResponse entity.
+
+        Args:
+            activity: The source activity to create a reply from.
+            email_response_html_body: The HTML content for the email response.
+
+        Returns:
+            A reply Activity with the EmailResponse entity attached.
+        """
         working_activity = activity.create_reply()
         email_response = EmailResponse(html_body=email_response_html_body)
         if working_activity.entities is None:
