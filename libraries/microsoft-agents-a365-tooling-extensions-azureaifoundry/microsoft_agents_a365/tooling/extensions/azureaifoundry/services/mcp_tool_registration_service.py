@@ -17,14 +17,11 @@ from azure.ai.projects import AIProjectClient
 from azure.identity import DefaultAzureCredential
 from azure.ai.agents.models import McpTool, ToolResources
 from microsoft_agents.hosting.core import Authorization, TurnContext
-
-from ...common.utils.utility import get_mcp_platform_authentication_scope
-
-# Local imports
-from microsoft_kairo.tooling.common.services.mcp_tool_server_configuration_service import (
+from microsoft_agents_a365.tooling.services.mcp_tool_server_configuration_service import (
     McpToolServerConfigurationService,
 )
-from microsoft_kairo.tooling.common.utils.constants import Constants
+from microsoft_agents_a365.tooling.utils.constants import Constants
+from microsoft_agents_a365.tooling.utils.utility import get_mcp_platform_authentication_scope
 
 
 class McpToolRegistrationService:
