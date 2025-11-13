@@ -3,13 +3,12 @@ from __future__ import annotations
 from collections.abc import Awaitable, Callable, Iterable
 from typing import Any, TypeVar
 
-from microsoft_agents.activity import Activity, ChannelId
+from microsoft_agents.activity import ChannelId
 from microsoft_agents.hosting.core import TurnContext
 from microsoft_agents.hosting.core.app.state import TurnState
 from .models.agent_notification_activity import AgentNotificationActivity, NotificationTypes
 from .models.agent_subchannel import AgentSubChannel
 from .models.agent_lifecycle_event import AgentLifecycleEvent
-from .models.email_response import EmailResponse
 
 TContext = TypeVar("TContext", bound=TurnContext)
 TState = TypeVar("TState", bound=TurnState)
@@ -182,23 +181,3 @@ class AgentNotification:
             return ""
         resolved = value.value if isinstance(value, AgentLifecycleEvent) else str(value)
         return resolved.lower().strip()
-
-    @staticmethod
-    def create_email_response_activity(
-        activity: Activity, email_response_html_body: str
-    ) -> Activity:
-        """Create a reply Activity with an EmailResponse entity.
-
-        Args:
-            activity: The source activity to create a reply from.
-            email_response_html_body: The HTML content for the email response.
-
-        Returns:
-            A reply Activity with the EmailResponse entity attached.
-        """
-        working_activity = activity.create_reply()
-        email_response = EmailResponse(html_body=email_response_html_body)
-        if working_activity.entities is None:
-            working_activity.entities = []
-        working_activity.entities.append(email_response)
-        return working_activity
