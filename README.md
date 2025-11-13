@@ -83,7 +83,7 @@ For more detailed build instructions, see the [BUILD.md](BUILD.md).
 - **libraries/microsoft-agents-a365-tooling-extensions-azureaifoundry**: Azure AI Foundry tooling extensions
 - **libraries/microsoft-agents-a365-tooling-extensions-openai**: OpenAI tooling extensions
 - **libraries/microsoft-agents-a365-tooling-extensions-semantickernel**: Semantic Kernel tooling extensions
-- **samples/**: For sample applications, see the [Agent365-Samples Repository](https://github.com/microsoft/Agent365-Samples/tree/main/python)
+- For sample applications, see the [Microsoft 365 Agents SDK - Python repository](https://github.com/microsoft/Agent365-Samples/tree/main/python)
 - **tests/**: Unit and integration tests
 
 ## Support
@@ -104,24 +104,23 @@ This project has adopted the [Microsoft Open Source Code of Conduct](https://ope
 
 ## Useful Links
 
-### Microsoft 365 Agent SDK
+### Microsoft 365 Agents SDK
 
 The core SDK for building conversational AI agents for Microsoft 365 platforms.
 
-- [Microsoft 365 Agents SDK](https://aka.ms/agents)
-- [Agents-for-net repository](https://github.com/Microsoft/Agents-for-net)
-- [Agents-for-js repository](https://github.com/Microsoft/Agents-for-js)
-- [Agents-for-python repository](https://github.com/Microsoft/Agents-for-python)
+- [Microsoft 365 Agents SDK - C# /.NET repository](https://github.com/Microsoft/Agents-for-net)
+- [Microsoft 365 Agents SDK - NodeJS /TypeScript repository](https://github.com/Microsoft/Agents-for-js)
+- [Microsoft 365 Agents SDK - Python repository](https://github.com/Microsoft/Agents-for-python)
 - [Microsoft 365 Agents documentation](https://learn.microsoft.com/microsoft-365/agents-sdk/)
 
-### Microsoft Agents 365 SDK
+### Microsoft Agent 365 SDK
 
 Enterprise-grade extensions for observability, notifications, runtime utilities, and developer tools.
 
-- [Agent365-dotnet repository](https://github.com/microsoft/Agent365-dotnet)
-- [Agent365-python repository](https://github.com/microsoft/Agent365-python) - You are here
-- [Agent365-nodejs repository](https://github.com/microsoft/Agent365-nodejs)
-- [Agent365-Samples repository](https://github.com/microsoft/Agent365-Samples)
+- [Microsoft Agent 365 SDK - C# /.NET  repository](https://github.com/microsoft/Agent365-dotnet)
+- [Microsoft Agent 365 SDK - Python repository](https://github.com/microsoft/Agent365-python) - You are here
+- [Microsoft Agent 365 SDK - Node.js/TypeScript repository](https://github.com/microsoft/Agent365-nodejs)
+- [Microsoft Agent 365 SDK Samples repository](https://github.com/microsoft/Agent365-Samples)
 - [Microsoft Agent 365 developer documentation](https://learn.microsoft.com/microsoft-agent-365/developer/)
 
 ### Additional Resources
@@ -131,9 +130,9 @@ Enterprise-grade extensions for observability, notifications, runtime utilities,
 ## 📋 **Telemetry**
 
 Data Collection. The software may collect information about you and your use of the software and send it to Microsoft. Microsoft may use this information to provide services and improve our products and services. You may turn off the telemetry as described in the repository. There are also some features in the software that may enable you and Microsoft to collect data from users of your applications. If you use these features, you must comply with applicable law, including providing appropriate notices to users of your applications together with a copy of Microsoft's privacy statement. Our privacy statement is located at https://go.microsoft.com/fwlink/?LinkID=824704. You can learn more about data collection and use in the help documentation and our privacy statement. Your use of the software operates as your consent to these practices.
- 
+
 ## Trademarks
- 
+
 *Microsoft, Windows, Microsoft Azure and/or other Microsoft products and services referenced in the documentation may be either trademarks or registered trademarks of Microsoft in the United States and/or other countries. The licenses for this project do not grant you rights to use any Microsoft names, logos, or trademarks. Microsoft's general trademark guidelines can be found at http://go.microsoft.com/fwlink/?LinkID=254653.*
 
 ## License

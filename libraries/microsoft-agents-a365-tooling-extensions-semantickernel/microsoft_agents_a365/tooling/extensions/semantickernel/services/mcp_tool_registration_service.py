@@ -17,21 +17,17 @@ from semantic_kernel import kernel as sk
 from microsoft_agents.hosting.core import Authorization, TurnContext
 
 # Third-party imports
+from semantic_kernel.connectors.mcp import MCPStreamableHttpPlugin
 
-# Local imports
-from ...common.services.mcp_tool_server_configuration_service import (
+from microsoft_agents_a365.tooling.services.mcp_tool_server_configuration_service import (
     McpToolServerConfigurationService,
 )
-from ...common.models import MCPServerConfig
-from ...common.utils.constants import Constants
-from ...common.utils.utility import (
+from microsoft_agents_a365.tooling.models.mcp_server_config import MCPServerConfig
+from microsoft_agents_a365.tooling.utils.constants import Constants
+from microsoft_agents_a365.tooling.utils.utility import (
     get_tools_mode,
     get_mcp_platform_authentication_scope,
 )
-
-
-from semantic_kernel.connectors.mcp import MCPStreamableHttpPlugin
-
 
 class McpToolRegistrationService:
     """
