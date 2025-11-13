@@ -117,7 +117,7 @@ The core SDK for building conversational AI agents for Microsoft 365 platforms.
 
 Enterprise-grade extensions for observability, notifications, runtime utilities, and developer tools.
 
-- [Microsoft Agent 365 SDK - C# /.NET  repository](https://github.com/microsoft/Agent365-dotnet)
+- [Microsoft Agent 365 SDK - C# /.NET repository](https://github.com/microsoft/Agent365-dotnet)
 - [Microsoft Agent 365 SDK - Python repository](https://github.com/microsoft/Agent365-python) - You are here
 - [Microsoft Agent 365 SDK - Node.js/TypeScript repository](https://github.com/microsoft/Agent365-nodejs)
 - [Microsoft Agent 365 SDK Samples repository](https://github.com/microsoft/Agent365-Samples)
