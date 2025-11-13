@@ -9,6 +9,14 @@ class EmailResponse(Entity):
 
     @staticmethod
     def create_email_response_activity(email_response_html_body: str) -> Activity:
+        """Create a new Activity with an EmailResponse entity.
+
+        Args:
+            email_response_html_body: The HTML content for the email response.
+
+        Returns:
+            A new Activity instance with type='message' and the EmailResponse entity attached.
+        """
         working_activity = Activity(type="message")
         email_response = EmailResponse(html_body=email_response_html_body)
         if working_activity.entities is None:
