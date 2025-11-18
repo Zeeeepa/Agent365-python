@@ -16,6 +16,7 @@ from typing import Any, Optional
 from semantic_kernel import kernel as sk
 from semantic_kernel.connectors.mcp import MCPStreamableHttpPlugin
 from microsoft_agents.hosting.core import Authorization, TurnContext
+from microsoft_agents_a365.runtime.utility import Utility
 from microsoft_agents_a365.tooling.services.mcp_tool_server_configuration_service import (
     McpToolServerConfigurationService,
 )
@@ -77,8 +78,8 @@ class McpToolRegistrationService:
     async def add_tool_servers_to_agent(
         self,
         kernel: sk.Kernel,
-        agentic_app_id: str,
         auth: Authorization,
+        auth_handler_name: str,
         context: TurnContext,
         auth_token: Optional[str] = None,
     ) -> None:
@@ -87,7 +88,9 @@ class McpToolRegistrationService:
 
         Args:
             kernel: The Semantic Kernel instance to which the tools will be added.
-            agentic_app_id: Agentic App ID for the agent.
+            auth: Authorization handler for token exchange.
+            auth_handler_name: Name of the authorization handler.
+            context: Turn context for the current operation.
             auth_token: Authentication token to access the MCP servers.
 
         Raises:
@@ -97,9 +100,10 @@ class McpToolRegistrationService:
 
         if not auth_token:
             scopes = get_mcp_platform_authentication_scope()
-            authToken = await auth.exchange_token(context, scopes, "AGENTIC")
+            authToken = await auth.exchange_token(context, scopes, auth_handler_name)
             auth_token = authToken.token
 
+        agentic_app_id = Utility.resolve_agent_identity(context, auth_token)
         self._validate_inputs(kernel, agentic_app_id, auth_token)
 
         # Get and process servers

@@ -17,6 +17,7 @@ from azure.ai.projects import AIProjectClient
 from azure.identity import DefaultAzureCredential
 from azure.ai.agents.models import McpTool, ToolResources
 from microsoft_agents.hosting.core import Authorization, TurnContext
+from microsoft_agents_a365.runtime.utility import Utility
 from microsoft_agents_a365.tooling.services.mcp_tool_server_configuration_service import (
     McpToolServerConfigurationService,
 )
@@ -69,8 +70,8 @@ class McpToolRegistrationService:
     async def add_tool_servers_to_agent(
         self,
         project_client: "AIProjectClient",
-        agentic_app_id: str,
         auth: Authorization,
+        auth_handler_name: str,
         context: TurnContext,
         auth_token: Optional[str] = None,
     ) -> None:
@@ -79,7 +80,9 @@ class McpToolRegistrationService:
 
         Args:
             project_client: The Azure Foundry AIProjectClient instance.
-            agentic_app_id: Agentic App ID for the agent.
+            auth: Authorization handler for token exchange.
+            auth_handler_name: Name of the authorization handler.
+            context: Turn context for the current operation.
             auth_token: Authentication token to access the MCP servers.
 
         Raises:
@@ -91,10 +94,11 @@ class McpToolRegistrationService:
 
         if not auth_token:
             scopes = get_mcp_platform_authentication_scope()
-            authToken = await auth.exchange_token(context, scopes, "AGENTIC")
+            authToken = await auth.exchange_token(context, scopes, auth_handler_name)
             auth_token = authToken.token
 
         try:
+            agentic_app_id = Utility.resolve_agent_identity(context, auth_token)
             # Get the tool definitions and resources using the async implementation
             tool_definitions, tool_resources = await self._get_mcp_tool_definitions_and_resources(
                 agentic_app_id, auth_token or ""
