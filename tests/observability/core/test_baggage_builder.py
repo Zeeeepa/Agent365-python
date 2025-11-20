@@ -11,11 +11,16 @@ from microsoft_agents_a365.observability.core.constants import (
     GEN_AI_AGENT_ID_KEY,
     GEN_AI_AGENT_UPN_KEY,
     GEN_AI_CALLER_ID_KEY,
+    GEN_AI_EXECUTION_SOURCE_DESCRIPTION_KEY,
+    GEN_AI_EXECUTION_SOURCE_NAME_KEY,
     HIRING_MANAGER_ID_KEY,
     OPERATION_SOURCE_KEY,
+    SESSION_DESCRIPTION_KEY,
+    SESSION_ID_KEY,
     TENANT_ID_KEY,
 )
 from microsoft_agents_a365.observability.core.middleware.baggage_builder import BaggageBuilder
+from microsoft_agents_a365.observability.core.models.operation_source import OperationSource
 from opentelemetry import baggage, context, trace
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import SimpleSpanProcessor
@@ -48,6 +53,9 @@ class TestBaggageBuilder(unittest.TestCase):
         # Clear any existing context/baggage before each test
         context.detach(context.attach({}))
 
+        # Create a fresh BaggageBuilder for each test
+        self.builder = BaggageBuilder()
+
     def tearDown(self):
         """Clean up after each test."""
         # Clear context
@@ -78,7 +86,7 @@ class TestBaggageBuilder(unittest.TestCase):
         """Test all baggage key setter methods."""
         with (
             BaggageBuilder()
-            .operation_source("sdk")
+            .operation_source(OperationSource.SDK)
             .tenant_id("tenant-1")
             .agent_id("agent-1")
             .agent_auid("auid-1")
@@ -90,7 +98,7 @@ class TestBaggageBuilder(unittest.TestCase):
             .build()
         ):
             current_baggage = baggage.get_all()
-            self.assertEqual(current_baggage.get(OPERATION_SOURCE_KEY), "sdk")
+            self.assertEqual(current_baggage.get(OPERATION_SOURCE_KEY), OperationSource.SDK.value)
             self.assertEqual(current_baggage.get(TENANT_ID_KEY), "tenant-1")
             self.assertEqual(current_baggage.get(GEN_AI_AGENT_ID_KEY), "agent-1")
             self.assertEqual(current_baggage.get(GEN_AI_AGENT_AUID_KEY), "auid-1")
@@ -152,7 +160,7 @@ class TestBaggageBuilder(unittest.TestCase):
         # Use BaggageBuilder to set all possible values
         with (
             BaggageBuilder()
-            .operation_source("test_sdk")
+            .operation_source(OperationSource.SDK)
             .tenant_id("test-tenant")
             .agent_id("test-agent")
             .agent_auid("test-auid")
@@ -165,7 +173,7 @@ class TestBaggageBuilder(unittest.TestCase):
         ):
             # Inside scope - verify all baggage values are set
             scoped_baggage = baggage.get_all()
-            self.assertEqual(scoped_baggage.get(OPERATION_SOURCE_KEY), "test_sdk")
+            self.assertEqual(scoped_baggage.get(OPERATION_SOURCE_KEY), OperationSource.SDK.value)
             self.assertEqual(scoped_baggage.get(TENANT_ID_KEY), "test-tenant")
             self.assertEqual(scoped_baggage.get(GEN_AI_AGENT_ID_KEY), "test-agent")
             self.assertEqual(scoped_baggage.get(GEN_AI_AGENT_AUID_KEY), "test-auid")
@@ -210,7 +218,7 @@ class TestBaggageBuilder(unittest.TestCase):
 
         # Also verify that None / whitespace values are ignored
         dict_pairs_with_ignored = {
-            OPERATION_SOURCE_KEY: "sdk",
+            OPERATION_SOURCE_KEY: OperationSource.SDK.value,
             GEN_AI_CALLER_ID_KEY: None,  # ignored
         }
         iter_pairs_with_ignored = [
@@ -231,7 +239,7 @@ class TestBaggageBuilder(unittest.TestCase):
             self.assertEqual(baggage_contents.get(CORRELATION_ID_KEY), "corr-x")
             self.assertEqual(baggage_contents.get(GEN_AI_AGENT_AUID_KEY), "auid-x")
             self.assertEqual(baggage_contents.get(GEN_AI_AGENT_UPN_KEY), "upn-x")
-            self.assertEqual(baggage_contents.get(OPERATION_SOURCE_KEY), "sdk")
+            self.assertEqual(baggage_contents.get(OPERATION_SOURCE_KEY), OperationSource.SDK.value)
             # Ignored values should not be present
             self.assertIsNone(baggage_contents.get(GEN_AI_CALLER_ID_KEY))
             self.assertIsNone(baggage_contents.get(HIRING_MANAGER_ID_KEY))
@@ -253,7 +261,7 @@ class TestBaggageBuilder(unittest.TestCase):
                 GEN_AI_AGENT_ID_KEY: "agent-ctx",
                 CORRELATION_ID_KEY: "  ",  # will be ignored
                 GEN_AI_AGENT_UPN_KEY: None,  # will be ignored
-                OPERATION_SOURCE_KEY: "sdk-ctx",
+                OPERATION_SOURCE_KEY: OperationSource.SDK.value,
             }
 
         try:
@@ -270,7 +278,9 @@ class TestBaggageBuilder(unittest.TestCase):
                 # Values from turn_context
                 self.assertEqual(baggage_contents.get(TENANT_ID_KEY), "tenant-ctx")
                 self.assertEqual(baggage_contents.get(GEN_AI_AGENT_ID_KEY), "agent-ctx")
-                self.assertEqual(baggage_contents.get(OPERATION_SOURCE_KEY), "sdk-ctx")
+                self.assertEqual(
+                    baggage_contents.get(OPERATION_SOURCE_KEY), OperationSource.SDK.value
+                )
                 # Pre-existing (non-overlapping) still present
                 self.assertEqual(baggage_contents.get(GEN_AI_AGENT_AUID_KEY), "auid-pre")
                 # Ignored values should not be present
@@ -279,6 +289,79 @@ class TestBaggageBuilder(unittest.TestCase):
         finally:
             # Restore original
             tempBaggageBuilder.from_turn_context = original_fn
+
+    def test_source_metadata_name_method(self):
+        """Test deprecated source_metadata_name method - should delegate to channel_name."""
+        # Should exist and be callable
+        self.assertTrue(hasattr(self.builder, "source_metadata_name"))
+        self.assertTrue(callable(self.builder.source_metadata_name))
+
+        # Should set channel name baggage through delegation
+        with self.builder.source_metadata_name("test-channel").build():
+            current_baggage = baggage.get_all()
+            self.assertEqual(current_baggage.get(GEN_AI_EXECUTION_SOURCE_NAME_KEY), "test-channel")
+
+    def test_source_metadata_description_method(self):
+        """Test deprecated source_metadata_description method - should delegate to channel_links."""
+        # Should exist and be callable
+        self.assertTrue(hasattr(self.builder, "source_metadata_description"))
+        self.assertTrue(callable(self.builder.source_metadata_description))
+
+        # Should set channel description baggage through delegation
+        with self.builder.source_metadata_description("test-description").build():
+            current_baggage = baggage.get_all()
+            self.assertEqual(
+                current_baggage.get(GEN_AI_EXECUTION_SOURCE_DESCRIPTION_KEY), "test-description"
+            )
+
+    def test_session_id_method(self):
+        """Test session_id method sets session ID baggage."""
+        # Should exist and be callable
+        self.assertTrue(hasattr(self.builder, "session_id"))
+        self.assertTrue(callable(self.builder.session_id))
+
+        # Should set session ID baggage
+        with self.builder.session_id("test-session-123").build():
+            current_baggage = baggage.get_all()
+            self.assertEqual(current_baggage.get(SESSION_ID_KEY), "test-session-123")
+
+    def test_session_description_method(self):
+        """Test session_description method sets session description baggage."""
+        # Should exist and be callable
+        self.assertTrue(hasattr(self.builder, "session_description"))
+        self.assertTrue(callable(self.builder.session_description))
+
+        # Should set session description baggage
+        with self.builder.session_description("test session description").build():
+            current_baggage = baggage.get_all()
+            self.assertEqual(
+                current_baggage.get(SESSION_DESCRIPTION_KEY), "test session description"
+            )
+
+    def test_channel_name_method(self):
+        """Test channel_name method sets channel name baggage."""
+        # Should exist and be callable
+        self.assertTrue(hasattr(self.builder, "channel_name"))
+        self.assertTrue(callable(self.builder.channel_name))
+
+        # Should set channel name baggage
+        with self.builder.channel_name("Teams Channel").build():
+            current_baggage = baggage.get_all()
+            self.assertEqual(current_baggage.get(GEN_AI_EXECUTION_SOURCE_NAME_KEY), "Teams Channel")
+
+    def test_channel_links_method(self):
+        """Test channel_links method sets channel description baggage."""
+        # Should exist and be callable
+        self.assertTrue(hasattr(self.builder, "channel_links"))
+        self.assertTrue(callable(self.builder.channel_links))
+
+        # Should set channel description baggage
+        with self.builder.channel_links("https://teams.microsoft.com/channel/123").build():
+            current_baggage = baggage.get_all()
+            self.assertEqual(
+                current_baggage.get(GEN_AI_EXECUTION_SOURCE_DESCRIPTION_KEY),
+                "https://teams.microsoft.com/channel/123",
+            )
 
 
 if __name__ == "__main__":
