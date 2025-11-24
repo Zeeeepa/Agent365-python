@@ -67,7 +67,7 @@ The best way to consume this SDK is via our PyPI packages found here: [pypi.org]
    pytest tests/
    ```
 
-For more detailed build instructions, see the [BUILD.md](BUILD.md).
+For more detailed build instructions, see the [BUILD.md](https://github.com/microsoft/Agent365-python/blob/main/HOW_TO_SET_A_VERSION.md).
 
 ## Project Structure
 
