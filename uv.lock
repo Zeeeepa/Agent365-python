@@ -16,6 +16,7 @@ members = [
     "microsoft-agents-a365-observability-extensions-openai",
     "microsoft-agents-a365-observability-extensions-semantic-kernel",
     "microsoft-agents-a365-runtime",
+    "microsoft-agents-a365-settings",
     "microsoft-agents-a365-tooling",
     "microsoft-agents-a365-tooling-extensions-agentframework",
     "microsoft-agents-a365-tooling-extensions-azureaifoundry",
@@ -1808,6 +1809,43 @@ requires-dist = [
     { name = "pytest-asyncio", marker = "extra == 'dev'", specifier = ">=0.21.0" },
     { name = "pytest-asyncio", marker = "extra == 'test'", specifier = ">=0.21.0" },
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.1.0" },
+]
+provides-extras = ["dev", "test"]
+
+[[package]]
+name = "microsoft-agents-a365-settings"
+source = { editable = "libraries/microsoft-agents-a365-settings" }
+dependencies = [
+    { name = "httpx" },
+    { name = "pydantic" },
+    { name = "typing-extensions" },
+]
+
+[package.optional-dependencies]
+dev = [
+    { name = "black" },
+    { name = "mypy" },
+    { name = "pytest" },
+    { name = "pytest-asyncio" },
+    { name = "ruff" },
+]
+test = [
+    { name = "pytest" },
+    { name = "pytest-asyncio" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "black", marker = "extra == 'dev'", specifier = ">=23.0.0" },
+    { name = "httpx", specifier = ">=0.24.0" },
+    { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.0.0" },
+    { name = "pydantic", specifier = ">=2.0.0" },
+    { name = "pytest", marker = "extra == 'dev'", specifier = ">=7.0.0" },
+    { name = "pytest", marker = "extra == 'test'", specifier = ">=7.0.0" },
+    { name = "pytest-asyncio", marker = "extra == 'dev'", specifier = ">=0.21.0" },
+    { name = "pytest-asyncio", marker = "extra == 'test'", specifier = ">=0.21.0" },
+    { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.1.0" },
+    { name = "typing-extensions", specifier = ">=4.0.0" },
 ]
 provides-extras = ["dev", "test"]
 

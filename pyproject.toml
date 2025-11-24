@@ -11,6 +11,7 @@ members = [
     "libraries/microsoft-agents-a365-observability-extensions-semantickernel", 
     "libraries/microsoft-agents-a365-observability-extensions-agentframework",
     "libraries/microsoft-agents-a365-runtime",
+    "libraries/microsoft-agents-a365-settings",
     "libraries/microsoft-agents-a365-tooling",
     "libraries/microsoft-agents-a365-tooling-extensions-azureaifoundry",
     "libraries/microsoft-agents-a365-tooling-extensions-openai",
@@ -27,6 +28,7 @@ exclude = [
 microsoft-agents-a365-notifications = { workspace = true }
 microsoft-agents-a365-observability-core = { workspace = true }
 microsoft-agents-a365-runtime = { workspace = true }
+microsoft-agents-a365-settings = { workspace = true }
 microsoft-agents-a365-tooling = { workspace = true }
 
 # Development dependencies for the entire workspace
