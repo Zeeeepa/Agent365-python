@@ -1,143 +1,143 @@
 # Running Unit Tests for Agent365-Python SDK
 
-## Quick Start
-
-```bash
-# Install dependencies
-uv pip install -e libraries/microsoft-agents-a365-runtime
-uv pip install pytest pytest-cov pytest-asyncio
-
-# Run all tests
-python -m pytest tests/
-
-# Run with coverage
-python -m pytest tests/runtime/ --cov=microsoft_agents_a365.runtime --cov-report=html
-```
+This guide covers setting up and running tests in Visual Studio Code.
 
 ---
 
-## Current Test Status
+## Prerequisites
 
-| Module | Tests | Status |
-|--------|-------|--------|
-| Runtime | 53 | ✅ Complete |
-| Observability | ~20 | ⚠️ Partial |
-| Tooling | 0 | ❌ Not Started |
-| Notifications | 0 | ❌ Not Started |
-
-**Coverage Target:** 80%+ | See [TEST_PLAN.md](TEST_PLAN.md) for roadmap
-
----
-
-## Installation
-
-```bash
-# Runtime module only
-uv pip install -e libraries/microsoft-agents-a365-runtime
-uv pip install pytest pytest-cov pytest-asyncio
-
-# All modules
-uv pip install -e libraries/microsoft-agents-a365-observability-core
-uv pip install -e libraries/microsoft-agents-a365-tooling
-uv pip install -e libraries/microsoft-agents-a365-notifications
-```
-
----
-
-## Running Tests
-
-```bash
-# All tests
-python -m pytest tests/
-
-# Specific module
-python -m pytest tests/runtime/
-
-# Specific file
-python -m pytest tests/runtime/test_environment_utils.py
-
-# Specific test
-python -m pytest tests/runtime/test_environment_utils.py::TestEnvironmentUtils::test_constants
-
-# With verbose output
-python -m pytest tests/runtime/ -v
-
-# Stop on first failure
-python -m pytest tests/runtime/ -x
-
-# Pattern matching
-python -m pytest tests/runtime/ -k "environment"
-
-# Re-run failed tests only
-python -m pytest --lf
-```
-
----
-
-## Coverage Reports
-
-```bash
-# Terminal output
-python -m pytest tests/runtime/ --cov=microsoft_agents_a365.runtime --cov-report=term-missing
-
-# HTML report (opens htmlcov/index.html)
-python -m pytest tests/runtime/ --cov=microsoft_agents_a365.runtime --cov-report=html
-
-# XML report (for CI/CD tools)
-python -m pytest tests/runtime/ --cov=microsoft_agents_a365.runtime --cov-report=xml
-```
-
----
-
-## Advanced Options
-
-```bash
-# Parallel execution
-uv pip install pytest-xdist
-python -m pytest tests/runtime/ -n auto
-
-# JUnit XML report
-python -m pytest tests/runtime/ --junitxml=test-results.xml
-```
-
----
-
-## Understanding Output
-
-```
-tests/runtime/test_environment_utils.py::TestEnvironmentUtils::test_constants PASSED [  1%]
-=================================== 53 passed in 0.18s ===================================
-```
-
-| Status | Description |
-|--------|-------------|
-| **PASSED** | Test passed successfully |
-| **FAILED** | Test failed (shows error details) |
-| **SKIPPED** | Test skipped |
-| **ERROR** | Error during collection/setup |
-
----
-
-## Troubleshooting
-
-| Issue | Solution |
-|-------|----------|
-| `ModuleNotFoundError` | `uv pip install -e libraries/microsoft-agents-a365-runtime` |
-| `pytest: command not found` | `uv pip install pytest` |
-| `ERROR: unrecognized arguments: --cov` | `uv pip install pytest-cov` |
+- **Python 3.11+** installed
+- **Visual Studio Code** with Python extension
+- **Git** repository cloned locally
 
 ---
 
 ## Test Structure
 
-```
+> **Note:** This structure will be updated as new tests are added.
+
+```plaintext
 tests/
-├── README.md                          # Overview
-├── RUNNING_TESTS.md                   # This file
-├── TEST_PLAN.md                       # Test strategy
-└── runtime/
-    ├── test_environment_utils.py      # 16 tests
-    ├── test_version_utils.py          # 12 tests
-    ├── test_utility.py                # 13 tests
-    └── test_power_platform_api_discovery.py  # 12 tests
+├── runtime/                           # Runtime tests
+├── observability/                     # Observability tests
+├── tooling/                           # Tooling tests
+└── notifications/                     # Notifications tests
 ```
+
+---
+
+## Initial Setup
+
+### 1. Configure Python Environment
+
+1. Press `Ctrl+Shift+P`
+2. Type "Python: Select Interpreter"
+3. Choose your Python 3.11+ interpreter
+
+### 2. Install Dependencies
+
+```powershell
+# Install test dependencies
+uv pip install pytest pytest-asyncio pytest-mock pytest-cov pytest-html
+
+# Install workspace packages
+uv pip install -e .
+```
+
+---
+
+## Running Tests in VS Code
+
+### Test Explorer
+
+1. Click the beaker icon in the Activity Bar or press `Ctrl+Shift+P` → "Test: Focus on Test Explorer View"
+2. Click the play button to run tests (all/folder/file/individual)
+3. Right-click → "Debug Test" to debug with breakpoints
+
+### Command Palette
+
+- `Test: Run All Tests`
+- `Test: Run Tests in Current File`
+- `Test: Debug Tests in Current File`
+
+---
+
+## Running Tests from Command Line
+
+```powershell
+# Run all tests
+python -m pytest tests/
+
+# Run specific module/file
+python -m pytest tests/runtime/
+python -m pytest tests/runtime/test_environment_utils.py
+
+# Run with options
+python -m pytest tests/ -v                    # Verbose
+python -m pytest tests/ -x                    # Stop on first failure
+python -m pytest tests/ -k "environment"      # Pattern matching
+python -m pytest --lf                         # Re-run failed tests
+```
+
+---
+
+## Generating Reports
+
+### HTML Reports
+
+```powershell
+# Coverage report
+python -m pytest tests/ --cov=libraries --cov-report=html
+Invoke-Item htmlcov\index.html
+
+# Test report
+python -m pytest tests/ --html=test-report.html --self-contained-html
+Invoke-Item test-report.html
+
+# Combined
+python -m pytest tests/ --cov=libraries --cov-report=html --html=test-report.html --self-contained-html -v
+```
+
+### CI/CD Reports
+
+```powershell
+# XML reports for CI/CD pipelines
+python -m pytest tests/ --cov=libraries --cov-report=xml --junitxml=test-results.xml
+```
+
+---
+
+## Troubleshooting
+
+### Common Issues
+
+| Issue | Solution |
+|-------|----------|
+| **Test loading failed** | Clean pyproject.toml, reinstall packages, restart VS Code |
+| **ImportError: No module named 'pytest'** | `uv pip install pytest pytest-asyncio pytest-mock` |
+| **ImportError: No module named 'microsoft_agents_a365'** | `uv pip install -e .` |
+| **Tests not discovered** | Refresh Test Explorer or restart VS Code |
+
+### Fix Steps
+
+If tests fail to discover or import errors occur:
+
+**1. Clean pyproject.toml**
+
+```powershell
+$content = Get-Content "pyproject.toml" -Raw
+$fixed = $content -replace "`r`n", "`n"
+$fixed | Set-Content "pyproject.toml" -NoNewline
+```
+
+**2. Reinstall packages**
+
+```powershell
+uv pip install -e .
+```
+
+**3. Restart VS Code**
+
+- Close completely and reopen
+- Wait for Python extension to reload
+- Refresh Test Explorer
