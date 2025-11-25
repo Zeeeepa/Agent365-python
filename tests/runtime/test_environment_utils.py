@@ -37,7 +37,7 @@ class TestEnvironmentUtils(unittest.TestCase):
     def test_get_observability_authentication_scope_returns_prod_scope(self):
         """Test that get_observability_authentication_scope returns production scope."""
         result = get_observability_authentication_scope()
-        
+
         self.assertIsInstance(result, list)
         self.assertEqual(len(result), 1)
         self.assertEqual(result[0], PROD_OBSERVABILITY_SCOPE)
@@ -47,23 +47,23 @@ class TestEnvironmentUtils(unittest.TestCase):
         # Ensure environment variables are not set
         if "PYTHON_ENVIRONMENT" in os.environ:
             del os.environ["PYTHON_ENVIRONMENT"]
-        
+
         result = is_development_environment()
-        
+
         self.assertFalse(result)
 
     def test_is_development_environment_with_development_env_var(self):
         """Test is_development_environment returns True when PYTHON_ENVIRONMENT is 'Development'."""
         os.environ["PYTHON_ENVIRONMENT"] = "Development"
-        
+
         result = is_development_environment()
-        
+
         self.assertTrue(result)
 
     def test_is_development_environment_case_insensitive(self):
         """Test is_development_environment is case-insensitive."""
         test_cases = ["development", "DEVELOPMENT", "DeveLoPMenT", "Development"]
-        
+
         for env_value in test_cases:
             with self.subTest(env_value=env_value):
                 os.environ["PYTHON_ENVIRONMENT"] = env_value
@@ -73,15 +73,15 @@ class TestEnvironmentUtils(unittest.TestCase):
     def test_is_development_environment_with_production_env_var(self):
         """Test is_development_environment returns False when PYTHON_ENVIRONMENT is 'production'."""
         os.environ["PYTHON_ENVIRONMENT"] = "production"
-        
+
         result = is_development_environment()
-        
+
         self.assertFalse(result)
 
     def test_is_development_environment_with_other_env_var(self):
         """Test is_development_environment returns False for other environment values."""
         test_cases = ["staging", "test", "preprod", "custom"]
-        
+
         for env_value in test_cases:
             with self.subTest(env_value=env_value):
                 os.environ["PYTHON_ENVIRONMENT"] = env_value
@@ -91,24 +91,24 @@ class TestEnvironmentUtils(unittest.TestCase):
     def test_is_development_environment_with_empty_env_var(self):
         """Test is_development_environment returns False when PYTHON_ENVIRONMENT is empty."""
         os.environ["PYTHON_ENVIRONMENT"] = ""
-        
+
         result = is_development_environment()
-        
+
         self.assertFalse(result)
 
     def test_is_development_environment_with_whitespace_env_var(self):
         """Test is_development_environment returns False when PYTHON_ENVIRONMENT is whitespace."""
         os.environ["PYTHON_ENVIRONMENT"] = "   "
-        
+
         result = is_development_environment()
-        
+
         self.assertFalse(result)
 
     @patch.dict(os.environ, {"PYTHON_ENVIRONMENT": "Development"}, clear=False)
     def test_python_environment_precedence(self):
         """Test that PYTHON_ENVIRONMENT takes precedence."""
         result = is_development_environment()
-        
+
         self.assertTrue(result)
 
     def test_default_environment_is_production(self):
@@ -116,10 +116,10 @@ class TestEnvironmentUtils(unittest.TestCase):
         # Ensure no environment variables are set
         if "PYTHON_ENVIRONMENT" in os.environ:
             del os.environ["PYTHON_ENVIRONMENT"]
-        
+
         # The _get_current_environment function should default to PRODUCTION_ENVIRONMENT_NAME
         result = is_development_environment()
-        
+
         self.assertFalse(result)
 
 
@@ -129,25 +129,25 @@ class TestObservabilityAuthenticationScope(unittest.TestCase):
     def test_scope_is_list(self):
         """Test that the scope is returned as a list."""
         result = get_observability_authentication_scope()
-        
+
         self.assertIsInstance(result, list)
 
     def test_scope_contains_single_value(self):
         """Test that the scope list contains exactly one value."""
         result = get_observability_authentication_scope()
-        
+
         self.assertEqual(len(result), 1)
 
     def test_scope_value_is_string(self):
         """Test that the scope value is a string."""
         result = get_observability_authentication_scope()
-        
+
         self.assertIsInstance(result[0], str)
 
     def test_scope_value_format(self):
         """Test that the scope value has the correct format."""
         result = get_observability_authentication_scope()
-        
+
         self.assertTrue(result[0].startswith("https://"))
         self.assertTrue(result[0].endswith(".default"))
 
@@ -155,7 +155,7 @@ class TestObservabilityAuthenticationScope(unittest.TestCase):
         """Test that multiple calls return the same scope."""
         result1 = get_observability_authentication_scope()
         result2 = get_observability_authentication_scope()
-        
+
         self.assertEqual(result1, result2)
 
 
