@@ -24,7 +24,7 @@
 
 ## Testing Strategy
 
-**Framework:** `unittest` + `pytest` runner  
+**Framework:** `pytest`  
 **Coverage:** `pytest-cov`  
 **Mocking:** `unittest.mock`  
 **Async:** `pytest-asyncio`
