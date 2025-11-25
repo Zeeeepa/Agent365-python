@@ -1,14 +1,39 @@
 # Running Unit Tests for Agent365-Python SDK
 
-This guide covers setting up and running tests in Visual Studio Code.
+This guide covers setting up and running tests.
 
 ---
 
 ## Prerequisites
 
-- **Python 3.11+** installed
-- **Visual Studio Code** with Python extension
-- **Git** repository cloned locally
+### 1. Create Virtual Environment
+
+```powershell
+# Create virtual environment using uv
+uv venv
+
+# Activate the virtual environment
+.\.venv\Scripts\Activate.ps1
+```
+
+### 2. Configure Python Environment
+
+1. Press `Ctrl+Shift+P`
+2. Type "Python: Select Interpreter"
+3. Choose the `.venv` interpreter from the list
+
+### 3. Install Dependencies
+
+```powershell
+# Test framework and reporting
+uv pip install pytest pytest-asyncio pytest-mock pytest-cov pytest-html wrapt
+
+# SDK core libraries
+uv pip install -e libraries/microsoft-agents-a365-runtime -e libraries/microsoft-agents-a365-notifications -e libraries/microsoft-agents-a365-observability-core -e libraries/microsoft-agents-a365-tooling
+
+# Framework extension libraries
+uv pip install -e libraries/microsoft-agents-a365-observability-extensions-langchain -e libraries/microsoft-agents-a365-observability-extensions-openai -e libraries/microsoft-agents-a365-observability-extensions-semantickernel -e libraries/microsoft-agents-a365-observability-extensions-agentframework -e libraries/microsoft-agents-a365-tooling-extensions-agentframework -e libraries/microsoft-agents-a365-tooling-extensions-azureaifoundry -e libraries/microsoft-agents-a365-tooling-extensions-openai -e libraries/microsoft-agents-a365-tooling-extensions-semantickernel
+```
 
 ---
 
@@ -26,27 +51,7 @@ tests/
 
 ---
 
-## Initial Setup
-
-### 1. Configure Python Environment
-
-1. Press `Ctrl+Shift+P`
-2. Type "Python: Select Interpreter"
-3. Choose your Python 3.11+ interpreter
-
-### 2. Install Dependencies
-
-```powershell
-# Install test dependencies
-uv pip install pytest pytest-asyncio pytest-mock pytest-cov pytest-html
-
-# Install workspace packages
-uv pip install -e .
-```
-
----
-
-## Running Tests in VS Code
+## Running Tests in VS Code (Optional)
 
 ### Test Explorer
 
@@ -87,15 +92,22 @@ python -m pytest --lf                         # Re-run failed tests
 
 ```powershell
 # Coverage report
-python -m pytest tests/ --cov=libraries --cov-report=html
-Invoke-Item htmlcov\index.html
+python -m pytest tests/ --cov=libraries --cov-report=html -v
 
-# Test report
+# View reports
+start htmlcov\index.html
+
+# Test report (requires: uv pip install pytest-html)
 python -m pytest tests/ --html=test-report.html --self-contained-html
-Invoke-Item test-report.html
 
-# Combined
+# View reports
+start test-report.html
+
+# Combined (requires: uv pip install pytest-html)
 python -m pytest tests/ --cov=libraries --cov-report=html --html=test-report.html --self-contained-html -v
+
+# View reports
+start htmlcov\index.html
 ```
 
 ### CI/CD Reports
@@ -103,6 +115,10 @@ python -m pytest tests/ --cov=libraries --cov-report=html --html=test-report.htm
 ```powershell
 # XML reports for CI/CD pipelines
 python -m pytest tests/ --cov=libraries --cov-report=xml --junitxml=test-results.xml
+
+# View reports
+start test-results.xml
+start coverage.xml
 ```
 
 ---
