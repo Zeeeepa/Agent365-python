@@ -74,6 +74,15 @@ build/
 .pytest_cache/
 _version.py
 
+# Test coverage and reports
+htmlcov/
+.coverage
+coverage.xml
+test-report.html
+test-results.xml
+*.cover
+.hypothesis/
+
 # Virtual environments
 .venv/
 venv/
