@@ -18,7 +18,7 @@ from microsoft_agents_a365.runtime.environment_utils import (
 
 class TestEnvironmentUtils(unittest.TestCase):
     """Test cases for environment utility functions.
-    
+
     Tests: Constants validation, observability scope retrieval, and environment detection logic.
     """
 

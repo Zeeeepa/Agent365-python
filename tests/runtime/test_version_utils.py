@@ -12,7 +12,7 @@ from microsoft_agents_a365.runtime.version_utils import build_version
 
 class TestVersionUtils(unittest.TestCase):
     """Test cases for version utility functions.
-    
+
     Tests: Default version behavior, environment variable usage, and deprecation warning.
     """
 
