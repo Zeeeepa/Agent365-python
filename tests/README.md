@@ -1,13 +1,13 @@
-# Agent365-Python SDK Tests
+# Microsoft Agent 365 SDK Tests
 
-Unit and integration tests for the Agent365-Python SDK. This test suite ensures reliability, maintainability, and quality across all SDK modules including runtime, tooling, notifications, and observability extensions.
+Unit and integration tests for the Microsoft Agent 365-Python SDK. This test suite ensures reliability, maintainability, and quality across all modules including runtime, tooling, notifications, and observability extensions.
 
 ## Usage
 
 For detailed instructions on running tests and generating coverage reports, see:
 
-- **[Running Tests](RUNNING_TESTS.md)** - Complete guide for installation, running tests, generating coverage reports, and troubleshooting
 - **[Test Plan](TEST_PLAN.md)** - Comprehensive testing strategy and implementation roadmap
+- **[Running Tests](RUNNING_TESTS.md)** - Complete guide for installation, running tests, generating coverage reports, and troubleshooting
 
 ## Support
 
