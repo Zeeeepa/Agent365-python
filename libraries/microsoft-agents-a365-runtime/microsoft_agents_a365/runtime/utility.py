@@ -9,7 +9,9 @@ and other common runtime operations.
 
 from __future__ import annotations
 
+import platform
 import uuid
+from importlib.metadata import PackageNotFoundError, version
 from typing import Any, Optional
 
 import jwt
@@ -22,6 +24,8 @@ class Utility:
     This class contains static methods for token processing, agent identity resolution,
     and other utility functions used across the Agent 365 runtime.
     """
+
+    _cached_version = None
 
     @staticmethod
     def get_app_id_from_token(token: Optional[str]) -> str:
@@ -80,3 +84,27 @@ class Utility:
 
         # Fallback to extracting App ID from the auth token
         return Utility.get_app_id_from_token(auth_token)
+
+    @staticmethod
+    def get_user_agent_header(orchestrator: str = "") -> str:
+        """
+        Generates a User-Agent header string for SDK requests.
+
+        Args:
+            orchestrator: Optional orchestrator name to include in the User-Agent header.
+                         Defaults to empty string if not provided.
+
+        Returns:
+            str: A formatted User-Agent header string containing SDK version, OS type,
+                 Python version, and optional orchestrator information.
+        """
+        if Utility._cached_version is None:
+            try:
+                Utility._cached_version = version("microsoft-agents-a365-runtime")
+            except PackageNotFoundError:
+                Utility._cached_version = "unknown"
+
+        orchestrator_part = f"; {orchestrator}" if orchestrator else ""
+        os_type = platform.system()
+        python_version = platform.python_version()
+        return f"Agent365SDK/{Utility._cached_version} ({os_type}; Python {python_version}{orchestrator_part})"
