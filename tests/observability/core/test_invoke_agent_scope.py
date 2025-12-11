@@ -1,7 +1,11 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
+import os
+from pathlib import Path
+import sys
 import unittest
+import pytest
 from urllib.parse import urlparse
 
 from microsoft_agents_a365.observability.core import (
@@ -13,6 +17,7 @@ from microsoft_agents_a365.observability.core import (
     SourceMetadata,
     TenantDetails,
     configure,
+    get_tracer_provider,
 )
 from microsoft_agents_a365.observability.core.constants import (
     GEN_AI_CALLER_AGENT_USER_CLIENT_IP,
@@ -22,8 +27,6 @@ from microsoft_agents_a365.observability.core.constants import (
     GEN_AI_INPUT_MESSAGES_KEY,
 )
 from microsoft_agents_a365.observability.core.models.caller_details import CallerDetails
-from opentelemetry import trace
-from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import SimpleSpanProcessor
 from opentelemetry.sdk.trace.export.in_memory_span_exporter import InMemorySpanExporter
 
@@ -35,6 +38,8 @@ class TestInvokeAgentScope(unittest.TestCase):
     def setUpClass(cls):
         """Set up test environment once for all tests."""
         # Configure Microsoft Agent 365 for testing
+        os.environ["ENABLE_A365_OBSERVABILITY"] = "true"
+
         configure(
             service_name="test-invoke-agent-service",
             service_namespace="test-namespace",
@@ -89,6 +94,19 @@ class TestInvokeAgentScope(unittest.TestCase):
             agent_client_ip="192.168.1.100",
         )
 
+    def setUp(self):
+        super().setUp()
+
+        # Set up tracer to capture spans
+        self.span_exporter = InMemorySpanExporter()
+        tracer_provider = get_tracer_provider()
+        tracer_provider.add_span_processor(SimpleSpanProcessor(self.span_exporter))
+
+    def tearDown(self):
+        super().tearDown()
+
+        self.span_exporter.clear()
+
     def test_record_response_method_exists(self):
         """Test that record_response method exists on InvokeAgentScope."""
         scope = InvokeAgentScope.start(self.invoke_details, self.tenant_details)
@@ -121,12 +139,6 @@ class TestInvokeAgentScope(unittest.TestCase):
 
     def test_request_attributes_set_on_span(self):
         """Test that request parameters from mock data are available on span attributes."""
-        # Set up tracer to capture spans
-        span_exporter = InMemorySpanExporter()
-        tracer_provider = TracerProvider()
-        tracer_provider.add_span_processor(SimpleSpanProcessor(span_exporter))
-        trace.set_tracer_provider(tracer_provider)
-
         # Create scope with request
         scope = InvokeAgentScope.start(
             invoke_agent_details=self.invoke_details,
@@ -138,50 +150,49 @@ class TestInvokeAgentScope(unittest.TestCase):
             scope.dispose()
 
         # Check if mock data parameters are available in span attributes
-        finished_spans = span_exporter.get_finished_spans()
+        finished_spans = self.span_exporter.get_finished_spans()
+        self.assertTrue(finished_spans, "Expected at least one span to be created")
 
-        if finished_spans:
-            # Get attributes from the span
-            span = finished_spans[-1]
-            span_attributes = getattr(span, "attributes", {}) or {}
+        # Get attributes from the span
+        span = finished_spans[-1]
+        span_attributes = getattr(span, "attributes", {}) or {}
 
-            # Verify mock data request parameters are in span attributes
-            # Check source channel name from mock data
-            if GEN_AI_EXECUTION_SOURCE_NAME_KEY in span_attributes:
-                self.assertEqual(
-                    span_attributes[GEN_AI_EXECUTION_SOURCE_NAME_KEY],
-                    self.source_metadata.name,  # From cls.source_metadata.name
-                )
+        # Verify mock data request parameters are in span attributes
+        # Check source channel name from mock data
+        if GEN_AI_EXECUTION_SOURCE_NAME_KEY in span_attributes:
+            self.assertEqual(
+                span_attributes[GEN_AI_EXECUTION_SOURCE_NAME_KEY],
+                self.source_metadata.name,  # From cls.source_metadata.name
+            )
 
-            # Check source channel description from mock data
-            if GEN_AI_EXECUTION_SOURCE_DESCRIPTION_KEY in span_attributes:
-                self.assertEqual(
-                    span_attributes[GEN_AI_EXECUTION_SOURCE_DESCRIPTION_KEY],
-                    self.source_metadata.description,  # From cls.source_metadata.description
-                )
+        # Check source channel description from mock data
+        if GEN_AI_EXECUTION_SOURCE_DESCRIPTION_KEY in span_attributes:
+            self.assertEqual(
+                span_attributes[GEN_AI_EXECUTION_SOURCE_DESCRIPTION_KEY],
+                self.source_metadata.description,  # From cls.source_metadata.description
+            )
 
-            # Check execution type from mock data
-            if GEN_AI_EXECUTION_TYPE_KEY in span_attributes:
-                self.assertEqual(
-                    span_attributes[GEN_AI_EXECUTION_TYPE_KEY],
-                    self.test_request.execution_type.value,  # From cls.test_request.execution_type
-                )
+        # Check execution type from mock data
+        if GEN_AI_EXECUTION_TYPE_KEY in span_attributes:
+            self.assertEqual(
+                span_attributes[GEN_AI_EXECUTION_TYPE_KEY],
+                self.test_request.execution_type.value,  # From cls.test_request.execution_type
+            )
 
-            # Check input messages contain request content from mock data
-            if GEN_AI_INPUT_MESSAGES_KEY in span_attributes:
-                input_messages = span_attributes[GEN_AI_INPUT_MESSAGES_KEY]
-                self.assertIn(
-                    self.test_request.content,  # From cls.test_request.content
-                    input_messages,
-                )
+        # Check input messages contain request content from mock data
+        if GEN_AI_INPUT_MESSAGES_KEY in span_attributes:
+            input_messages = span_attributes[GEN_AI_INPUT_MESSAGES_KEY]
+            self.assertIn(
+                self.test_request.content,  # From cls.test_request.content
+                input_messages,
+            )
 
     def test_caller_agent_client_ip_in_scope(self):
         """Test that caller agent client IP is properly handled when creating InvokeAgentScope."""
         # Set up tracer to capture spans
         span_exporter = InMemorySpanExporter()
-        tracer_provider = TracerProvider()
+        tracer_provider = get_tracer_provider()
         tracer_provider.add_span_processor(SimpleSpanProcessor(span_exporter))
-        trace.set_tracer_provider(tracer_provider)
 
         # Create scope with caller agent details that include client IP
         scope = InvokeAgentScope.start(
@@ -209,4 +220,5 @@ class TestInvokeAgentScope(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    unittest.main(verbosity=2)
+    # Run pytest only on the current file
+    sys.exit(pytest.main([str(Path(__file__))] + sys.argv[1:]))
