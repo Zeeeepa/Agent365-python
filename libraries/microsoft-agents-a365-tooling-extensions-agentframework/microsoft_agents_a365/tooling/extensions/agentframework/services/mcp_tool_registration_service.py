@@ -13,6 +13,7 @@ from microsoft_agents_a365.runtime.utility import Utility
 from microsoft_agents_a365.tooling.services.mcp_tool_server_configuration_service import (
     McpToolServerConfigurationService,
 )
+from microsoft_agents_a365.tooling.models import ToolOptions
 from microsoft_agents_a365.tooling.utils.constants import Constants
 
 from microsoft_agents_a365.tooling.utils.utility import (
@@ -27,6 +28,8 @@ class McpToolRegistrationService:
     This service handles registration and management of MCP (Model Context Protocol)
     tool servers with Agent Framework agents.
     """
+
+    _orchestrator_name: str = "AgentFramework"
 
     def __init__(self, logger: Optional[logging.Logger] = None):
         """
@@ -77,10 +80,13 @@ class McpToolRegistrationService:
 
             self._logger.info(f"Listing MCP tool servers for agent {agentic_app_id}")
 
+            options = ToolOptions(orchestrator_name=self._orchestrator_name)
+
             # Get MCP server configurations
             server_configs = await self._mcp_server_configuration_service.list_tool_servers(
                 agentic_app_id=agentic_app_id,
                 auth_token=auth_token,
+                options=options,
             )
 
             self._logger.info(f"Loaded {len(server_configs)} MCP server configurations")
@@ -104,6 +110,10 @@ class McpToolRegistrationService:
                         headers[Constants.Headers.AUTHORIZATION] = (
                             f"{Constants.Headers.BEARER_PREFIX} {auth_token}"
                         )
+
+                    headers[Constants.Headers.USER_AGENT] = Utility.get_user_agent_header(
+                        self._orchestrator_name
+                    )
 
                     server_name = getattr(config, "mcp_server_name", "Unknown")
 

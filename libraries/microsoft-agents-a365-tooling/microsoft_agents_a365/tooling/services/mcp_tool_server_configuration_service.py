@@ -28,9 +28,12 @@ from typing import Any, Dict, List, Optional
 import aiohttp
 
 # Local imports
-from ..models import MCPServerConfig
+from ..models import MCPServerConfig, ToolOptions
 from ..utils import Constants
 from ..utils.utility import get_tooling_gateway_for_digital_worker, build_mcp_server_url
+
+# Runtime Imports
+from microsoft_agents_a365.runtime.utility import Utility as RuntimeUtility
 
 
 # ==============================================================================
@@ -66,7 +69,7 @@ class McpToolServerConfigurationService:
     # --------------------------------------------------------------------------
 
     async def list_tool_servers(
-        self, agentic_app_id: str, auth_token: str
+        self, agentic_app_id: str, auth_token: str, options: Optional[ToolOptions] = None
     ) -> List[MCPServerConfig]:
         """
         Gets the list of MCP Servers that are configured for the agent.
@@ -74,6 +77,7 @@ class McpToolServerConfigurationService:
         Args:
             agentic_app_id: Agentic App ID for the agent.
             auth_token: Authentication token to access the MCP servers.
+            options: Optional ToolOptions instance containing optional parameters.
 
         Returns:
             List[MCPServerConfig]: Returns the list of MCP Servers that are configured.
@@ -85,13 +89,17 @@ class McpToolServerConfigurationService:
         # Validate input parameters
         self._validate_input_parameters(agentic_app_id, auth_token)
 
+        # Use default options if none provided
+        if options is None:
+            options = ToolOptions(orchestrator_name=None)
+
         self._logger.info(f"Listing MCP tool servers for agent {agentic_app_id}")
 
         # Determine configuration source based on environment
         if self._is_development_scenario():
             return self._load_servers_from_manifest()
         else:
-            return await self._load_servers_from_gateway(agentic_app_id, auth_token)
+            return await self._load_servers_from_gateway(agentic_app_id, auth_token, options)
 
     # --------------------------------------------------------------------------
     # ENVIRONMENT DETECTION
@@ -275,7 +283,7 @@ class McpToolServerConfigurationService:
     # --------------------------------------------------------------------------
 
     async def _load_servers_from_gateway(
-        self, agentic_app_id: str, auth_token: str
+        self, agentic_app_id: str, auth_token: str, options: ToolOptions
     ) -> List[MCPServerConfig]:
         """
         Reads MCP server configurations from tooling gateway endpoint for production scenario.
@@ -283,6 +291,7 @@ class McpToolServerConfigurationService:
         Args:
             agentic_app_id: Agentic App ID for the agent.
             auth_token: Authentication token to access the tooling gateway.
+            options: ToolOptions instance containing optional parameters.
 
         Returns:
             List[MCPServerConfig]: List of MCP server configurations from tooling gateway.
@@ -294,7 +303,7 @@ class McpToolServerConfigurationService:
 
         try:
             config_endpoint = get_tooling_gateway_for_digital_worker(agentic_app_id)
-            headers = self._prepare_gateway_headers(auth_token)
+            headers = self._prepare_gateway_headers(auth_token, options)
 
             self._logger.info(f"Calling tooling gateway endpoint: {config_endpoint}")
 
@@ -323,18 +332,22 @@ class McpToolServerConfigurationService:
 
         return mcp_servers
 
-    def _prepare_gateway_headers(self, auth_token: str) -> Dict[str, str]:
+    def _prepare_gateway_headers(self, auth_token: str, options: ToolOptions) -> Dict[str, str]:
         """
         Prepares headers for tooling gateway requests.
 
         Args:
             auth_token: Authentication token.
+            options: ToolOptions instance containing optional parameters.
 
         Returns:
             Dictionary of HTTP headers.
         """
         return {
-            "Authorization": f"{Constants.Headers.BEARER_PREFIX} {auth_token}",
+            Constants.Headers.AUTHORIZATION: f"{Constants.Headers.BEARER_PREFIX} {auth_token}",
+            Constants.Headers.USER_AGENT: RuntimeUtility.get_user_agent_header(
+                options.orchestrator_name
+            ),
         }
 
     async def _parse_gateway_response(

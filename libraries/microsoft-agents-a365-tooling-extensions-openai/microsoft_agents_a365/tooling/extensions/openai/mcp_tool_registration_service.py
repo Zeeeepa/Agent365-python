@@ -17,6 +17,8 @@ from microsoft_agents_a365.tooling.services.mcp_tool_server_configuration_servic
     McpToolServerConfigurationService,
 )
 
+from microsoft_agents_a365.tooling.models import ToolOptions
+from microsoft_agents_a365.tooling.utils.constants import Constants
 from microsoft_agents_a365.tooling.utils.utility import (
     get_mcp_platform_authentication_scope,
 )
@@ -37,6 +39,8 @@ class MCPServerInfo:
 
 class McpToolRegistrationService:
     """Service for managing MCP tools and servers for an agent"""
+
+    _orchestrator_name: str = "OpenAI"
 
     def __init__(self, logger: Optional[logging.Logger] = None):
         """
@@ -83,11 +87,13 @@ class McpToolRegistrationService:
         # mcp_server_configs = []
         # TODO: radevika: Update once the common project is merged.
 
+        options = ToolOptions(orchestrator_name=self._orchestrator_name)
         agentic_app_id = Utility.resolve_agent_identity(context, auth_token)
         self._logger.info(f"Listing MCP tool servers for agent {agentic_app_id}")
         mcp_server_configs = await self.config_service.list_tool_servers(
             agentic_app_id=agentic_app_id,
             auth_token=auth_token,
+            options=options,
         )
 
         self._logger.info(f"Loaded {len(mcp_server_configs)} MCP server configurations")
@@ -132,7 +138,13 @@ class McpToolRegistrationService:
                     # Prepare headers with authorization
                     headers = si.headers or {}
                     if auth_token:
-                        headers["Authorization"] = f"Bearer {auth_token}"
+                        headers[Constants.Headers.AUTHORIZATION] = (
+                            f"{Constants.Headers.BEARER_PREFIX} {auth_token}"
+                        )
+
+                    headers[Constants.Headers.USER_AGENT] = Utility.get_user_agent_header(
+                        self._orchestrator_name
+                    )
 
                     # Create MCPServerStreamableHttpParams with proper configuration
                     params = MCPServerStreamableHttpParams(url=si.url, headers=headers)

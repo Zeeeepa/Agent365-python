@@ -21,6 +21,7 @@ from microsoft_agents_a365.runtime.utility import Utility
 from microsoft_agents_a365.tooling.services.mcp_tool_server_configuration_service import (
     McpToolServerConfigurationService,
 )
+from microsoft_agents_a365.tooling.models import ToolOptions
 from microsoft_agents_a365.tooling.utils.constants import Constants
 from microsoft_agents_a365.tooling.utils.utility import get_mcp_platform_authentication_scope
 
@@ -44,6 +45,8 @@ class McpToolRegistrationService:
         >>> service = McpToolRegistrationService()
         >>> service.add_tool_servers_to_agent(project_client, agent_id, token)
     """
+
+    _orchestrator_name: str = "AzureAIFoundry"
 
     def __init__(
         self,
@@ -139,9 +142,10 @@ class McpToolRegistrationService:
             return ([], None)
 
         # Get MCP server configurations
+        options = ToolOptions(orchestrator_name=self._orchestrator_name)
         try:
             servers = await self._mcp_server_configuration_service.list_tool_servers(
-                agentic_app_id, auth_token
+                agentic_app_id, auth_token, options
             )
         except Exception as ex:
             self._logger.error(
@@ -188,6 +192,10 @@ class McpToolRegistrationService:
                     else f"{Constants.Headers.BEARER_PREFIX} {auth_token}"
                 )
                 mcp_tool.update_headers(Constants.Headers.AUTHORIZATION, header_value)
+
+            mcp_tool.update_headers(
+                Constants.Headers.USER_AGENT, Utility.get_user_agent_header(self._orchestrator_name)
+            )
 
             # Add to collections
             tool_definitions.extend(mcp_tool.definitions)

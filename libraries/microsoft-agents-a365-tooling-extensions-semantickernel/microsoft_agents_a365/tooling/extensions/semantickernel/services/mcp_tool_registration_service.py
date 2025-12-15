@@ -20,7 +20,7 @@ from microsoft_agents_a365.runtime.utility import Utility
 from microsoft_agents_a365.tooling.services.mcp_tool_server_configuration_service import (
     McpToolServerConfigurationService,
 )
-from microsoft_agents_a365.tooling.models.mcp_server_config import MCPServerConfig
+from microsoft_agents_a365.tooling.models import MCPServerConfig, ToolOptions
 from microsoft_agents_a365.tooling.utils.constants import Constants
 from microsoft_agents_a365.tooling.utils.utility import (
     get_tools_mode,
@@ -35,6 +35,8 @@ class McpToolRegistrationService:
     This service handles registration and management of MCP (Model Context Protocol)
     tool servers with Semantic Kernel agents.
     """
+
+    _orchestrator_name: str = "SemanticKernel"
 
     def __init__(
         self,
@@ -107,8 +109,9 @@ class McpToolRegistrationService:
         self._validate_inputs(kernel, agentic_app_id, auth_token)
 
         # Get and process servers
+        options = ToolOptions(orchestrator_name=self._orchestrator_name)
         servers = await self._mcp_server_configuration_service.list_tool_servers(
-            agentic_app_id, auth_token
+            agentic_app_id, auth_token, options
         )
         self._logger.info(f"🔧 Adding MCP tools from {len(servers)} servers")
 
@@ -131,6 +134,10 @@ class McpToolRegistrationService:
                     headers = {
                         Constants.Headers.AUTHORIZATION: f"{Constants.Headers.BEARER_PREFIX} {auth_token}",
                     }
+
+                headers[Constants.Headers.USER_AGENT] = Utility.get_user_agent_header(
+                    self._orchestrator_name
+                )
 
                 plugin = MCPStreamableHttpPlugin(
                     name=server.mcp_server_name,
