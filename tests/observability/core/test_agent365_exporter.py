@@ -6,7 +6,7 @@ from unittest.mock import Mock, patch
 
 from microsoft_agents_a365.observability.core.constants import GEN_AI_AGENT_ID_KEY, TENANT_ID_KEY
 from microsoft_agents_a365.observability.core.exporters.agent365_exporter import (
-    Agent365Exporter,
+    _Agent365Exporter,
 )
 from opentelemetry.sdk.trace import ReadableSpan
 from opentelemetry.sdk.trace.export import SpanExportResult
@@ -21,7 +21,7 @@ class TestAgent365Exporter(unittest.TestCase):
         self.mock_token_resolver.return_value = "test_token_123"
 
         # Don't patch the class in setUp, do it per test
-        self.exporter = Agent365Exporter(
+        self.exporter = _Agent365Exporter(
             token_resolver=self.mock_token_resolver, cluster_category="test"
         )
 
@@ -216,7 +216,7 @@ class TestAgent365Exporter(unittest.TestCase):
     def test_s2s_endpoint_path_when_enabled(self):
         """Test 4: Test that S2S endpoint path is used when use_s2s_endpoint is True."""
         # Arrange - Create exporter with S2S endpoint enabled
-        s2s_exporter = Agent365Exporter(
+        s2s_exporter = _Agent365Exporter(
             token_resolver=self.mock_token_resolver, cluster_category="test", use_s2s_endpoint=True
         )
 
@@ -252,7 +252,7 @@ class TestAgent365Exporter(unittest.TestCase):
     def test_default_endpoint_path_when_s2s_disabled(self):
         """Test 5: Test that default endpoint path is used when use_s2s_endpoint is False."""
         # Arrange - Create exporter with S2S endpoint disabled (default behavior)
-        default_exporter = Agent365Exporter(
+        default_exporter = _Agent365Exporter(
             token_resolver=self.mock_token_resolver, cluster_category="test", use_s2s_endpoint=False
         )
 
@@ -370,6 +370,18 @@ class TestAgent365Exporter(unittest.TestCase):
         # Verify info log for no identity
         mock_logger.info.assert_called_with(
             "No spans with tenant/agent identity found; nothing exported."
+        )
+
+    def test_exporter_is_internal(self):
+        """Test that _Agent365Exporter is marked as internal/private.
+
+        The underscore prefix convention indicates this class is internal to the SDK
+        and should not be instantiated directly by developers.
+        """
+
+        self.assertTrue(
+            _Agent365Exporter.__name__.startswith("_"),
+            "Exporter class should be prefixed with underscore to indicate it's private/internal",
         )
 
 
