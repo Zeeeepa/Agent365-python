@@ -18,6 +18,7 @@ from opentelemetry.sdk.trace.export import SpanExporter, SpanExportResult
 from opentelemetry.trace import StatusCode
 
 from .utils import (
+    get_validated_domain_override,
     hex_span_id,
     hex_trace_id,
     kind_name,
@@ -60,6 +61,8 @@ class _Agent365Exporter(SpanExporter):
         self._token_resolver = token_resolver
         self._cluster_category = cluster_category
         self._use_s2s_endpoint = use_s2s_endpoint
+        # Read domain override once at initialization
+        self._domain_override = get_validated_domain_override()
 
     # ------------- SpanExporter API -----------------
 
@@ -86,8 +89,11 @@ class _Agent365Exporter(SpanExporter):
                 body = json.dumps(payload, separators=(",", ":"), ensure_ascii=False)
 
                 # Resolve endpoint + token
-                discovery = PowerPlatformApiDiscovery(self._cluster_category)
-                endpoint = discovery.get_tenant_island_cluster_endpoint(tenant_id)
+                if self._domain_override:
+                    endpoint = self._domain_override
+                else:
+                    discovery = PowerPlatformApiDiscovery(self._cluster_category)
+                    endpoint = discovery.get_tenant_island_cluster_endpoint(tenant_id)
                 endpoint_path = (
                     f"/maven/agent365/service/agents/{agent_id}/traces"
                     if self._use_s2s_endpoint
@@ -141,6 +147,8 @@ class _Agent365Exporter(SpanExporter):
 
     def force_flush(self, timeout_millis: int = 30000) -> bool:
         return True
+
+    # ------------- Helper methods -------------------
 
     # ------------- HTTP helper ----------------------
 
