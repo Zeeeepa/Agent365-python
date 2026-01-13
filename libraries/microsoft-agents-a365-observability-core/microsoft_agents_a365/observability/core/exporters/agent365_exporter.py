@@ -10,6 +10,7 @@ import threading
 import time
 from collections.abc import Callable, Sequence
 from typing import Any, final
+from urllib.parse import urlparse
 
 import requests
 from microsoft_agents_a365.runtime.power_platform_api_discovery import PowerPlatformApiDiscovery
@@ -94,12 +95,24 @@ class _Agent365Exporter(SpanExporter):
                 else:
                     discovery = PowerPlatformApiDiscovery(self._cluster_category)
                     endpoint = discovery.get_tenant_island_cluster_endpoint(tenant_id)
+
                 endpoint_path = (
                     f"/maven/agent365/service/agents/{agent_id}/traces"
                     if self._use_s2s_endpoint
                     else f"/maven/agent365/agents/{agent_id}/traces"
                 )
-                url = f"https://{endpoint}{endpoint_path}?api-version=1"
+
+                # Construct URL - if endpoint has a scheme (http:// or https://), use it as-is
+                # Otherwise, prepend https://
+                # Note: Check for "://" to distinguish between real protocols and domain:port format
+                # (urlparse treats "example.com:8080" as having scheme="example.com")
+                parsed = urlparse(endpoint)
+                if parsed.scheme and "://" in endpoint:
+                    # Endpoint is a full URL, append path
+                    url = f"{endpoint}{endpoint_path}?api-version=1"
+                else:
+                    # Endpoint is just a domain (possibly with port), prepend https://
+                    url = f"https://{endpoint}{endpoint_path}?api-version=1"
 
                 # Debug: Log endpoint being used
                 logger.info(
