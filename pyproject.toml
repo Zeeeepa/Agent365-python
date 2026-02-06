@@ -55,6 +55,13 @@ dev-dependencies = [
     "openai-agents",
 ]
 
+# Override semantic-kernel's azure-ai-projects constraint to allow 2.x
+# semantic-kernel 1.39.3 constrains azure-ai-projects~=1.0.0b12 but this repo needs >=2.0.0b1
+# The functionality is compatible; only the version constraint was tightened
+override-dependencies = [
+    "azure-ai-projects >= 2.0.0b1",
+]
+
 # Centralized version constraints for all external dependencies
 # Individual package pyproject.toml files declare dependencies by name only (no version)
 # uv applies these constraints during dependency resolution
@@ -78,7 +85,7 @@ constraint-dependencies = [
     "langchain >= 0.1.0",
     "langchain-core >= 0.1.0",
     "openai-agents >= 0.2.6",
-    "semantic-kernel >= 1.0.0",
+    "semantic-kernel >= 1.39.3",
     "google-adk >= 1.0.0",
 
     # --- Microsoft Agents SDK ---
